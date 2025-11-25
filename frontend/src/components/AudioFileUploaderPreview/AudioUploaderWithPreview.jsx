@@ -5,6 +5,7 @@ const AudioUploaderWithPreview = ({
     setDuration,
     setAudioFile,
     name = "",
+    className = ""
 }) => {
     const BASE_URL = import.meta.env.VITE_BASE_URL_IMG;
 
