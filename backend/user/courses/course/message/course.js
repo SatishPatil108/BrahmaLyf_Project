@@ -1,0 +1,12 @@
+export const NO_RECORD_FOUND = "No courses found";
+export const ALL_COURSES_LIST = "All courses fetched successfully";
+export const COURSE_DETAILS_FETCHED_SUCCESS = "Course details fetched successfully";
+export const COURSE_ENROLLED_FAILED = "Failed to enroll in course";
+export const COURSE_ENROLLED_SUCCESS = "Course enrolled successfully";
+export const MY_COURSES_FETCHED_SUCCESS = "My courses fetched successfully";
+export const USER_ALREADY_ENROLLED = "You are already enrolled in this course";
+export const COURSE_FEEDBACKS_FETCHED_SUCCESS = "Course feedbacks fetched successfully";
+export const INVALID_REQUEST = "Invalid request";
+export const FETCH_SEARCH_COURSES_SUCCESS = "Search courses fetched successfully";
+export const COURSE_FEEDBACK_FAILED = "Failed to submit course feedback";
+export const COURSE_FEEDBACK_SUCCESS = "Course feedback submitted successfully";

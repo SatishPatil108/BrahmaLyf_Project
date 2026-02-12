@@ -1,0 +1,9 @@
+export const COACHES_ADDED_FAILED = "Failed to add coach.";
+export const SUBDOMAIN_ALREADY_ALLOCATE = "Subdomain is already allocated.";
+export const COACHES_ADDED_SUCCESS = "Coach added successfully.";
+export const NO_RECORD_FOUND = "No coaches found.";
+export const ALL_COACHES_LIST = "Coaches fetched successfully.";
+export const COACH_DETAILS_FETCHED_SUCCESS = "Coach details fetched successfully.";
+export const COACHES_UPDATED_SUCCESS = "Coach updated successfully.";
+export const COACHES_UPDATED_FAILED = "Failed to update coach.";
+export const COACH_DELETED_SUCCESS = "Coach deleted successfully.";

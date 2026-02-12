@@ -1,0 +1,15 @@
+export const DOMAIN_ADDED_SUCCESS = "Domain added successfully.";
+export const DOMAIN_ADDED_FAILED = "Failed to add domain.";
+export const NO_RECORD_FOUND = "No records found.";
+export const ALL_DOMAINS_LIST = "Domains fetched successfully.";
+export const INVALID_REQUEST = "Invalid request.";
+export const DOMAIN_UPDATED_SUCCESS = "Domain updated successfully.";
+export const DOMAIN_UPDATED_FAILED = "Failed to update domain.";
+export const DOMAIN_DELETED_SUCCESS = "Domain deleted successfully.";
+export const SUBDOMAIN_ADDED_FAILED = "Failed to add subdomain.";
+export const SUBDOMAIN_ADDED_SUCCESS = "Subdomain added successfully.";
+export const ALL_SUBDOMAINS_LIST = "Subdomains fetched successfully.";
+export const ALL_SUBDOMAINS_BY_DOMAIN_LIST = "Subdomains for the domain fetched successfully.";
+export const SUBDOMAIN_UPDATED_SUCCESS = "Subdomain updated successfully.";
+export const SUBDOMAIN_UPDATED_FAILED = "Failed to update subdomain.";
+export const SUBDOMAIN_DELETED_SUCCESS = "Subdomain deleted successfully.";

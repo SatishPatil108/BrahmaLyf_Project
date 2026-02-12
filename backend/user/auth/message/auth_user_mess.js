@@ -1,0 +1,14 @@
+export const INVALID_REQUEST = "Invalid request";
+export const LOGIN_SUCCESS = "User logged in successfully";
+export const LOGIN_ERROR = "Unable to log in";
+export const INVALID_CREDENTIALS = "Invalid credentials";
+export const NULL_TOKEN = "Authorization token is missing";
+export const INVALID_TOKEN = "Invalid token";
+export const USER_NOT_FOUND = "No user found with this email";
+export const PASSWORD_RESET_LINK_SENT = "Password reset link has been sent to your email";
+export const PASSWORD_RESET_SUCCESS = "Password has been reset successfully";
+export const PASSWORD_RESET_FAILED = "Failed to reset password";
+export const INVALID_OR_EXPIRED_TOKEN = "Invalid or expired password reset token";
+export const PASSWORD_SAME_AS_OLD = "New password cannot be the same as the old password";
+export const PASSWORD_EMAIL_SENT = "A new password has been sent to your registered email";
+export const NO_RECORD_FOUND = "No record found";

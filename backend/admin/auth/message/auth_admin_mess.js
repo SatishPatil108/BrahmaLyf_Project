@@ -1,0 +1,15 @@
+export const INVALID_REQUEST = "Invalid request.";
+export const LOGIN_SUCCESS = "Admin logged in successfully.";
+export const LOGIN_ERROR = "Unable to complete login request.";
+export const INVALID_CREDENTIALS = "Invalid login credentials.";
+export const NULL_TOKEN = "Authorization token is required.";
+export const INVALID_TOKEN = "Invalid authorization token.";
+export const ADMIN_NOT_FOUND = "No admin account found for this email.";
+export const PASSWORD_RESET_LINK_SENT = "Password reset link has been sent to your email.";
+export const PASSWORD_RESET_SUCCESS = "Password reset successfully.";
+export const PASSWORD_RESET_FAILED = "Unable to reset the password.";
+export const INVALID_OR_EXPIRED_TOKEN = "Password reset token is invalid or has expired.";
+export const PASSWORD_SAME_AS_OLD = "New password must be different from the current password.";
+export const PASSWORD_EMAIL_SENT = "A new password has been sent to your registered email.";
+export const OTP_SENT_SUCCESS = "OTP sent successfully!";
+export const OTP_VERIFY_SUCCESS = "OTP verified successfully!";

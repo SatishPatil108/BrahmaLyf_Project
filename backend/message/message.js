@@ -1,0 +1,1 @@
+export const INVALID_REQUEST_PARAMETER = "Invalid request parameters provided";

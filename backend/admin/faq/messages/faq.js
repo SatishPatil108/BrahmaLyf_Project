@@ -1,0 +1,9 @@
+export const FAQ_ADDED_FAILED = "Failed to add FAQ";
+export const FAQ_ADDED_SUCCESS = "FAQ added successfully";
+export const NO_RECORD_FOUND = "No record found";
+export const ALL_FAQ_LIST = "All FAQs fetched successfully";
+export const INVALID_REQUEST = "Invalid request";
+export const FAQ_UPDATED_SUCCESS = "FAQ updated successfully";
+export const FAQ_UPDATED_FAILED = "Failed to update FAQ";
+export const FAQ_DELETED_SUCCESS = "FAQ deleted successfully";
+export const FAQ_DELETED_FAILED = "Failed to delete FAQ";

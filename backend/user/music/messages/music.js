@@ -1,0 +1,11 @@
+export const MUSIC_ADDED_SUCCESS = "Music added successfully";
+export const MUSIC_ADDED_FAILED = "Failed to add music";
+export const MUSIC_UPDATED_SUCCESS = "Music updated successfully";
+export const MUSIC_DELETED_SUCCESS = "Music deleted successfully";
+export const ALL_MUSIC_LIST = "All music list fetched successfully";
+export const MUSIC_NOT_FOUND = "Music not found";
+export const MUSIC_FOUND = "Music Found";
+export const INVALID_REQUEST = "Invalid request";
+export const SOMETHING_WENT_WRONG = "Something went wrong";
+export const INVALID_MUSIC_ID = "Invalid music ID";
+export const MUSIC_THUMBNAIL_AND_FILE_REQUIRED =  "Music thumbnail and file are required";
