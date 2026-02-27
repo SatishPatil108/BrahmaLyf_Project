@@ -124,12 +124,13 @@ export const fetchFAQList = async (pageNo = 1, pageSize = 10) => {
   });
 };
 
-//getall musiclist with pagination
-export const fetchMusicList = async (pageNo = 1, pageSize = 10) => {
+//getall music list with pagination
+export const fetchMusicList = async (pageNo = 1, pageSize = 10, domainId) => {
   return await makeRequest({
     service: `user/musics/${pageNo}/${pageSize}`,
     method: API_METHODS.GET,
     authRequired: false,
+    params: domainId ? { domain_id: domainId } : {},
   });
 };
 

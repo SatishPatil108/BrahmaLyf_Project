@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import useFilePreview from "@/hooks/useFilePreview";
 
 const AudioUploaderWithPreview = ({
     audioFile = null,
@@ -9,24 +10,9 @@ const AudioUploaderWithPreview = ({
 }) => {
     const BASE_URL = import.meta.env.VITE_BASE_URL_IMG;
 
-    const [previewSrc, setPreviewSrc] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
 
-    // Generate preview URL for audio
-    useEffect(() => {
-        if (audioFile) {
-            if (typeof audioFile === "object") {
-                const objectUrl = URL.createObjectURL(audioFile);
-                setPreviewSrc(objectUrl);
-
-                return () => URL.revokeObjectURL(objectUrl);
-            } if (typeof audioFile === "string") {
-                setPreviewSrc(`${BASE_URL}${audioFile}`);
-            }
-        } else {
-            setPreviewSrc(null);
-        }
-    }, [audioFile, BASE_URL]);
+    const { previewSrc, fileName, hasFile } = useFilePreview(audioFile);
 
     const handleDragOver = (e) => {
         e.preventDefault();
@@ -41,7 +27,7 @@ const AudioUploaderWithPreview = ({
     const handleDrop = (e) => {
         e.preventDefault();
         setIsDragging(false);
-        
+
         const file = e.dataTransfer.files[0];
         if (file && file.type.startsWith('audio/')) {
             handleFileSelect(file);
@@ -73,8 +59,8 @@ const AudioUploaderWithPreview = ({
             <div className="relative">
                 <label
                     className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300
-                        ${isDragging 
-                            ? 'border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' 
+                        ${isDragging
+                            ? 'border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20'
                             : 'border-gray-300 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-500'
                         }
                         bg-white dark:bg-gray-900`}
@@ -84,24 +70,24 @@ const AudioUploaderWithPreview = ({
                 >
                     <div className="flex flex-col items-center justify-center p-6 text-center">
                         <div className="w-12 h-12 mb-3 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                            <svg 
-                                className="w-6 h-6 text-indigo-600 dark:text-indigo-400" 
-                                fill="none" 
-                                stroke="currentColor" 
+                            <svg
+                                className="w-6 h-6 text-indigo-600 dark:text-indigo-400"
+                                fill="none"
+                                stroke="currentColor"
                                 viewBox="0 0 24 24"
                             >
-                                <path 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
-                                    strokeWidth={2} 
-                                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" 
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
                                 />
                             </svg>
                         </div>
-                        
+
                         <div className="space-y-2">
                             <p className="text-base font-medium text-gray-900 dark:text-gray-100">
-                                {audioFile ? "Change audio file" : "Upload audio file"}
+                               {hasFile ? "Change audio file" : "Upload audio file"}
                             </p>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
                                 Drag & drop or click to browse
@@ -133,7 +119,7 @@ const AudioUploaderWithPreview = ({
                             Selected Audio
                         </h4>
                         <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                            {audioFile?.name || audioFile.split("/").pop()}
+                            {fileName}
                         </p>
                     </div>
 
@@ -147,7 +133,7 @@ const AudioUploaderWithPreview = ({
                                 Your browser does not support the audio element.
                             </audio>
                         </div>
-                        
+
                         <div className="flex items-center justify-center w-full">
                             <button
                                 type="button"

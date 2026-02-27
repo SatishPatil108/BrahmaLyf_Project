@@ -12,6 +12,7 @@ const baseMusicSchema = {
     music_title: joi.string().min(2).max(100).required(),
     music_description: joi.string().min(2).max(1000).required(),
     music_duration: joi.string().min(3).max(10).required(),
+    domain_id: joi.number().integer().required(), // ✅ ADD THIS
 };
 
 // Allowed MIME types

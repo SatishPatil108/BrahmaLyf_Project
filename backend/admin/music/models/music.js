@@ -33,7 +33,7 @@ import {
 
 export const postMusicModel = async (req, res) => {
     try {
-        const { music_title, music_description, music_duration } = req.body;
+        const { music_title, music_description, domain_id, music_duration } = req.body;
 
         // ----------------------------------------------
         // Safe filename base
@@ -63,6 +63,7 @@ export const postMusicModel = async (req, res) => {
         const response = await postMusicService(
             music_title,
             music_description,
+            domain_id,
             music_duration,
             musicThumbnail,
             musicFilePath
@@ -150,7 +151,7 @@ export const updateMusicModel = async (req, res) => {
             );
         }
 
-        const { music_title, music_description, music_duration } = req.body;
+        const { music_title, music_description, domain_id, music_duration } = req.body;
 
         // ---------------------------------------------------
         // Fetch existing music record
@@ -219,6 +220,7 @@ export const updateMusicModel = async (req, res) => {
             musicId,
             music_title,
             music_description,
+            domain_id,
             music_duration,
             newThumbnail,
             newMusicFile
@@ -246,6 +248,7 @@ export const updateMusicModel = async (req, res) => {
                 music_id: updatedMusic.id,
                 music_title: updatedMusic.music_title,
                 music_description: updatedMusic.music_description,
+                domain_id: updatedMusic.domain_id,
                 music_duration: updatedMusic.music_duration,
                 music_thumbnail: updatedMusic.music_thumbnail,
                 music_file: updatedMusic.music_file,

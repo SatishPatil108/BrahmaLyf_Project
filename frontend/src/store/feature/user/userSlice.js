@@ -43,7 +43,7 @@ const initialState = {
   },
   enrolledCourseDetails: null,
   FAQsDetails: { faqs: [] },
-  musicsDetails: { musics: [] },
+  musicsDetails: {},
   searchDetails: {},
   allCoursesFeedback: [],
   courses: [],
@@ -110,7 +110,7 @@ const userSlice = createSlice({
 
       .addCase(fetchEnrolledCourseDetailsAPI.fulfilled, (state, action) => {
         state.enrolledCourseDetails = action.payload;
-         
+
       })
 
       .addCase(fetchModuleDetailsAPI.fulfilled, (state, action) => {
@@ -126,7 +126,9 @@ const userSlice = createSlice({
       })
 
       .addCase(fetchMusicListAPI.fulfilled, (state, action) => {
-        state.musicsDetails = action.payload;
+        const domainId = action.meta.arg?.domainId;
+        const cacheKey = domainId ?? "all";
+        state.musicsDetails[cacheKey] = action.payload;
       })
 
       .addCase(fetchAllCoursesFeedbackAPI.fulfilled, (state, action) => {

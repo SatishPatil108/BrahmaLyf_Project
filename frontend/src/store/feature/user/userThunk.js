@@ -209,10 +209,10 @@ export const postCourseFeedbackAPI = createAsyncThunk(
 );
 
 // fetch all musics
-export const fetchMusicListAPI = createAsyncThunk('user/fetchMusicList',
-  async ({ pageNo = 1, pageSize = 10 }, thunkAPI) => {
+export const fetchMusicListAPI = createAsyncThunk("user/fetchMusicList",
+  async ({ pageNo = 1, pageSize = 10, domainId } = {}, thunkAPI) => {
     try {
-      const response = await userAPI.fetchMusicList(pageNo, pageSize);
+      const response = await userAPI.fetchMusicList(pageNo, pageSize, domainId);
       return response?.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);

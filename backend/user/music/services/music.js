@@ -16,31 +16,54 @@ export const getMusicService = (musicId) => {
     });
 };
 
-export const getMusicsService = (pageNo, pageSize) => {
+export const getMusicsService = (pageNo, pageSize, domainId) => {
   return new Promise((resolve, reject) => {
+
     pageNo = parseInt(pageNo, 10);
     pageSize = parseInt(pageSize, 10);
+
     if (!pageNo || pageNo < 1) pageNo = 1;
     if (!pageSize || pageSize < 1) pageSize = 10;
+
     const offset = (pageNo - 1) * pageSize;
+
+    // list query filter
+    const listDomainFilter = domainId ? ` AND domain_id = $3` : "";
+
+    // count query filter (RESET PARAM INDEX)
+    const countDomainFilter = domainId ? ` AND domain_id = $1` : "";
+
     const listQuery = `
       SELECT *
       FROM bm.musics
-      WHERE status = 1
+      WHERE status = 1${listDomainFilter}
       ORDER BY id DESC
       LIMIT $1 OFFSET $2;
     `;
+
     const countQuery = `
       SELECT COUNT(*) AS total
       FROM bm.musics
-      WHERE status = 1;
+      WHERE status = 1${countDomainFilter};
     `;
-    connection.query(listQuery, [pageSize, offset], (err, listResult) => {
+
+    const listParams = domainId
+      ? [pageSize, offset, domainId]
+      : [pageSize, offset];
+
+    const countParams = domainId
+      ? [domainId]
+      : [];
+
+    connection.query(listQuery, listParams, (err, listResult) => {
       if (err) return reject(err);
-      connection.query(countQuery, [], (err, countResult) => {
+
+      connection.query(countQuery, countParams, (err, countResult) => {
         if (err) return reject(err);
+
         const totalRecords = parseInt(countResult.rows[0].total, 10);
         const totalPages = Math.ceil(totalRecords / pageSize);
+
         resolve({
           current_page: pageNo,
           page_size: pageSize,
@@ -48,7 +71,7 @@ export const getMusicsService = (pageNo, pageSize) => {
           total_pages: totalPages,
           has_next_page: pageNo < totalPages,
           has_prev_page: pageNo > 1,
-          musics: listResult.rows || []
+          musics: listResult.rows || [],
         });
       });
     });

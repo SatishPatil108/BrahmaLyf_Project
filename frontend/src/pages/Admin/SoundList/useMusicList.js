@@ -2,99 +2,101 @@ import {
     fetchAllMusicsAPI,
     postMusicAPI,
     updateMusicAPI,
-    deleteMusicAPI
+    deleteMusicAPI,
 } from "@/store/feature/admin";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 
 const useMusicList = (pageNo, pageSize) => {
     const dispatch = useDispatch();
     const { audiosDetails, loading, error } = useSelector((state) => state.admin);
 
-    // Fetch music list
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [actionMessage, setActionMessage] = useState(null);
+
+    const clearMessage = useCallback(() => {
+        setActionMessage(null);
+    }, []);
+
     useEffect(() => {
         dispatch(fetchAllMusicsAPI({ pageNo, pageSize }));
     }, [dispatch, pageNo, pageSize]);
 
-    // ADD MUSIC
-    const addMusic = (formData) => {
-        const toastId = toast.loading("Adding new music...");
+    const refetch = useCallback(() => {
+        dispatch(fetchAllMusicsAPI({ pageNo, pageSize }));
+    }, [dispatch, pageNo, pageSize]);
 
-        dispatch(postMusicAPI(formData))
-            .unwrap()
-            .then(() => {
-                toast.update(toastId, {
-                    render: "New music added successfully 🎉",
-                    type: "success",
-                    isLoading: false,
-                    autoClose: 3000,
-                });
-            })
-            .catch((err) => {
-                console.error(err);
-                toast.update(toastId, {
-                    render: err?.message || "Failed to add music!",
-                    type: "error",
-                    isLoading: false,
-                    autoClose: 3000,
-                });
+    const addMusic = async (formData) => {
+        setIsSubmitting(true);
+        clearMessage();
+        try {
+            await dispatch(postMusicAPI(formData)).unwrap();
+            setActionMessage({ type: "success", text: "New music added successfully!" });
+            refetch();
+        } catch (err) {
+            console.error("Failed to add music:", err);
+            setActionMessage({
+                type: "error",
+                text: "Failed to add music.",
+                details: err?.message || "Please try again.",
             });
+            throw err;
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    // UPDATE MUSIC
-    const updateMusicDetails = (musicId, musicData) => {
-        const toastId = toast.loading("Updating music data...");
-
-        dispatch(updateMusicAPI({ musicId, musicData }))
-            .unwrap()
-            .then(() => {
-                toast.update(toastId, {
-                    render: "Music data updated successfully 🎉",
-                    type: "success",
-                    isLoading: false,
-                    autoClose: 3000,
-                });
-            })
-            .catch((err) => {
-                console.error("Failed to update music:", err);
-                toast.update(toastId, {
-                    render: err?.message || "Failed to update music!",
-                    type: "error",
-                    isLoading: false,
-                    autoClose: 3000,
-                });
+    const updateMusicDetails = async (musicId, musicData) => {
+        setIsSubmitting(true);
+        clearMessage();
+        try {
+            await dispatch(updateMusicAPI({ musicId, musicData })).unwrap();
+            setActionMessage({ type: "success", text: "Music updated successfully!" });
+            refetch();
+        } catch (err) {
+            console.error("Failed to update music:", err);
+            setActionMessage({
+                type: "error",
+                text: "Failed to update music.",
+                details: err?.message || "Please try again.",
             });
+            throw err;
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    // DELETE MUSIC
-    const deleteMusic = (musicId) => {
-        const toastId = toast.loading("Deleting music data...");
-
-        dispatch(deleteMusicAPI(musicId))
-            .unwrap()
-            .then(() => {
-                toast.update(toastId, {
-                    render: "Music deleted successfully 🎉",
-                    type: "success",
-                    isLoading: false,
-                    autoClose: 3000,
-                });
-                dispatch(fetchAllMusicsAPI({ pageNo, pageSize }));
-            })
-            .catch((err) => {
-                console.error("Failed to delete music:", err);
-                toast.update(toastId, {
-                    render: err?.message || "Failed to delete music!",
-                    type: "error",
-                    isLoading: false,
-                    autoClose: 3000,
-                });
+    const deleteMusic = async (musicId) => {
+        setIsSubmitting(true);
+        clearMessage();
+        try {
+            await dispatch(deleteMusicAPI(musicId)).unwrap();
+            setActionMessage({ type: "success", text: "Music deleted successfully!" });
+            refetch();
+        } catch (err) {
+            console.error("Failed to delete music:", err);
+            setActionMessage({
+                type: "error",
+                text: "Failed to delete music.",
+                details: err?.message || "Please try again.",
             });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    return { audiosDetails, loading, error, addMusic, updateMusicDetails, deleteMusic };
+    return {
+        audiosDetails,
+        loading,
+        error,
+        addMusic,
+        updateMusicDetails,
+        deleteMusic,
+        isSubmitting,
+        actionMessage,
+        clearMessage,
+    };
 };
 
 export default useMusicList;

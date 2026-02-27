@@ -21,7 +21,7 @@ import EnrolledCourseDetails from "@/pages/User/enrolledCourseDetails";
 import Footer from "@/components/footer/Footer";
 import UserLoggedOut from "@/pages/User/userLoggedOut";
 import MusicList from "@/pages/User/Homepage/components/getAllMusicList/MusicList";
-import BannerImage from "@/pages/User/Homepage/components/bannerImages.jsx/BannerImage";
+import BannerImage from "@/pages/User/Homepage/components/bannerImages/BannerImage";
 import Categories from "@/pages/User/Homepage/components/getAllCategories/Categories";
 import SubCategories from "@/pages/User/Homepage/components/getAllSubCategories/SubCategories";
 import FAQPage from "@/pages/User/Homepage/components/FAQsSections/FAQPage";

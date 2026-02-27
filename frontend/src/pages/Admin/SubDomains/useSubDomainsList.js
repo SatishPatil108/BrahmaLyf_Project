@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   addNewSubDomain,
   deleteSubDomainAPI,
@@ -10,7 +10,15 @@ import {
 const useSubDomainsList = (pageNo, pageSize, domainId) => {
   const dispatch = useDispatch();
   const { subdomainsDetails, loading, error } = useSelector((state) => state.admin);
-   useEffect(() => {
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [actionMessage, setActionMessage] = useState(null);
+
+  const clearMessage = useCallback(() => {
+    setActionMessage(null);
+  }, []);
+
+  useEffect(() => {
     if (domainId && !isNaN(domainId)) {
       dispatch(
         fetchAllSubDomainsAPI({
@@ -22,58 +30,86 @@ const useSubDomainsList = (pageNo, pageSize, domainId) => {
     }
   }, [domainId, dispatch, pageNo, pageSize]);
 
-  const addSubDomain = (subDomainData) => {
-    dispatch(addNewSubDomain(subDomainData))
-      .unwrap()
-      .then(() => {
-        dispatch(
-          fetchAllSubDomainsAPI({
-            pageNo: 1,
-            pageSize: 10,
-            domainId: Number(domainId),
-          })
-        );
+  const refetch = useCallback(() => {
+    dispatch(
+      fetchAllSubDomainsAPI({
+        pageNo: 1,
+        pageSize: 10,
+        domainId: Number(domainId),
       })
-      .catch((err) => {
-        console.error("Failed to add domain:", err);
+    );
+  }, [dispatch, domainId]);
+
+  const addSubDomain = async (subDomainData) => {
+    setIsSubmitting(true);
+    clearMessage();
+    try {
+      await dispatch(addNewSubDomain(subDomainData)).unwrap();
+      setActionMessage({ type: "success", text: "Subdomain created successfully!" });
+      refetch();
+    } catch (err) {
+      console.error("Failed to add subdomain:", err);
+      setActionMessage({
+        type: "error",
+        text: "Failed to create subdomain.",
+        details: err?.message || "Please try again.",
       });
+      throw err;
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const updateSubDomain = (subdomainId, data) => {
-    dispatch(updateSubDomainAPI({ subdomainId, data }))
-      .unwrap()
-      .then(() => {
-        dispatch(fetchAllSubDomainsAPI({
-          pageNo: 1,
-          pageSize: 10,
-          domainId: Number(domainId),
-        }));
-      })
-      .catch((err) => {
-        console.error("Failed to update subdomain:", err);
+  const updateSubDomain = async (subdomainId, data) => {
+    setIsSubmitting(true);
+    clearMessage();
+    try {
+      await dispatch(updateSubDomainAPI({ subdomainId, data })).unwrap();
+      setActionMessage({ type: "success", text: "Subdomain updated successfully!" });
+      refetch();
+    } catch (err) {
+      console.error("Failed to update subdomain:", err);
+      setActionMessage({
+        type: "error",
+        text: "Failed to update subdomain.",
+        details: err?.message || "Please try again.",
       });
+      throw err;
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-
-
-  const deleteSubdomain = (subdomainId) => {
-    dispatch(deleteSubDomainAPI(subdomainId))
-      .unwrap()
-      .then(() => {
-        dispatch(
-          fetchAllSubDomainsAPI({
-            pageNo: 1,
-            pageSize: 10,
-            domainId: Number(domainId),
-          })
-        );
-      })
-      .catch((err) => {
-        console.error("Failed to delete subdomain:", err);
+  const deleteSubdomain = async (subdomainId) => {
+    setIsSubmitting(true);
+    clearMessage();
+    try {
+      await dispatch(deleteSubDomainAPI(subdomainId)).unwrap();
+      setActionMessage({ type: "success", text: "Subdomain deleted successfully!" });
+      refetch();
+    } catch (err) {
+      console.error("Failed to delete subdomain:", err);
+      setActionMessage({
+        type: "error",
+        text: "Failed to delete subdomain.",
+        details: err?.message || "Please try again.",
       });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  return { subdomainsDetails, loading, error, addSubDomain, updateSubDomain, deleteSubdomain };
+  return {
+    subdomainsDetails,
+    loading,
+    error,
+    addSubDomain,
+    updateSubDomain,
+    deleteSubdomain,
+    isSubmitting,
+    actionMessage,
+    clearMessage,
+  };
 };
 
 export default useSubDomainsList;

@@ -196,11 +196,11 @@ const MusicPlayer = () => {
   if (!music) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${colors.bg}`}>
-        <div className={`p-8 rounded-2xl ${colors.cardBg} ${colors.shadow}`}>
-          <p className={`text-lg ${colors.text}`}>Music not found...</p>
+        <div className={`p-6 rounded-2xl ${colors.cardBg} ${colors.shadow}`}>
+          <p className={`text-base ${colors.text}`}>Music not found...</p>
           <button
             onClick={() => navigate(-1)}
-            className={`mt-4 px-6 py-2 rounded-lg bg-gradient-to-r ${colors.accent} text-white font-medium hover:scale-105 transition-transform`}
+            className={`mt-3 px-5 py-1.5 rounded-lg bg-gradient-to-r ${colors.accent} text-white font-medium hover:scale-105 transition-transform`}
           >
             Go Back
           </button>
@@ -212,31 +212,31 @@ const MusicPlayer = () => {
   return (
     <div
       ref={containerRef}
-      className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-300 ${colors.bg}`}
+      className={`min-h-screen flex items-center justify-center p-4 sm:p-4 transition-colors duration-300 ${colors.bg}`}
       tabIndex={0}
     >
       <div
-        className={`w-full max-w-lg md:max-w-2xl rounded-3xl p-6 md:p-8 ${colors.cardBg} ${colors.shadow} animate-fadeIn`}
+        className={`w-full max-w-md sm:max-w-lg md:max-w-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-7 ${colors.cardBg} ${colors.shadow} animate-fadeIn`}
       >
         {/* Back Button & Title */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <button
             onClick={() => navigate(-1)}
-            className={`p-2.5 rounded-full ${colors.controlBg} transition-all hover:scale-105 active:scale-95`}
+            className={`p-2 rounded-full ${colors.controlBg} transition-all hover:scale-105 active:scale-95`}
             aria-label="Go back"
           >
-            <X className={`w-5 h-5 md:w-6 md:h-6 ${colors.iconColor}`} />
+            <X className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.iconColor}`} />
           </button>
-          <h1 className={colors.accentText + " text-xl md:text-2xl font-bold"}>
+          <h1 className={colors.accentText + " text-lg sm:text-xl md:text-2xl font-bold"}>
             Now Playing
           </h1>
-          <div className="w-10 md:w-12" />
+          <div className="w-8 sm:w-10" />
         </div>
 
-        {/* Album Art */}
-        <div className="relative mb-8">
+        {/* Album Art - Reduced size */}
+        <div className="relative mb-6 sm:mb-7">
           <div
-            className={`w-56 h-56 md:w-72 md:h-72 mx-auto rounded-2xl overflow-hidden shadow-xl ${
+            className={`w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 mx-auto rounded-xl sm:rounded-2xl overflow-hidden shadow-lg ${
               isPlaying ? "animate-pulse-slow" : ""
             }`}
           >
@@ -257,22 +257,22 @@ const MusicPlayer = () => {
 
           {/* Playing Indicator */}
           {isPlaying && (
-            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium animate-bounce shadow-lg">
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-medium animate-bounce shadow-md">
               ● LIVE
             </div>
           )}
         </div>
 
         {/* Music Info */}
-        <div className="text-center mb-8">
-          <h2 className={`text-2xl md:text-3xl font-bold mb-2 ${colors.text}`}>
+        <div className="text-center mb-6 sm:mb-7">
+          <h2 className={`text-xl sm:text-2xl md:text-3xl font-bold mb-1.5 ${colors.text}`}>
             {music.music_title}
           </h2>
-          <div className="flex items-center justify-center gap-2 mb-6">
+          <div className="flex items-center justify-center gap-2 mb-4 sm:mb-5">
             <div
-              className={`w-2 h-2 rounded-full bg-gradient-to-r ${colors.accent}`}
+              className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${colors.accent}`}
             />
-            <p className={`text-sm ${colors.mutedText}`}>
+            <p className={`text-xs sm:text-sm ${colors.mutedText}`}>
               {music.music_artist || "Unknown Artist"}
             </p>
           </div>
@@ -280,14 +280,14 @@ const MusicPlayer = () => {
           {/* Description Toggle */}
           <button
             onClick={() => setShowDesc(!showDesc)}
-            className={`flex items-center justify-center gap-2 mx-auto mb-4 px-4 py-2 rounded-lg ${
+            className={`flex items-center justify-center gap-1.5 mx-auto mb-3 px-3 py-1.5 rounded-lg ${
               showDesc ? colors.controlBg : ""
             } transition-all`}
             aria-label={showDesc ? "Hide description" : "Show description"}
           >
-            <span className={`text-sm ${colors.text}`}>Description</span>
+            <span className={`text-xs sm:text-sm ${colors.text}`}>Description</span>
             <ChevronDown
-              className={`w-4 h-4 transition-transform duration-300 ${
+              className={`w-3.5 h-3.5 transition-transform duration-300 ${
                 showDesc ? "rotate-180" : ""
               } ${colors.iconColor}`}
             />
@@ -296,9 +296,9 @@ const MusicPlayer = () => {
           {/* Description */}
           {showDesc && (
             <div
-              className={`p-4 rounded-xl ${colors.progressBg} animate-slideDown mb-6`}
+              className={`p-3 sm:p-4 rounded-lg ${colors.progressBg} animate-slideDown mb-4 sm:mb-5`}
             >
-              <p className={`text-sm leading-relaxed ${colors.mutedText}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${colors.mutedText}`}>
                 {music.music_description || "No description available."}
               </p>
             </div>
@@ -306,8 +306,8 @@ const MusicPlayer = () => {
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between text-sm mb-3">
+        <div className="mb-6 sm:mb-7">
+          <div className="flex items-center justify-between text-xs sm:text-sm mb-2">
             <span className={`font-medium ${colors.text}`}>
               {formatTime(currentTime)}
             </span>
@@ -318,7 +318,7 @@ const MusicPlayer = () => {
             type="range"
             value={progress}
             onChange={handleProgressChange}
-            className="w-full h-2 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-gray-300 [&::-webkit-slider-thumb]:shadow-lg"
+            className="w-full h-1.5 sm:h-2 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:sm:h-4 [&::-webkit-slider-thumb]:sm:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-gray-300 [&::-webkit-slider-thumb]:shadow-lg"
             style={{
               background: `linear-gradient(to right, ${colors.accentColor} ${progress}%, ${
                 theme === "dark" ? "#374151" : "#e5e7eb"
@@ -329,41 +329,41 @@ const MusicPlayer = () => {
         </div>
 
         {/* Controls */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 sm:gap-5">
           {/* Main Controls */}
-          <div className="flex items-center justify-center gap-6 md:gap-8">
+          <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-7">
             <button
               onClick={rewind}
-              className={`p-4 md:p-5 rounded-full ${colors.controlBg} transition-all hover:scale-110 active:scale-95 shadow-md`}
+              className={`p-3 sm:p-4 md:p-5 rounded-full ${colors.controlBg} transition-all hover:scale-110 active:scale-95 shadow-md`}
               aria-label="Rewind 10 seconds"
             >
-              <SkipBack className={`w-5 h-5 md:w-6 md:h-6 ${colors.iconColor}`} />
+              <SkipBack className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${colors.iconColor}`} />
             </button>
 
             <button
               onClick={togglePlay}
-              className={`w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center shadow-2xl transition-all hover:scale-105 active:scale-95 bg-gradient-to-r ${colors.accent} text-white`}
+              className={`w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-105 active:scale-95 bg-gradient-to-r ${colors.accent} text-white`}
               aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? (
-                <Pause className="w-8 h-8 md:w-10 md:h-10" />
+                <Pause className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />
               ) : (
-                <Play className="w-8 h-8 md:w-10 md:h-10 ml-1" />
+                <Play className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 ml-0.5 sm:ml-1" />
               )}
             </button>
 
             <button
               onClick={forward}
-              className={`p-4 md:p-5 rounded-full ${colors.controlBg} transition-all hover:scale-110 active:scale-95 shadow-md`}
+              className={`p-3 sm:p-4 md:p-5 rounded-full ${colors.controlBg} transition-all hover:scale-110 active:scale-95 shadow-md`}
               aria-label="Forward 10 seconds"
             >
-              <SkipForward className={`w-5 h-5 md:w-6 md:h-6 ${colors.iconColor}`} />
+              <SkipForward className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${colors.iconColor}`} />
             </button>
           </div>
 
           {/* Volume Control */}
-          <div className="flex items-center justify-center gap-4">
-            <Volume2 className={`w-5 h-5 md:w-6 md:h-6 ${colors.iconColor}`} />
+          <div className="flex items-center justify-center gap-3 sm:gap-4">
+            <Volume2 className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${colors.iconColor}`} />
             <input
               ref={volumeBarRef}
               type="range"
@@ -372,7 +372,7 @@ const MusicPlayer = () => {
               max="1"
               step="0.01"
               onChange={handleVolumeChange}
-              className="w-40 md:w-48 h-2 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-gray-300 [&::-webkit-slider-thumb]:shadow-lg"
+              className="w-32 sm:w-40 md:w-48 h-1.5 sm:h-2 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:sm:h-4 [&::-webkit-slider-thumb]:sm:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-gray-300 [&::-webkit-slider-thumb]:shadow-lg"
               style={{
                 background: `linear-gradient(to right, ${colors.accentColor} ${volume * 100}%, ${
                   theme === "dark" ? "#374151" : "#e5e7eb"
@@ -380,7 +380,7 @@ const MusicPlayer = () => {
               }}
               aria-label="Volume"
             />
-            <span className={`text-sm font-medium ${colors.text} min-w-10`}>
+            <span className={`text-xs sm:text-sm font-medium ${colors.text} min-w-8 sm:min-w-10`}>
               {Math.round(volume * 100)}%
             </span>
           </div>
@@ -388,14 +388,14 @@ const MusicPlayer = () => {
 
         {/* Keyboard Shortcuts Hint - Desktop Only */}
         <div
-          className={`hidden lg:block mt-10 pt-6 border-t ${
+          className={`hidden lg:block mt-6 sm:mt-8 pt-4 sm:pt-5 border-t ${
             theme === "dark" ? "border-gray-700" : "border-gray-200"
           }`}
         >
           <p className={`text-xs text-center ${colors.mutedText}`}>
             Press{" "}
             <kbd
-              className={`px-2 py-1 mx-1 rounded ${
+              className={`px-1.5 py-0.5 mx-0.5 rounded ${
                 theme === "dark" ? "bg-gray-700" : "bg-gray-200"
               } ${colors.text}`}
             >
@@ -403,7 +403,7 @@ const MusicPlayer = () => {
             </kbd>{" "}
             to play/pause •{" "}
             <kbd
-              className={`px-2 py-1 mx-1 rounded ${
+              className={`px-1.5 py-0.5 mx-0.5 rounded ${
                 theme === "dark" ? "bg-gray-700" : "bg-gray-200"
               } ${colors.text}`}
             >
@@ -411,7 +411,7 @@ const MusicPlayer = () => {
             </kbd>{" "}
             to seek •{" "}
             <kbd
-              className={`px-2 py-1 mx-1 rounded ${
+              className={`px-1.5 py-0.5 mx-0.5 rounded ${
                 theme === "dark" ? "bg-gray-700" : "bg-gray-200"
               } ${colors.text}`}
             >
@@ -419,7 +419,7 @@ const MusicPlayer = () => {
             </kbd>{" "}
             to mute •{" "}
             <kbd
-              className={`px-2 py-1 mx-1 rounded ${
+              className={`px-1.5 py-0.5 mx-0.5 rounded ${
                 theme === "dark" ? "bg-gray-700" : "bg-gray-200"
               } ${colors.text}`}
             >

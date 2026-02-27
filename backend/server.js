@@ -9,7 +9,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",        // ✅ Vite dev (MUST)
   "http://localhost:3002",        // local dev (if used)
-  "http://192.168.0.115:3002",    // LAN dev
+  "http://192.168.0.117:3002",    // LAN dev
   "https://brahmalyf.com",        // production
   "https://www.brahmalyf.com"     // www
 ];

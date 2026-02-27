@@ -23,7 +23,14 @@ import {
 export const getMusicsModel = async (req, res) => {
     try {
         const { pageNo, pageSize } = req.params;
-        const result = await getMusicsService(pageNo, pageSize);
+        const { domain_id } = req.query;  
+
+
+        console.log("params:", req.params);
+        console.log("query:", req.query);
+        console.log("domain_id:", domain_id);
+        
+        const result = await getMusicsService(pageNo, pageSize, domain_id);
 
         return success(
             res,
@@ -34,9 +41,15 @@ export const getMusicsModel = async (req, res) => {
         );
     } catch (err) {
         console.error("Get Musics Error:", err);
-        return error(res, HTTP_INTERNAL_SERVER_ERROR, APP_RESPONSE_CODE_ERROR, SOMETHING_WENT_WRONG, null);
+        return error(
+            res,
+            HTTP_INTERNAL_SERVER_ERROR,
+            APP_RESPONSE_CODE_ERROR,
+            SOMETHING_WENT_WRONG,
+            null
+        );
     }
-}
+};
 
 export const getMusicModel = async (req, res) => {
     try {
