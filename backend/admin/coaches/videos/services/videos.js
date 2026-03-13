@@ -126,8 +126,7 @@ export const getAllCourseVideosService = (pageNo, pageSize) => {
           cv.course_id,
           cv.video_url,
           cv.thumbnail_url,
-          co.header_type,
-          co.sequence_no,
+          co.week_no,
           co.title,
           co.description
         FROM bm.curriculum_videos cv

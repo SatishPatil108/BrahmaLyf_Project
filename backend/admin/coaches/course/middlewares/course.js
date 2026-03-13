@@ -23,9 +23,8 @@ const sendValidationError = (res, error) => {
 };
 
 export const postCourseValidator = (req, res, next) => {
-	const curriculumSchema = joi.object({
-		header_type: joi.string().valid("Chapter", "Section", "Lesson").required(),
-		sequence_no: joi.number().integer().min(1).required(),
+	const curriculumSchema = joi.object({		 
+		week_no: joi.number().integer().min(1).required(),
 		title: joi.string().min(2).max(200).required(),
 		description: joi.string().min(2).max(2000).required(),
 		video_url: joi.string().uri().required()

@@ -114,7 +114,6 @@ export const postCourseModel = async (req, res) => {
 
         const outline = await postCurriculumOutlineService(
           courseId,
-          curriculum.header_type,
           curriculum.title,
           curriculum.description,
           curriculum.week_no,

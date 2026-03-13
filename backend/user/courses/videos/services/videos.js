@@ -223,8 +223,7 @@ export const getMyCourseVideosService = (courseId) => {
       const modulesQuery = `
         SELECT
           co.id,
-          co.header_type,
-          co.sequence_no,
+          co.week_no,
           co.title,
           co.description,
           cv.video_url,
@@ -236,7 +235,7 @@ export const getMyCourseVideosService = (courseId) => {
         WHERE 
           co.course_id = $1
           AND co.status = 1
-        ORDER BY co.sequence_no ASC;
+        ORDER BY co.week_no ASC;
       `;
 
       connection.query(modulesQuery, [courseId], (err, modulesResult) => {
@@ -244,8 +243,7 @@ export const getMyCourseVideosService = (courseId) => {
 
         const modules = modulesResult.rows.map(module => ({
           id: module.id,
-          header_type: module.header_type,
-          sequence_no: module.sequence_no,
+          week_no: module.week_no,
           title: module.title,
           // description: module.description,
           // video_url: module.video_url,
@@ -267,9 +265,8 @@ export const getModuleService = (moduleId) => {
   return new Promise((resolve, reject) => {
     const query = `
       SELECT
-        co.id,
-        co.header_type,
-        co.sequence_no,
+        co.id,         
+        co.week_no,
         co.title,
         co.description,
         co.course_id,
@@ -278,19 +275,19 @@ export const getModuleService = (moduleId) => {
         (
           SELECT id 
           FROM bm.curriculum_outlines 
-          WHERE sequence_no < co.sequence_no 
+          WHERE week_no < co.week_no 
           AND course_id = co.course_id 
           AND status = 1
-          ORDER BY sequence_no DESC 
+          ORDER BY week_no DESC 
           LIMIT 1
         ) AS prev_module_id,
         (
           SELECT id 
           FROM bm.curriculum_outlines 
-          WHERE sequence_no > co.sequence_no 
+          WHERE week_no > co.week_no 
           AND course_id = co.course_id 
           AND status = 1
-          ORDER BY sequence_no ASC 
+          ORDER BY week_no ASC 
           LIMIT 1
         ) AS next_module_id
       FROM bm.curriculum_outlines co
@@ -309,8 +306,7 @@ export const getModuleService = (moduleId) => {
 
       const response = {
         id: moduleData.id,
-        header_type: moduleData.header_type,
-        sequence_no: moduleData.sequence_no,
+        week_no: moduleData.week_no,
         title: moduleData.title,
         description: moduleData.description,
         course_id: moduleData.course_id,
