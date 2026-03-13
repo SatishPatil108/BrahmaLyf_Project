@@ -24,8 +24,8 @@ import EditCourse from "./EditCourse";
 import EditCourseCurriculum from "./EditCourseCurriculum";
 import useCourseDetails from "./useCourseDetails";
 import CustomButton from "@/components/CustomButton";
-import ProgressToolsQuestionDetails from "../ProgressTracking/ProgressToolsQuestionDetails";
-import useProgressTaskDetails from "../ProgressTracking/useProgressTaskDetails";
+import ProgressTasksQuestionDetails from "../ProgressTasksTracking/ProgressTasksQuestionDetails";
+import ProgressToolsQuestionDetails from "../ProgressToolsQuestion/ProgressToolsQuestionDetails";
 
 // Color configuration for consistent theming
 const COLORS = {
@@ -115,30 +115,19 @@ const CourseDetails = () => {
     setIsCurriculumEditing,
   } = useCourseDetails(courseId);
 
-  const [activeTab, setActiveTab] = useState("Tools");
+  // state declarations with your other states
+  const [isTasksDrawerOpen, setIsTasksDrawerOpen] = useState(false);
   const [isToolsDrawerOpen, setIsToolsDrawerOpen] = useState(false);
+  const [activeProgressTab, setActiveProgressTab] = useState("tasks");
 
-  const [weekNo, setWeekNo] = useState(1);
-  const [dayNo, setDayNo] = useState(1);
+  //  handler functions
+  const openTasksDrawer = () => {
+    setIsTasksDrawerOpen(true);
+  };
 
-  const {
-    progressToolsQuestions,
-    ptqLoading,
-    ptqError,
-
-    // Actions
-    addTask,
-    updateTask,
-    deleteTask,
-
-    // Status
-    isSubmitting,
-    actionMessage,
-    clearMessage,
-  } = useProgressTaskDetails(weekNo, dayNo);
-
-  const questions = progressToolsQuestions?.questions ?? [];
-  console.log("Questions : ", questions);
+  const closeTasksDrawer = () => {
+    setIsTasksDrawerOpen(false);
+  };
 
   const openToolsDrawer = () => {
     setIsToolsDrawerOpen(true);
@@ -147,24 +136,6 @@ const CourseDetails = () => {
   const closeToolsDrawer = () => {
     setIsToolsDrawerOpen(false);
   };
-
-  // // --- Loading State ---
-  // if (loading && !isDrawerOpen && !isCurriculumDrawerOpen && !isToolsDrawerOpen) {
-  //   return (
-  //     <div className="flex flex-col items-center justify-center min-h-[60vh]">
-  //       <div className="relative mb-4">
-  //         <div className="w-12 h-12 rounded-full border-4 border-gray-200 dark:border-gray-800"></div>
-  //         <div className="absolute top-0 left-0 w-12 h-12 rounded-full border-4 border-indigo-600 dark:border-indigo-500 border-t-transparent animate-spin"></div>
-  //       </div>
-  //       <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
-  //         Loading course details...
-  //       </p>
-  //       <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-  //         This may take a moment
-  //       </p>
-  //     </div>
-  //   );
-  // }
 
   // --- Error State ---
   if (error) {
@@ -623,14 +594,7 @@ const CourseDetails = () => {
                   <Plus className="w-4 h-4 mr-2" />
                   Add New Module
                 </CustomButton>
-                <CustomButton
-                  onClick={openToolsDrawer}
-                  variant="outline"
-                  className="w-full justify-start"
-                >
-                  <List className="w-4 h-4 mr-2" />
-                  Manage Progress Tools
-                </CustomButton>
+
                 <button
                   onClick={() => window.print()}
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
@@ -641,13 +605,34 @@ const CourseDetails = () => {
               </div>
             </div>
 
-            {/* Tools and Tasks Section */}
+            {/* Quick Actions - Progress Tasks & Tools (Tabbed Section) */}
             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300 overflow-hidden">
-              {/* Tab Headers */}
               <div className="flex border-b border-gray-200 dark:border-gray-800">
                 <button
-                  onClick={openToolsDrawer}
-                  className="flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10"
+                  onClick={() => {
+                    setActiveProgressTab("tasks");
+                  }}
+                  className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                    activeProgressTab === "tasks"
+                      ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10"
+                      : "text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700"
+                  }`}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <ListChecks className="w-4 h-4" />
+                    Progress Tasks
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveProgressTab("tools");
+                  }}
+                  className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                    activeProgressTab === "tools"
+                      ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10"
+                      : "text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700"
+                  }`}
                 >
                   <span className="flex items-center justify-center gap-2">
                     <BadgeQuestionMarkIcon className="w-4 h-4" />
@@ -656,22 +641,52 @@ const CourseDetails = () => {
                 </button>
               </div>
 
-              {/* Tab Content */}
-              <div className="p-5">
-                <div className="text-center py-8">
-                  <BadgeQuestionMarkIcon className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Progress Tools Manager
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    Manage questions for progress tracking across weeks and days
-                  </p>
-                  <CustomButton onClick={openToolsDrawer} variant="primary">
-                    <List className="w-4 h-4 mr-2" />
-                    Open Tools Manager
-                  </CustomButton>
+              {/* Tab Content - Tasks */}
+              {activeProgressTab === "tasks" && (
+                <div className="p-5">
+                  <div className="text-center py-8">
+                    <ListChecks className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Progress Tasks Manager
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                      Manage tasks for progress tracking across weeks and days
+                    </p>
+                    <CustomButton
+                      onClick={openTasksDrawer}
+                      variant="primary"
+                      className="mx-auto"
+                    >
+                      <List className="w-4 h-4 mr-2" />
+                      Open Tasks Manager
+                    </CustomButton>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Tab Content - Tools */}
+              {activeProgressTab === "tools" && (
+                <div className="p-5">
+                  <div className="text-center py-8">
+                    <BadgeQuestionMarkIcon className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Progress Tools Manager
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                      Manage questions for progress tracking across weeks and
+                      days
+                    </p>
+                    <CustomButton
+                      onClick={openToolsDrawer}
+                      variant="primary"
+                      className="mx-auto"
+                    >
+                      <List className="w-4 h-4 mr-2" />
+                      Open Tools Manager
+                    </CustomButton>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -700,11 +715,23 @@ const CourseDetails = () => {
           />
         )}
 
-        {/* Progress Tools Drawer */}
-        <ProgressToolsQuestionDetails
-          isOpen={isToolsDrawerOpen}
-          onClose={closeToolsDrawer}
-        />
+        {/* Tasks Drawer */}
+        {isTasksDrawerOpen && (
+          <ProgressTasksQuestionDetails
+            isOpen={isTasksDrawerOpen}
+            onClose={closeTasksDrawer}
+            drawerOnly={true}
+          />
+        )}
+
+        {/* Tools Drawer */}
+        {isToolsDrawerOpen && (
+          <ProgressToolsQuestionDetails
+            isOpen={isToolsDrawerOpen}
+            onClose={closeToolsDrawer}
+            drawerOnly={true}
+          />
+        )}
       </div>
     </div>
   );

@@ -412,7 +412,50 @@ export const deleteShortVideo = async (shortId) => {
   });
 };
 
-// fetch progress tools questions by week number and day number
+// fetch progress tasks questions by week number and day number
+export const fetchProgressTasksQuestions = async ({ weekNo, dayNo }) => {
+  return await makeRequest({
+    service: `admin/progress-tasks/questions?weekNo=${weekNo}&dayNo=${dayNo}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// post progress tasks questions
+export const postProgressTasksQuestion = async (questionData) => {
+  return await makeRequest({
+    service: `admin/progress-tasks/questions`,
+    method: API_METHODS.POST,
+    data: questionData,
+    authRequired: true,
+    tokenType: "admin",
+    contentType: "application/json",
+  });
+};
+
+// update progress tasks question details
+export const updateProgressTasksQuestion = async (questionId, data) => {
+  return await makeRequest({
+    service: `admin/progress-tasks/questions/${questionId}`,
+    method: API_METHODS.PUT,
+    data: data,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// delete progress tasks question
+export const deleteProgressTasksQuestion = async (questionId) => {
+  return await makeRequest({
+    service: `admin/progress-tasks/questions/${questionId}`,
+    method: API_METHODS.DELETE,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// fetch all progress tools questions by week number and day number
 export const fetchProgressToolsQuestions = async ({ weekNo, dayNo }) => {
   return await makeRequest({
     service: `admin/progress-tools/questions?weekNo=${weekNo}&dayNo=${dayNo}`,
@@ -422,7 +465,7 @@ export const fetchProgressToolsQuestions = async ({ weekNo, dayNo }) => {
   });
 };
 
-// post progress tools questions
+// post progress tools question
 export const postProgressToolsQuestion = async (questionData) => {
   return await makeRequest({
     service: `admin/progress-tools/questions`,
@@ -449,48 +492,6 @@ export const updateProgressToolsQuestion = async (questionId, data) => {
 export const deleteProgressToolsQuestion = async (questionId) => {
   return await makeRequest({
     service: `admin/progress-tools/questions/${questionId}`,
-    method: API_METHODS.DELETE,
-    authRequired: true,
-    tokenType: "admin",
-  });
-};
-
-// fetch all progress tools options
-export const fetchProgressToolsOptions = async () => {
-  return await makeRequest({
-    service: "admin/progress-tools/options",
-    method: API_METHODS.GET,
-    authRequired: true,
-    tokenType: "admin",
-  });
-};
-
-// post progress tools options for a question
-export const postProgressToolsOptions = async (questionId, optionsData) => {
-  return await makeRequest({
-    service: `admin/progress-tools/questions/${questionId}/options`,
-    method: API_METHODS.POST,
-    data: optionsData,
-    authRequired: true,
-    tokenType: "admin",
-  });
-};
-
-// update progress tools option details
-export const updateProgressToolsOption = async (optionId, data) => {
-  return await makeRequest({
-    service: `admin/progress-tools/options/${optionId}`,
-    method: API_METHODS.PUT,
-    data: data,
-    authRequired: true,
-    tokenType: "admin",
-  });
-};
-
-// delete progress tools option
-export const deleteProgressToolsOption = async (optionId) => {
-  return await makeRequest({
-    service: `admin/progress-tools/options/${optionId}`,
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "admin",

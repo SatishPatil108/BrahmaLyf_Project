@@ -1,35 +1,38 @@
 import {
+  deleteProgressToolsQuestionAPI,
   fetchAllCoursesAPI,
   fetchProgressToolsQuestionsAPI,
   postProgressToolsQuestionAPI,
   updateProgressToolsQuestionAPI,
-  deleteProgressToolsQuestionAPI,
 } from "@/store/feature/admin";
 
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const useProgressTaskDetails = (weekNo, dayNo) => {
+const useProgressToolsDetails = (weekNo, dayNo) => {
   const dispatch = useDispatch();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
 
-  // ✅ FIXED naming (Tools, not Task)
-  const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
-  const [isTaskEditing, setIsTaskEditing] = useState(false);
+  // ✅ UI State
+  const [isToolDrawerOpen, setIsToolDrawerOpen] = useState(false);
+  const [isToolEditing, setIsToolEditing] = useState(false);
 
   const { progressToolsQuestions, coursesDetails, ptqLoading, ptqError } =
     useSelector((state) => state.admin);
 
+  const tools = progressToolsQuestions?.tools ?? [];
+  console.log("Tools : ", tools);
+
   const clearMessage = useCallback(() => setActionMessage(null), []);
 
-  // Fetch courses
+  // ✅ Fetch courses
   useEffect(() => {
     dispatch(fetchAllCoursesAPI({ pageNo: 1, pageSize: 10 }));
   }, [dispatch]);
 
-  // Fetch questions
+  // ✅ Fetch tools
   useEffect(() => {
     if (weekNo && dayNo) {
       dispatch(fetchProgressToolsQuestionsAPI({ weekNo, dayNo }));
@@ -42,25 +45,25 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     }
   }, [dispatch, weekNo, dayNo]);
 
-  // ✅ Add
-  const addQuestion = async (questionData) => {
+  // ✅ Add Tool
+  const addTool = async (toolData) => {
     setIsSubmitting(true);
     clearMessage();
 
     try {
-      await dispatch(postProgressToolsQuestionAPI(questionData)).unwrap();
+      await dispatch(postProgressToolsQuestionAPI(toolData)).unwrap();
 
       setActionMessage({
         type: "success",
-        text: "Question added successfully",
+        text: "Tool added successfully",
       });
 
-      setIsTaskDrawerOpen(false);
+      setIsToolDrawerOpen(false);
       refetch();
     } catch (err) {
       setActionMessage({
         type: "error",
-        text: "Failed to add question",
+        text: "Failed to add tool",
         details: err?.message,
       });
     } finally {
@@ -68,28 +71,31 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     }
   };
 
-  // ✅ Update
-  const updateQuestion = async (questionId, questionData) => {
+  // ✅ Update Tool
+  const updateTool = async (toolsQuestionId, toolData) => {
     setIsSubmitting(true);
     clearMessage();
 
     try {
       await dispatch(
-        updateProgressToolsQuestionAPI({ questionId, questionData }),
+        updateProgressToolsQuestionAPI({
+          toolsQuestionId,
+          toolData,
+        }),
       ).unwrap();
 
       setActionMessage({
         type: "success",
-        text: "Question updated successfully",
+        text: "Tool updated successfully",
       });
 
-      setIsTaskDrawerOpen(false);
-      setIsTaskEditing(false);
+      setIsToolDrawerOpen(false);
+      setIsToolEditing(false);
       refetch();
     } catch (err) {
       setActionMessage({
         type: "error",
-        text: "Failed to update question",
+        text: "Failed to update tool",
         details: err?.message,
       });
     } finally {
@@ -97,24 +103,24 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     }
   };
 
-  // ✅ Delete
-  const handleDeleteQuestion = async (questionId) => {
+  // ✅ Delete Tool
+  const handleDeleteTool = async (toolsQuestionId) => {
     setIsSubmitting(true);
     clearMessage();
 
     try {
-      await dispatch(deleteProgressToolsQuestionAPI(questionId)).unwrap();
+      await dispatch(deleteProgressToolsQuestionAPI(toolsQuestionId)).unwrap();
 
       setActionMessage({
         type: "success",
-        text: "Question deleted successfully",
+        text: "Tool deleted successfully",
       });
 
       refetch();
     } catch (err) {
       setActionMessage({
         type: "error",
-        text: "Failed to delete question",
+        text: "Failed to delete tool",
         details: err?.message,
       });
     } finally {
@@ -122,11 +128,11 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     }
   };
 
-  // ✅ Edit handler (accept question)
-  const handleEditQuestion = (question) => {
-    setIsTaskEditing(true);
-    setIsTaskDrawerOpen(true);
-    return question;
+  // ✅ Edit handler
+  const handleEditTool = (tool) => {
+    setIsToolEditing(true);
+    setIsToolDrawerOpen(true);
+    return tool;
   };
 
   return {
@@ -142,17 +148,17 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     clearMessage,
 
     // UI State
-    isTaskDrawerOpen,
-    setIsTaskDrawerOpen,
-    isTaskEditing,
-    setIsTaskEditing,
+    isToolDrawerOpen,
+    setIsToolDrawerOpen,
+    isToolEditing,
+    setIsToolEditing,
 
     // Actions
-    addQuestion,
-    updateQuestion,
-    handleDeleteQuestion,
-    handleEditQuestion,
+    addTool,
+    updateTool,
+    handleDeleteTool,
+    handleEditTool,
   };
 };
 
-export default useProgressTaskDetails;
+export default useProgressToolsDetails;

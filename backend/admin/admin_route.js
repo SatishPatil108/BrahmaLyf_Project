@@ -8,24 +8,24 @@ import faqRoutes from "./faq/routes/faq.js";
 import musicRoutes from "./music/routes/music.js";
 import shortVideoRoutes from "./shortvideos/routes/video.js";
 import contactUs from "./contactUs/routes/contactUs.js";
-import questionRoutes from "./trackingQuestions/routes/question.js";
-import optionsRoutes from "./trackingOptions/routes/option.js";
+import questionRoutes from "./progressTasksQuestions/routes/question.js";
+import toolsRoutes from "./progressToolsQuestions/routes/tools.js";
 
 export default (app) => {
-	app.get("/", (req, res) => {
-		res.status(200).send("Admin Module Ready!");
-	});
+  app.get("/", (req, res) => {
+    res.status(200).send("Admin Module Ready!");
+  });
 
-	adminAuthRoutes(app);
-	domainRoutes(app);
-	dashboardRoutes(app);
-	courseRoutes(app);
-	coachesRoutes(app);
-	videosRoutes(app);
-	faqRoutes(app);
-	musicRoutes(app);
-	shortVideoRoutes(app);
-	contactUs(app);
-	questionRoutes(app);
-	optionsRoutes(app);
+  adminAuthRoutes(app);
+  domainRoutes(app);
+  dashboardRoutes(app);
+  courseRoutes(app);
+  coachesRoutes(app);
+  videosRoutes(app);
+  faqRoutes(app);
+  musicRoutes(app);
+  shortVideoRoutes(app);
+  contactUs(app);
+  questionRoutes(app);
+  toolsRoutes(app);
 };

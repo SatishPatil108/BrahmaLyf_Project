@@ -24,14 +24,14 @@ import {
 } from "../messages/question.js";
 
 import {
-  deleteProgressTrackingQuestionService,
-  getAllProgressTrackingQuestionsService,
-  getProgressTrackingQuestionService,
-  postProgressTrackingQuestionService,
-  updateProgressTrackingQuestionService,
+  deleteProgressTasksQuestionService,
+  getAllProgressTasksQuestionsService,
+  getProgressTasksQuestionService,
+  postProgressTasksQuestionService,
+  updateProgressTasksQuestionService,
 } from "../services/question.js";
 
-export const getProgressTrackingQuestionModel = async (req, res) => {
+export const getProgressTasksQuestionModel = async (req, res) => {
   try {
     const question_id = parseInt(req.params.question_id);
     if (isNaN(question_id)) {
@@ -43,7 +43,7 @@ export const getProgressTrackingQuestionModel = async (req, res) => {
         null,
       );
     }
-    const question = await getProgressTrackingQuestionService(question_id);
+    const question = await getProgressTasksQuestionService(question_id);
     if (!question) {
       return error(
         res,
@@ -72,15 +72,12 @@ export const getProgressTrackingQuestionModel = async (req, res) => {
   }
 };
 
-export const getAllProgressTrackingQuestionsModel = async (req, res) => {
+export const getAllProgressTasksQuestionsModel = async (req, res) => {
   try {
     const weekNo = Number(req.query.weekNo);
     const dayNo = Number(req.query.dayNo);
 
-    const response = await getAllProgressTrackingQuestionsService(
-      weekNo,
-      dayNo,
-    );
+    const response = await getAllProgressTasksQuestionsService(weekNo, dayNo);
     if (response === -1) {
       return error(
         res,
@@ -109,14 +106,14 @@ export const getAllProgressTrackingQuestionsModel = async (req, res) => {
   }
 };
 
-export const postProgressTrackingQuestionModel = async (req, res) => {
+export const postProgressTasksQuestionModel = async (req, res) => {
   try {
     const questions = req.body;
 
     const results = await Promise.all(
       questions.map(
         ({ question_text, option_type, week_no, day_no, course_id, options }) =>
-          postProgressTrackingQuestionService(
+          postProgressTasksQuestionService(
             question_text,
             option_type,
             week_no,
@@ -166,16 +163,16 @@ export const postProgressTrackingQuestionModel = async (req, res) => {
   }
 };
 
-export const updateProgressTrackingQuestionModel = async (req, res) => {
+export const updateProgressTasksQuestionModel = async (req, res) => {
   try {
     const { question_id } = req.params;
-    const { question_text, option_type, week_no, day_no, course_id, options } = req.body;
+    const { question_text, option_type, week_no, day_no, course_id, options } =
+      req.body;
 
     // ----------------------------------------------
     // Check if question exists
     // ----------------------------------------------
-    const existingQuestion =
-      await getProgressTrackingQuestionService(question_id);
+    const existingQuestion = await getProgressTasksQuestionService(question_id);
 
     if (!existingQuestion) {
       return error(
@@ -190,7 +187,7 @@ export const updateProgressTrackingQuestionModel = async (req, res) => {
     // ----------------------------------------------
     // Update DB record
     // ----------------------------------------------
-    const response = await updateProgressTrackingQuestionService(
+    const response = await updateProgressTasksQuestionService(
       question_id,
       question_text,
       option_type,
@@ -229,15 +226,14 @@ export const updateProgressTrackingQuestionModel = async (req, res) => {
   }
 };
 
-export const deleteProgressTrackingQuestionModel = async (req, res) => {
+export const deleteProgressTasksQuestionModel = async (req, res) => {
   try {
     const { question_id } = req.params;
 
     // ----------------------------------------------
     // Check if question exists
     // ----------------------------------------------
-    const existingQuestion =
-      await getProgressTrackingQuestionService(question_id);
+    const existingQuestion = await getProgressTasksQuestionService(question_id);
 
     if (!existingQuestion) {
       return error(
@@ -252,7 +248,7 @@ export const deleteProgressTrackingQuestionModel = async (req, res) => {
     // ----------------------------------------------
     // Soft delete DB record
     // ----------------------------------------------
-    const response = await deleteProgressTrackingQuestionService(question_id);
+    const response = await deleteProgressTasksQuestionService(question_id);
 
     if (!response) {
       return error(

@@ -1,6 +1,6 @@
 import connection from "../../../database/database.js";
 
-export const getProgressTrackingQuestionService = (questionId) => {
+export const getProgressTasksQuestionService = (questionId) => {
   return new Promise((resolve, reject) => {
     const query = `
       SELECT 
@@ -20,7 +20,7 @@ export const getProgressTrackingQuestionService = (questionId) => {
   });
 };
 
-export const getAllProgressTrackingQuestionsService = (week_no, day_no) => {
+export const getAllProgressTasksQuestionsService = (week_no, day_no) => {
   return new Promise((resolve, reject) => {
     // Validate week_no and day_no
     week_no = parseInt(week_no, 10);
@@ -76,7 +76,7 @@ export const getAllProgressTrackingQuestionsService = (week_no, day_no) => {
   });
 };
 
-export const postProgressTrackingQuestionService = (
+export const postProgressTasksQuestionService = (
   question_text,
   option_type,
   week_no,
@@ -159,7 +159,7 @@ export const postProgressTrackingQuestionService = (
   });
 };
 
-export const updateProgressTrackingQuestionService = (
+export const updateProgressTasksQuestionService = (
   question_id,
   question_text,
   option_type,
@@ -259,7 +259,7 @@ export const updateProgressTrackingQuestionService = (
   });
 };
 
-export const deleteProgressTrackingQuestionService = (questionId) => {
+export const deleteProgressTasksQuestionService = (questionId) => {
   return new Promise((resolve, reject) => {
     const query = `
             UPDATE bm.progress_tracking_questions

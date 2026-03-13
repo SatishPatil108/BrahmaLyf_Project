@@ -38,15 +38,15 @@ import {
   postShortVideo,
   fetchShortVideos,
   updateShortVideo,
-  deleteShortVideo,  
+  deleteShortVideo,
+  fetchProgressTasksQuestions,
+  postProgressTasksQuestion,
+  updateProgressTasksQuestion,
+  deleteProgressTasksQuestion,
   fetchProgressToolsQuestions,
-  postProgressToolsQuestion,
   updateProgressToolsQuestion,
   deleteProgressToolsQuestion,
-  postProgressToolsOptions,
-  updateProgressToolsOption,
-  deleteProgressToolsOption,
-  fetchProgressToolsOptions,
+  postProgressToolsQuestion,    
 } from "./adminApi";
 
 export const getAdminDashboardData = createAsyncThunk(
@@ -598,6 +598,91 @@ export const deleteShortVideoAPI = createAsyncThunk(
 );
 
 // fetch progress tools question by week no and day no
+export const fetchProgressTasksQuestionsAPI = createAsyncThunk(
+  "admin/get/progress-tasks/questions",
+  async ({ weekNo, dayNo }, thunkAPI) => {
+    try {
+      const response = await fetchProgressTasksQuestions({ weekNo, dayNo });
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.message ||
+          "Failed to fetch progress tasks questions",
+      );
+    }
+  },
+);
+
+// post progress tools question
+export const postProgressTasksQuestionAPI = createAsyncThunk(
+  "admin/postProgressTasksQuestion",
+  async (questionData, thunkAPI) => {
+    try {
+      const response = await postProgressTasksQuestion(questionData);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to add progress tasks question",
+      );
+    }
+  },
+);
+
+// update progress tools question
+export const updateProgressTasksQuestionAPI = createAsyncThunk(
+  "admin/updateProgressTasksQuestion",
+  async ({ questionId, questionData }, thunkAPI) => {
+    try {
+      const response = await updateProgressTasksQuestion(
+        questionId,
+        questionData,
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.message ||
+          "Failed to update progress tasks question",
+      );
+    }
+  },
+);
+
+// delete progress tools question
+export const deleteProgressTasksQuestionAPI = createAsyncThunk(
+  "admin/deleteProgressTasksQuestion",
+  async (questionId, thunkAPI) => {
+    try {
+      const id = parseInt(questionId);
+      await deleteProgressTasksQuestion(id);
+      return questionId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to delete progress tasks question",
+      );
+    }
+  },
+);
+
+// post progress tools options
+export const postProgressToolsQuestionAPI = createAsyncThunk(
+  "admin/postProgressToolsQuestion",
+  async (questionData, thunkAPI) => {
+    try {
+      const response = await postProgressToolsQuestion(questionData);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to add progress tasks options",
+      );
+    }
+  },
+);
+
+// fetch progress tools question by week no and day no
 export const fetchProgressToolsQuestionsAPI = createAsyncThunk(
   "admin/get/progress-tools/questions",
   async ({ weekNo, dayNo }, thunkAPI) => {
@@ -613,37 +698,17 @@ export const fetchProgressToolsQuestionsAPI = createAsyncThunk(
   },
 );
 
-// post progress tools question
-export const postProgressToolsQuestionAPI = createAsyncThunk(
-  "admin/postProgressToolsQuestion",
-  async (questionData, thunkAPI) => {
-    try {
-      const response = await postProgressToolsQuestion(questionData);
-      return response.data;
-    } catch (error) {
-      console.error(error);
-      return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to add progress tools question",
-      );
-    }
-  },
-);
-
 // update progress tools question
 export const updateProgressToolsQuestionAPI = createAsyncThunk(
   "admin/updateProgressToolsQuestion",
   async ({ questionId, questionData }, thunkAPI) => {
     try {
-      const response = await updateProgressToolsQuestion(
-        questionId,
-        questionData,
-      );
+      const response = await updateProgressToolsQuestion(questionId, questionData);
       return response.data;
     } catch (error) {
       console.error(error);
       return thunkAPI.rejectWithValue(
-        error.response?.message ||
-          "Failed to update progress tools question",
+        error.response?.message || "Failed to update progress tools question",
       );
     }
   },
@@ -654,8 +719,7 @@ export const deleteProgressToolsQuestionAPI = createAsyncThunk(
   "admin/deleteProgressToolsQuestion",
   async (questionId, thunkAPI) => {
     try {
-      const id = parseInt(questionId);
-      await deleteProgressToolsQuestion(id);
+      await deleteProgressToolsQuestion(questionId);
       return questionId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -666,66 +730,4 @@ export const deleteProgressToolsQuestionAPI = createAsyncThunk(
   },
 );
 
-// post progress tools options
-export const postProgressToolsOptionsAPI = createAsyncThunk(
-  "admin/postProgressToolsOptions",
-  async (optionsData, thunkAPI) => {
-    try {
-      const response = await postProgressToolsOptions(optionsData);
-      return response.data;
-    } catch (error) {
-      console.error(error);
-      return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to add progress tools options",
-      );
-    }
-  },
-);
-
-// update progress tools options
-export const updateProgressToolsOptionAPI = createAsyncThunk(
-  "admin/updateProgressToolsOption",
-  async ({ optionId, optionData }, thunkAPI) => {
-    try {
-      const response = await updateProgressToolsOption(optionId, optionData);
-      return response.data;
-    } catch (error) {
-      console.error(error);
-      return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to update progress tools option",
-      );
-    }
-  },
-);
-
-// delete progress tools option
-export const deleteProgressToolsOptionAPI = createAsyncThunk(
-  "admin/deleteProgressToolsOption",
-  async (optionId, thunkAPI) => {
-    try {
-      await deleteProgressToolsOption(optionId);
-      return optionId;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message ||
-          "Failed to delete progress tools option",
-      );
-    }
-  },
-);
-
-//fetch progress tools option in dropdown
-export const fetchProgressToolsOptionsAPI = createAsyncThunk(
-  "admin/fetchProgressToolsOptions",
-  async (_, thunkAPI) => {
-    try {
-      const response = await fetchProgressToolsOptions();
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message ||
-          "Failed to fetch progress tools options",
-      );
-    }
-  },
-);
+ 

@@ -8,7 +8,7 @@ import AdminDashboard from "@/pages/Admin/Dashboard/AdminDashboard";
 import DomainsList from "@/pages/Admin/Domains";
 import FrequentlyAskQue from "@/pages/Admin/FrequentlyAskQue";
 import Inquiries from "@/pages/Admin/Inquiries/Inquiries";
-import ProgressToolsQuestionDetails from "@/pages/Admin/ProgressTracking/ProgressToolsQuestionDetails";
+import ProgressToolsQuestionDetails from "@/pages/Admin/ProgressTasksTracking/ProgressTasksQuestionDetails";
 import MusicList from "@/pages/Admin/SoundList/MusicList";
 import SubDomainsList from "@/pages/Admin/SubDomains";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -28,10 +28,7 @@ const AdminRoutes = () => {
         />
         <Route path="coaches" element={<CoachesList />} />
         <Route path="courses" element={<CourseList />} />
-        <Route
-          path="progress-tools"
-          element={<ProgressToolsQuestionDetails />}
-        />
+
         <Route path="musics" element={<MusicList />} />
         <Route path="short-video" element={<ShortsList />} />
         <Route path="courses/:courseId" element={<CourseDetails />} />

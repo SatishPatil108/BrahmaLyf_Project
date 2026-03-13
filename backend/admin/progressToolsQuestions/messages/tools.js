@@ -1,0 +1,12 @@
+export const QUESTION_ADDED_SUCCESS = "Question added successfully";
+export const QUESTION_ADDED_FAILED = "Failed to add question";
+export const QUESTION_UPDATED_SUCCESS = "Question updated successfully";
+export const QUESTION_DELETED_SUCCESS = "Question deleted successfully";
+export const ALL_QUESTION_LIST = "All Question list fetched successfully";
+export const QUESTION_NOT_FOUND = "Question not found";
+export const QUESTION_FOUND = "Question found";
+export const INVALID_REQUEST = "Invalid request";
+export const SOMETHING_WENT_WRONG = "Something went wrong";
+export const INVALID_QUESTION_ID = "Invalid question ID";
+export const QUESTION_TEXT_REQUIRED = "Question text is required";
+export const NO_RECORD_FOUND = "No record found";
