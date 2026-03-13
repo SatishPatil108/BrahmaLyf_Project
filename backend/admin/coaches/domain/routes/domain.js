@@ -54,7 +54,7 @@ export default (app) => {
 	app.post(
 		"/apis/admin/subdomain",
 		verifyAdminToken,
-		universalUpload.single("domain_thumbnail"),
+		universalUpload.single("subdomain_thumbnail"),
 		postSubdomainValidator,
 		postSubdomainController
 	);
@@ -63,7 +63,7 @@ export default (app) => {
 	app.put(
 		"/apis/admin/subdomain/:subdomain_id",
 		verifyAdminToken,
-		universalUpload.single("domain_thumbnail"),
+		universalUpload.single("subdomain_thumbnail"),
 		updateSubdomainValidator,
 		updateSubdomainController
 	);

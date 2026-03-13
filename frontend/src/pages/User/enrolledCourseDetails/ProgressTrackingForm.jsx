@@ -108,20 +108,29 @@ const ProgressTrackingForm = ({
 
   // Load all answers across all days
   useEffect(() => {
-    if (!reduxSubmittedAnswers) return;
+    if (
+      reduxSubmittedAnswers &&
+      Object.keys(reduxSubmittedAnswers).length > 0
+    ) {
+      const merged = {};
 
-    const merged = {};
-
-    Object.entries(reduxSubmittedAnswers || {}).forEach(
-      ([dayKey, dayAnswers]) => {
+      Object.entries(reduxSubmittedAnswers).forEach(([dayKey, dayAnswers]) => {
         if (dayAnswers && typeof dayAnswers === "object") {
           Object.assign(merged, dayAnswers);
+        } else {
+          console.warn("⚠️ Invalid day answers structure:", {
+            dayKey,
+            dayAnswers,
+          });
         }
-      },
-    );
+      });
 
-    setAnswers(merged);
-    setIsDataLoaded(true);
+      setAnswers((prev) => ({
+        ...prev,
+        ...merged,
+      }));
+      setIsDataLoaded(true);
+    }
   }, [reduxSubmittedAnswers]);
 
   // Check for completion and show success card
@@ -246,7 +255,7 @@ const ProgressTrackingForm = ({
 
       onSubmitSuccess?.();
     } catch (err) {
-      console.error("Submit error:", err);
+      console.error("Progress Submit error:", err);
     } finally {
       setSubmittingQuestion(null);
     }
@@ -282,7 +291,7 @@ const ProgressTrackingForm = ({
           <div className="absolute top-0 left-0 w-10 h-10 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin" />
         </div>
         <p className={`ml-4 text-sm ${textColor.muted}`}>
-          Loading questions...
+          Loading progress questions...
         </p>
       </div>
     );
@@ -298,31 +307,89 @@ const ProgressTrackingForm = ({
     );
   }
 
-  // Show all questions with filled answers after completion card
+  // Shared question renderer (used in both completed & regular form)
+  const renderDays = (locked = false) =>
+    Object.keys(questionsByDay).map((dayNo) => {
+      const day = questionsByDay[dayNo];
+      const dayQuestions = day.questions;
+      const daySubmittedCount = dayQuestions.filter(
+        (q) => reduxSubmittedQuestions[q.id],
+      ).length;
+      const dayCompleted = daySubmittedCount === dayQuestions.length;
+
+      return (
+        <div key={dayNo} className="mb-4">
+          <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-blue-200 dark:border-blue-800">
+            <div
+              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                dayCompleted
+                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                  : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+              }`}
+            >
+              Day {dayNo}
+            </div>
+            <span className={`text-xs ${textColor.muted}`}>
+              {daySubmittedCount}/{dayQuestions.length} Completed
+            </span>
+            {dayCompleted && (
+              <CheckCircle className="w-4 h-4 text-blue-500 ml-2" />
+            )}
+          </div>
+          <div className="flex flex-col gap-5">
+            {dayQuestions.map((question, idx) => (
+              <QuestionCard
+                key={question.id}
+                question={question}
+                index={idx}
+                answers={answers}
+                hoverRating={hoverRating}
+                setHoverRating={setHoverRating}
+                theme={theme}
+                textColor={textColor}
+                bgColor={bgColor}
+                borderColor={borderColor}
+                onText={handleText}
+                onRadio={handleRadio}
+                onDropdown={handleDropdown}
+                onMultiSelect={handleMultiSelect}
+                onRating={handleRating}
+                isSubmitted={!!reduxSubmittedQuestions?.[question.id]}
+                isSubmitting={submittingQuestion === question.id}
+                onQuestionSubmit={() =>
+                  handleQuestionSubmit(question.id, parseInt(dayNo))
+                }
+              />
+            ))}
+          </div>
+        </div>
+      );
+    });
+
+  // Completed form — show all submitted answers with edit support
   if (allCompleted && showCompletedForm) {
     return (
       <div className="w-full max-w-3xl mx-auto">
         <div
           className={`relative overflow-hidden ${bgColor.card} rounded-xl shadow-sm border ${borderColor.primary} transition-all duration-300 hover:shadow-md`}
         >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
-
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
           <div className="p-4 sm:p-6 md:p-8">
             {/* Header */}
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div
-                  className={`p-2.5 rounded-lg ${theme === "dark" ? "bg-emerald-900/30" : "bg-emerald-100"}`}
+                  className={`p-2.5 rounded-lg ${theme === "dark" ? "bg-blue-900/30" : "bg-blue-100"}`}
                 >
                   <ClipboardList
-                    className={`w-5 h-5 ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}
+                    className={`w-5 h-5 ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}
                   />
                 </div>
                 <div>
                   <h2
                     className={`text-lg sm:text-xl font-bold ${textColor.primary}`}
                   >
-                    Your Submitted Answers
+                    Your Submitted Progress Answers
                   </h2>
                   <p className={`text-sm ${textColor.muted}`}>
                     Week {weekNo} · All {totalQuestions} questions completed
@@ -330,7 +397,7 @@ const ProgressTrackingForm = ({
                 </div>
               </div>
               <div
-                className={`px-2.5 py-1 text-xs font-medium rounded-full ${theme === "dark" ? "bg-emerald-900/30 text-emerald-400" : "bg-emerald-100 text-emerald-700"}`}
+                className={`px-2.5 py-1 text-xs font-medium rounded-full ${theme === "dark" ? "bg-blue-900/30 text-blue-400" : "bg-blue-100 text-blue-700"}`}
               >
                 Complete ✓
               </div>
@@ -342,76 +409,27 @@ const ProgressTrackingForm = ({
                 <span className={`text-xs font-medium ${textColor.muted}`}>
                   Overall Progress
                 </span>
-                <span className={`text-xs font-medium text-emerald-500`}>
-                  100%
-                </span>
+                <span className="text-xs font-medium text-blue-500">100%</span>
               </div>
               <div
                 className={`h-2 rounded-full ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}
               >
                 <div
-                  className="h-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
+                  className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
                   style={{ width: "100%" }}
                 />
               </div>
             </div>
 
-            {/* Questions with Vertical Scroll - All filled and locked */}
+            {/* Questions */}
             <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2">
-              {Object.keys(questionsByDay).map((dayNo) => {
-                const day = questionsByDay[dayNo];
-                const dayQuestions = day.questions;
-
-                return (
-                  <div key={dayNo} className="mb-4">
-                    {/* Day Header */}
-                    <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-emerald-200 dark:border-emerald-800">
-                      <div
-                        className={`px-3 py-1 rounded-full text-sm font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400`}
-                      >
-                        Day {dayNo}
-                      </div>
-                      <span className={`text-xs ${textColor.muted}`}>
-                        {dayQuestions.length}/{dayQuestions.length} Completed
-                      </span>
-                      <CheckCircle className="w-4 h-4 text-emerald-500 ml-2" />
-                    </div>
-
-                    {/* Day's Questions - All locked with submitted answers */}
-                    <div className="flex flex-col gap-5">
-                      {dayQuestions.map((question, idx) => (
-                        <QuestionCard
-                          key={question.id}
-                          question={question}
-                          index={idx}
-                          answers={answers}
-                          hoverRating={hoverRating}
-                          setHoverRating={setHoverRating}
-                          theme={theme}
-                          textColor={textColor}
-                          bgColor={bgColor}
-                          borderColor={borderColor}
-                          onText={handleText}
-                          onRadio={handleRadio}
-                          onDropdown={handleDropdown}
-                          onMultiSelect={handleMultiSelect}
-                          onRating={handleRating}
-                          isSubmitted={true} // All questions are submitted
-                          isSubmitting={false}
-                          onQuestionSubmit={() => {}}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
+              {renderDays(true)}
             </div>
 
-            {/* Footer */}
             <div className={`mt-6 pt-4 border-t ${borderColor.primary}`}>
               <p className={`text-xs ${textColor.muted} text-center`}>
-                All your responses have been saved successfully. Great job
-                completing this week! 🎉
+                All your progress responses have been saved successfully. Great
+                job! 🎉
               </p>
             </div>
           </div>
@@ -886,9 +904,9 @@ const QuestionCard = ({
                     disabled={isSubmitted || val <= 0}
                     onClick={() => adjust(-10)}
                     className={`w-8 h-8 rounded-lg border border-gray-200 dark:border-gray-700
-            text-lg text-gray-400 flex items-center justify-center flex-shrink-0
-            transition-all hover:bg-gray-100 dark:hover:bg-gray-800
-            disabled:opacity-30 disabled:cursor-not-allowed`}
+                    text-lg text-gray-400 flex items-center justify-center flex-shrink-0
+                    transition-all hover:bg-gray-100 dark:hover:bg-gray-800
+                    disabled:opacity-30 disabled:cursor-not-allowed`}
                   >
                     −
                   </button>

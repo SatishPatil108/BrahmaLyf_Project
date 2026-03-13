@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import useCoachesList from "./useCoachesList";
-import {
-  deleteCoachAPI,
-  fetchAllSubDomainsAPI,
-} from "@/store/feature/admin";
+import { deleteCoachAPI, fetchAllSubDomainsAPI } from "@/store/feature/admin";
 import CustomButton from "@/components/CustomButton";
 import CustomDrawer from "@/components/CustomDrawer";
 import CoachInfo from "./CoachInfo";
@@ -20,7 +17,16 @@ const CoachesList = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const { pageNo, pageSize, setPageNo, setPageSize } = usePagination(1, 5);
-  const { coachesDetails, loading, error, domainsDetails, subdomainsDetails, addNewCoach, updateCoachDetails, deleteCoach } = useCoachesList(pageNo, pageSize);
+  const {
+    coachesDetails,
+    loading,
+    error,
+    domainsDetails,
+    subdomainsDetails,
+    addNewCoach,
+    updateCoachDetails,
+    deleteCoach,
+  } = useCoachesList(pageNo, pageSize);
 
   const coaches = coachesDetails.coaches || [];
   const domains = domainsDetails.domains || [];
@@ -37,16 +43,16 @@ const CoachesList = () => {
 
   // Form states
   const [coachForm, setCoachForm] = useState({
-    name: '',
-    email: '',
-    contactNumber: '',
-    experience: '',
-    domainId: '',
-    subdomainId: '',
-    professionalTitle: '',
-    bio: '',
-    profilePicture: null
-  })
+    name: "",
+    email: "",
+    contactNumber: "",
+    experience: "",
+    domainId: "",
+    subdomainId: "",
+    professionalTitle: "",
+    bio: "",
+    profilePicture: null,
+  });
 
   // Clear API errors when drawer closes
   useEffect(() => {
@@ -55,51 +61,57 @@ const CoachesList = () => {
     }
   }, [isDrawerOpen]);
   useEffect(() => {
-    if (location.state && location.state.mode === 'create') {
+    if (location.state && location.state.mode === "create") {
       handleAddCoach();
     }
   }, [location.state]);
-  // handle change 
+  // handle change
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "domainId") {
       const selectedDomainId = value;
       if (selectedDomainId) {
-        dispatch(fetchAllSubDomainsAPI({ domainId: selectedDomainId, pageNo: 1, pageSize: '*' }));
+        dispatch(
+          fetchAllSubDomainsAPI({
+            domainId: selectedDomainId,
+            pageNo: 1,
+            pageSize: "*",
+          }),
+        );
       }
       // Clear subdomain when domain changes
-      setCoachForm(prev => ({
+      setCoachForm((prev) => ({
         ...prev,
         [name]: value,
-        subdomainId: ''
+        subdomainId: "",
       }));
     } else {
-      setCoachForm(prev => ({ ...prev, [name]: value }));
+      setCoachForm((prev) => ({ ...prev, [name]: value }));
     }
 
     // Clear error when user starts typing
     if (formErrors[name] && touched[name]) {
-      setFormErrors(prev => ({ ...prev, [name]: '' }));
+      setFormErrors((prev) => ({ ...prev, [name]: "" }));
     }
 
     // Clear API error when user interacts with form
     if (apiError) {
       setApiError(null);
     }
-  }
+  };
 
   const resetForm = () => {
     setCoachForm({
-      name: '',
-      email: '',
-      contactNumber: '',
-      experience: '',
-      domainId: '',
-      subdomainId: '',
-      professionalTitle: '',
-      bio: '',
-      profilePicture: null
+      name: "",
+      email: "",
+      contactNumber: "",
+      experience: "",
+      domainId: "",
+      subdomainId: "",
+      professionalTitle: "",
+      bio: "",
+      profilePicture: null,
     });
     setFormErrors({});
     setApiError(null);
@@ -148,7 +160,11 @@ const CoachesList = () => {
   };
 
   const handleDeleteCoach = (coachId) => {
-    if (window.confirm("Are you sure you want to delete this coach? This action cannot be undone.")) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this coach? This action cannot be undone.",
+      )
+    ) {
       deleteCoach(coachId);
     }
   };
@@ -174,7 +190,10 @@ const CoachesList = () => {
 
     if (!coachForm.experience) {
       errors.experience = "Experience is required";
-    } else if (isNaN(coachForm.experience) || parseInt(coachForm.experience) < 0) {
+    } else if (
+      isNaN(coachForm.experience) ||
+      parseInt(coachForm.experience) < 0
+    ) {
       errors.experience = "Experience must be a valid number";
     }
 
@@ -204,10 +223,10 @@ const CoachesList = () => {
   };
 
   const handleBlur = (field) => {
-    setTouched(prev => ({ ...prev, [field]: true }));
+    setTouched((prev) => ({ ...prev, [field]: true }));
     const errors = validateForm();
     if (errors[field]) {
-      setFormErrors(prev => ({ ...prev, [field]: errors[field] }));
+      setFormErrors((prev) => ({ ...prev, [field]: errors[field] }));
     }
   };
 
@@ -224,7 +243,7 @@ const CoachesList = () => {
       domainId: true,
       subdomainId: true,
       bio: true,
-      profilePicture: true
+      profilePicture: true,
     };
     setTouched(allFieldsTouched);
 
@@ -234,9 +253,11 @@ const CoachesList = () => {
     if (Object.keys(errors).length > 0) {
       // Scroll to first error
       const firstErrorField = Object.keys(errors)[0];
-      const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
+      const errorElement = document.querySelector(
+        `[name="${firstErrorField}"]`,
+      );
       if (errorElement) {
-        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
         errorElement.focus();
       }
       return;
@@ -256,7 +277,7 @@ const CoachesList = () => {
     }
 
     try {
-      if (editingCoach && typeof editingCoach === 'object') {
+      if (editingCoach && typeof editingCoach === "object") {
         await updateCoachDetails(editingCoach.coach_id, formData);
       } else {
         await addNewCoach(formData);
@@ -285,7 +306,7 @@ const CoachesList = () => {
           className="flex items-center gap-2"
         >
           <UserPlus className="w-4 h-4" />
-          Add Coach
+          Add New Coach
         </CustomButton>
       </div>
 
@@ -331,8 +352,12 @@ const CoachesList = () => {
                       alt={coach.name}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
-                        e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(coach.name) + '&background=indigo&color=fff';
-                        e.target.className = 'w-full h-full object-contain bg-gray-100 dark:bg-gray-800 p-2';
+                        e.target.src =
+                          "https://ui-avatars.com/api/?name=" +
+                          encodeURIComponent(coach.name) +
+                          "&background=indigo&color=fff";
+                        e.target.className =
+                          "w-full h-full object-contain bg-gray-100 dark:bg-gray-800 p-2";
                       }}
                     />
                   </div>
@@ -355,7 +380,8 @@ const CoachesList = () => {
                     <span className="font-medium">Email:</span> {coach.email}
                   </p>
                   <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    <span className="font-medium">Contact:</span> {coach.contact_number}
+                    <span className="font-medium">Contact:</span>{" "}
+                    {coach.contact_number}
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm">
@@ -415,14 +441,20 @@ const CoachesList = () => {
         !loading &&
         !error && (
           <div className="text-center py-12 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
-            <div className="text-gray-400 dark:text-gray-600 text-5xl mb-4">👤</div>
+            <div className="text-gray-400 dark:text-gray-600 text-5xl mb-4">
+              👤
+            </div>
             <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
               No Coaches Found
             </h3>
             <p className="text-gray-500 dark:text-gray-400 mb-4">
               Get started by adding your first coach.
             </p>
-            <CustomButton onClick={handleAddCoach} variant="primary">
+            <CustomButton
+              onClick={handleAddCoach}
+              variant="primary"
+              className="mx-auto mt-10"
+            >
               <UserPlus className="w-4 h-4 mr-2" />
               Add First Coach
             </CustomButton>
@@ -434,21 +466,21 @@ const CoachesList = () => {
       <CustomDrawer
         isOpen={isDrawerOpen}
         onClose={resetForm}
-        title={showForm ? (editingCoach ? "Edit Coach" : "Add New Coach") : "Coach Details"}
+        title={
+          showForm
+            ? editingCoach
+              ? "Edit Coach"
+              : "Add New Coach"
+            : "Coach Details"
+        }
         footer={
           showForm ? (
             <div className="flex gap-3">
-              <CustomButton
-                variant="outline"
-                onClick={resetForm}
-              >
+              <CustomButton variant="outline" onClick={resetForm}>
                 Cancel
               </CustomButton>
-              <CustomButton
-                variant="primary"
-                onClick={handleSaveCoach}
-              >
-                {editingCoach ? 'Update Coach' : 'Save Coach'}
+              <CustomButton variant="primary" onClick={handleSaveCoach}>
+                {editingCoach ? "Update Coach" : "Save Coach"}
               </CustomButton>
             </div>
           ) : null
@@ -479,13 +511,14 @@ const CoachesList = () => {
                   name="name"
                   value={coachForm.name}
                   onChange={handleChange}
-                  onBlur={() => handleBlur('name')}
+                  onBlur={() => handleBlur("name")}
                   className={`
                     w-full px-4 py-2.5 rounded-lg border text-sm
                     focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors.name && touched.name
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+                    ${
+                      formErrors.name && touched.name
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
                     }
                     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
                   `}
@@ -508,13 +541,14 @@ const CoachesList = () => {
                   name="email"
                   value={coachForm.email}
                   onChange={handleChange}
-                  onBlur={() => handleBlur('email')}
+                  onBlur={() => handleBlur("email")}
                   className={`
                     w-full px-4 py-2.5 rounded-lg border text-sm
                     focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors.email && touched.email
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+                    ${
+                      formErrors.email && touched.email
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
                     }
                     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
                   `}
@@ -537,13 +571,14 @@ const CoachesList = () => {
                   name="contactNumber"
                   value={coachForm.contactNumber}
                   onChange={handleChange}
-                  onBlur={() => handleBlur('contactNumber')}
+                  onBlur={() => handleBlur("contactNumber")}
                   className={`
                     w-full px-4 py-2.5 rounded-lg border text-sm
                     focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors.contactNumber && touched.contactNumber
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+                    ${
+                      formErrors.contactNumber && touched.contactNumber
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
                     }
                     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
                   `}
@@ -566,14 +601,15 @@ const CoachesList = () => {
                   name="experience"
                   value={coachForm.experience}
                   onChange={handleChange}
-                  onBlur={() => handleBlur('experience')}
+                  onBlur={() => handleBlur("experience")}
                   min="0"
                   className={`
                     w-full px-4 py-2.5 rounded-lg border text-sm
                     focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors.experience && touched.experience
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+                    ${
+                      formErrors.experience && touched.experience
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
                     }
                     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
                   `}
@@ -596,13 +632,14 @@ const CoachesList = () => {
                   name="professionalTitle"
                   value={coachForm.professionalTitle}
                   onChange={handleChange}
-                  onBlur={() => handleBlur('professionalTitle')}
+                  onBlur={() => handleBlur("professionalTitle")}
                   className={`
                     w-full px-4 py-2.5 rounded-lg border text-sm
                     focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors.professionalTitle && touched.professionalTitle
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+                    ${
+                      formErrors.professionalTitle && touched.professionalTitle
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
                     }
                     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
                   `}
@@ -624,13 +661,14 @@ const CoachesList = () => {
                   name="domainId"
                   value={coachForm.domainId}
                   onChange={handleChange}
-                  onBlur={() => handleBlur('domainId')}
+                  onBlur={() => handleBlur("domainId")}
                   className={`
                     w-full px-4 py-2.5 rounded-lg border text-sm
                     focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors.domainId && touched.domainId
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+                    ${
+                      formErrors.domainId && touched.domainId
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
                     }
                     text-gray-900 dark:text-gray-100
                   `}
@@ -658,16 +696,17 @@ const CoachesList = () => {
                   name="subdomainId"
                   value={coachForm.subdomainId}
                   onChange={handleChange}
-                  onBlur={() => handleBlur('subdomainId')}
+                  onBlur={() => handleBlur("subdomainId")}
                   disabled={!coachForm.domainId || subdomains.length === 0}
                   className={`
                     w-full px-4 py-2.5 rounded-lg border text-sm
                     focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors.subdomainId && touched.subdomainId
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+                    ${
+                      formErrors.subdomainId && touched.subdomainId
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
                     }
-                    ${!coachForm.domainId ? 'opacity-60 cursor-not-allowed' : ''}
+                    ${!coachForm.domainId ? "opacity-60 cursor-not-allowed" : ""}
                     text-gray-900 dark:text-gray-100
                   `}
                 >
@@ -694,14 +733,15 @@ const CoachesList = () => {
                   name="bio"
                   value={coachForm.bio}
                   onChange={handleChange}
-                  onBlur={() => handleBlur('bio')}
+                  onBlur={() => handleBlur("bio")}
                   rows={4}
                   className={`
                     w-full px-4 py-2.5 rounded-lg border text-sm resize-none
                     focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors.bio && touched.bio
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+                    ${
+                      formErrors.bio && touched.bio
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
                     }
                     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
                   `}
@@ -723,12 +763,23 @@ const CoachesList = () => {
                   Profile Picture
                 </label>
                 <FileUploaderWithPreview
-                  imageFile={typeof coachForm.profilePicture === "object" ? coachForm.profilePicture : null}
-                  imageUrl={typeof coachForm.profilePicture === "string" ? coachForm.profilePicture : null}
+                  imageFile={
+                    typeof coachForm.profilePicture === "object"
+                      ? coachForm.profilePicture
+                      : null
+                  }
+                  imageUrl={
+                    typeof coachForm.profilePicture === "string"
+                      ? coachForm.profilePicture
+                      : null
+                  }
                   setImageFile={(file) => {
-                    setCoachForm(prev => ({ ...prev, profilePicture: file }));
+                    setCoachForm((prev) => ({ ...prev, profilePicture: file }));
                     if (formErrors.profilePicture && touched.profilePicture) {
-                      setFormErrors(prev => ({ ...prev, profilePicture: '' }));
+                      setFormErrors((prev) => ({
+                        ...prev,
+                        profilePicture: "",
+                      }));
                     }
                   }}
                   name="profilePicture"

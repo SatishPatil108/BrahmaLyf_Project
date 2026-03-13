@@ -9,7 +9,9 @@ import {
 
 const useSubDomainsList = (pageNo, pageSize, domainId) => {
   const dispatch = useDispatch();
-  const { subdomainsDetails, loading, error } = useSelector((state) => state.admin);
+  const { subdomainsDetails, loading, error } = useSelector(
+    (state) => state.admin,
+  );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
@@ -25,7 +27,7 @@ const useSubDomainsList = (pageNo, pageSize, domainId) => {
           pageNo,
           pageSize,
           domainId: Number(domainId),
-        })
+        }),
       );
     }
   }, [domainId, dispatch, pageNo, pageSize]);
@@ -36,16 +38,29 @@ const useSubDomainsList = (pageNo, pageSize, domainId) => {
         pageNo: 1,
         pageSize: 10,
         domainId: Number(domainId),
-      })
+      }),
     );
   }, [dispatch, domainId]);
+
+  useEffect(() => {
+    if (!actionMessage) return;
+
+    const timer = setTimeout(() => {
+      setActionMessage(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [actionMessage]);
 
   const addSubDomain = async (subDomainData) => {
     setIsSubmitting(true);
     clearMessage();
     try {
       await dispatch(addNewSubDomain(subDomainData)).unwrap();
-      setActionMessage({ type: "success", text: "Subdomain created successfully!" });
+      setActionMessage({
+        type: "success",
+        text: "Subdomain created successfully!",
+      });
       refetch();
     } catch (err) {
       console.error("Failed to add subdomain:", err);
@@ -65,7 +80,10 @@ const useSubDomainsList = (pageNo, pageSize, domainId) => {
     clearMessage();
     try {
       await dispatch(updateSubDomainAPI({ subdomainId, data })).unwrap();
-      setActionMessage({ type: "success", text: "Subdomain updated successfully!" });
+      setActionMessage({
+        type: "success",
+        text: "Subdomain updated successfully!",
+      });
       refetch();
     } catch (err) {
       console.error("Failed to update subdomain:", err);
@@ -85,7 +103,10 @@ const useSubDomainsList = (pageNo, pageSize, domainId) => {
     clearMessage();
     try {
       await dispatch(deleteSubDomainAPI(subdomainId)).unwrap();
-      setActionMessage({ type: "success", text: "Subdomain deleted successfully!" });
+      setActionMessage({
+        type: "success",
+        text: "Subdomain deleted successfully!",
+      });
       refetch();
     } catch (err) {
       console.error("Failed to delete subdomain:", err);

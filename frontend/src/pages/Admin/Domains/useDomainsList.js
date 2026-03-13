@@ -28,6 +28,18 @@ const useDomainsList = (pageNo, pageSize) => {
     dispatch(getAllDomains({ pageNo, pageSize }));
   }, [dispatch, pageNo, pageSize]);
 
+  useEffect(() => {
+    if (!actionMessage) return;
+
+    const timer = setTimeout(() => {
+      setActionMessage(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [actionMessage]);
+
+  
+
   const addDomain = async (domainData) => {
     setIsSubmitting(true);
     clearMessage();

@@ -228,7 +228,7 @@ const ProgressToolsForm = ({ courseId, theme = "light", onSubmitSuccess }) => {
         }),
       ).unwrap();
 
-      dispatch(markToolsQuestionSubmitted({ questionId }));
+      dispatch(markToolsQuestionSubmitted({ courseId, questionId }));
       await forceRefreshAnswers();
 
       const dayQuestions = allQuestions.filter((q) => q.day_no === dayNo);

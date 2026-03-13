@@ -16,33 +16,50 @@ import {
   ArrowUpRight,
   Eye,
   ChevronRight,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import UserCountGraph from "./UserCountGraph";
 import CustomButton from "@/components/CustomButton";
 
-const StatCard = ({ title, value, icon: Icon, color, trend, subtitle, onClick }) => {
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  color,
+  trend,
+  subtitle,
+  onClick,
+}) => {
   const Card = (
-    <div className={`
+    <div
+      className={`
       bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800
       transition-all duration-300 hover:shadow-lg
-      ${onClick ? 'cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-700' : ''}
+      ${onClick ? "cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-700" : ""}
       flex flex-col justify-between h-full
-    `}>
+    `}
+    >
       {/* Top Section */}
       <div className="flex items-start justify-between mb-4">
-        <div className={`p-3 rounded-xl ${color.bg} dark:${color.darkBg} flex items-center justify-center`}>
+        <div
+          className={`p-3 rounded-xl ${color.bg} dark:${color.darkBg} flex items-center justify-center`}
+        >
           <Icon size={24} className={color.icon} />
         </div>
 
         {/* Trend Indicator */}
         {trend && (
-          <div className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full ${trend.value > 0
-            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-            : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-            }`}>
-            <ArrowUpRight className={`w-3 h-3 ${trend.value > 0 ? '' : 'rotate-90'}`} />
+          <div
+            className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full ${
+              trend.value > 0
+                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
+            }`}
+          >
+            <ArrowUpRight
+              className={`w-3 h-3 ${trend.value > 0 ? "" : "rotate-90"}`}
+            />
             <span>{Math.abs(trend.value)}%</span>
           </div>
         )}
@@ -83,10 +100,9 @@ const StatCard = ({ title, value, icon: Icon, color, trend, subtitle, onClick })
   return Card;
 };
 
-
 function AdminDashboard() {
-
-  const { user, handleLogout, dashboardData, loading, error } = useAdminDashboard();
+  const { user, handleLogout, dashboardData, loading, error } =
+    useAdminDashboard();
   const navigate = useNavigate();
 
   if (loading) {
@@ -133,10 +149,10 @@ function AdminDashboard() {
       color: {
         icon: "text-blue-600 dark:text-blue-400",
         bg: "bg-blue-100",
-        darkBg: "bg-blue-900/20"
+        darkBg: "bg-blue-900/20",
       },
       trend: { value: 12, label: "vs last month" },
-      subtitle: "Registered users"
+      subtitle: "Registered users",
     },
     {
       title: "Active Users",
@@ -145,10 +161,10 @@ function AdminDashboard() {
       color: {
         icon: "text-green-600 dark:text-green-400",
         bg: "bg-green-100",
-        darkBg: "bg-green-900/20"
+        darkBg: "bg-green-900/20",
       },
       trend: { value: 8, label: "currently online" },
-      subtitle: "This month"
+      subtitle: "This month",
     },
     {
       title: "New Signups",
@@ -157,10 +173,10 @@ function AdminDashboard() {
       color: {
         icon: "text-amber-600 dark:text-amber-400",
         bg: "bg-amber-100",
-        darkBg: "bg-amber-900/20"
+        darkBg: "bg-amber-900/20",
       },
       trend: { value: 24, label: "vs last week" },
-      subtitle: "Past 7 days"
+      subtitle: "Past 7 days",
     },
     {
       title: "Total Courses",
@@ -169,10 +185,10 @@ function AdminDashboard() {
       color: {
         icon: "text-purple-600 dark:text-purple-400",
         bg: "bg-purple-100",
-        darkBg: "bg-purple-900/20"
+        darkBg: "bg-purple-900/20",
       },
       onClick: () => navigate("/admin/courses"),
-      subtitle: "Published courses"
+      subtitle: "Published courses",
     },
     {
       title: "Registered Coaches",
@@ -181,10 +197,10 @@ function AdminDashboard() {
       color: {
         icon: "text-pink-600 dark:text-pink-400",
         bg: "bg-pink-100",
-        darkBg: "bg-pink-900/20"
+        darkBg: "bg-pink-900/20",
       },
       onClick: () => navigate("/admin/coaches"),
-      subtitle: "Active coaches"
+      subtitle: "Active coaches",
     },
     {
       title: "Total Domains",
@@ -193,19 +209,19 @@ function AdminDashboard() {
       color: {
         icon: "text-gray-600 dark:text-gray-400",
         bg: "bg-gray-100",
-        darkBg: "bg-gray-900/20"
+        darkBg: "bg-gray-900/20",
       },
       onClick: () => navigate("/admin/domains"),
-      subtitle: "Learning domains"
+      subtitle: "Learning domains",
     },
   ];
 
   const formatDate = () => {
-    return new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -329,7 +345,9 @@ function AdminDashboard() {
               </h3>
               <div className="space-y-3">
                 <CustomButton
-                  onClick={() => navigate("/admin/courses", { state: { mode: 'create' } })}
+                  onClick={() =>
+                    navigate("/admin/courses", { state: { mode: "create" } })
+                  }
                   variant="outline"
                   className="w-full justify-start"
                 >
@@ -337,7 +355,9 @@ function AdminDashboard() {
                   Create New Course
                 </CustomButton>
                 <CustomButton
-                  onClick={() => navigate("/admin/coaches", { state: { mode: 'create' } })}
+                  onClick={() =>
+                    navigate("/admin/coaches", { state: { mode: "create" } })
+                  }
                   variant="outline"
                   className="w-full justify-start"
                 >
@@ -406,7 +426,7 @@ function AdminDashboard() {
                           {course.course_name}
                         </h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                          {course.domain_name || 'General'}
+                          {course.domain_name || "General"}
                         </p>
                       </div>
                     </div>
@@ -415,23 +435,29 @@ function AdminDashboard() {
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">Enrollments</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Enrollments
+                      </span>
                       <span className="font-semibold text-gray-900 dark:text-gray-100">
                         {course.total_enrollments}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">Completion Rate</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Completion Rate
+                      </span>
                       <span className="font-semibold text-green-600 dark:text-green-400">
-                        {course.completion_rate || '68%'}
+                        {course.completion_rate || "68%"}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">Avg Rating</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Avg Rating
+                      </span>
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                         <span className="font-semibold text-gray-900 dark:text-gray-100">
-                          {course.avg_rating || '4.8'}
+                          {course.avg_rating || "4.8"}
                         </span>
                       </div>
                     </div>
@@ -440,7 +466,7 @@ function AdminDashboard() {
                   <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-500 dark:text-gray-500">
-                        Coach: {course.coach_name || 'N/A'}
+                        Coach: {course.coach_name || "N/A"}
                       </span>
                       <span className="text-indigo-600 dark:text-indigo-400 font-medium">
                         View Details →
@@ -462,6 +488,7 @@ function AdminDashboard() {
               <CustomButton
                 onClick={() => navigate("/admin/courses")}
                 variant="outline"
+                className="mx-auto"
               >
                 Browse Courses
               </CustomButton>

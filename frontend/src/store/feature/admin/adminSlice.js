@@ -44,7 +44,6 @@ import {
   updateProgressToolsQuestionAPI,
   fetchProgressToolsQuestionsAPI,
   postProgressToolsQuestionAPI,
-      
 } from "./adminThunk";
 
 const adminSlice = createSlice({
@@ -81,28 +80,34 @@ const adminSlice = createSlice({
         state.dashboardData = action.payload;
       })
 
-      // // Domains
+      // Domains
       .addCase(getAllDomains.fulfilled, (state, action) => {
-        state.domainsDetails = action.payload || [];
+        state.domainsDetails.domains = action.payload?.domains || [];
       })
+
       .addCase(addNewDomain.fulfilled, (state, action) => {
         state.domainsDetails.domains.push(action.payload);
       })
+
       .addCase(updateDomainAPI.fulfilled, (state, action) => {
         const index = state.domainsDetails.domains.findIndex(
           (d) => d.domain_id == action.payload.domain_id,
         );
-        if (index !== -1) state.domainsDetails.domains[index] = action.payload;
+
+        if (index !== -1) {
+          state.domainsDetails.domains[index] = action.payload;
+        }
       })
+
       .addCase(deleteDomainAPI.fulfilled, (state, action) => {
         state.domainsDetails.domains = state.domainsDetails.domains.filter(
-          (d) => d.id !== action.payload.id,
+          (d) => d.domain_id !== action.payload.domain_id,
         );
       })
 
       // Subdomains
       .addCase(fetchAllSubDomainsAPI.fulfilled, (state, action) => {
-        state.subdomainsDetails = action.payload || [];
+        state.subdomainsDetails = action.payload?.subdomains || [];
       })
       .addCase(addNewSubDomain.fulfilled, (state, action) => {
         state.subdomainsDetails.subdomains.push(action.payload);
@@ -124,7 +129,7 @@ const adminSlice = createSlice({
 
       // Coaches
       .addCase(fetchAllCoachesAPI.fulfilled, (state, action) => {
-        state.coachesDetails = action.payload || {};
+        state.coachesDetails = action.payload?.coaches || [];
       })
       .addCase(addNewCoachAPI.fulfilled, (state, action) => {
         state.coachesDetails.coaches.push({
@@ -157,7 +162,7 @@ const adminSlice = createSlice({
 
       // Courses
       .addCase(fetchAllCoursesAPI.fulfilled, (state, action) => {
-        state.coursesDetails = action.payload || [];
+        state.coursesDetails = action.payload?.courses || [];
       })
       .addCase(fetchCourseDetailsAPI.fulfilled, (state, action) => {
         state.courseDetails = action.payload;
@@ -185,7 +190,7 @@ const adminSlice = createSlice({
 
       // FAQs
       .addCase(fetchFAQsAPI.fulfilled, (state, action) => {
-        state.faqsDetails = action.payload || [];
+        state.faqsDetails = action.payload?.faqs || [];
       })
       .addCase(addNewFAQAPI.fulfilled, (state, action) => {
         state.faqsDetails.faqs.push(action.payload);
@@ -235,7 +240,7 @@ const adminSlice = createSlice({
         state.audiosDetails.audios.unshift(action.payload);
       })
       .addCase(fetchAllMusicsAPI.fulfilled, (state, action) => {
-        state.audiosDetails = action.payload;
+        state.audiosDetails = action.payload?.audios || [];
       })
       .addCase(updateMusicAPI.fulfilled, (state, action) => {
         state.audiosDetails.audios = state.audiosDetails.audios.map((music) => {
@@ -254,7 +259,7 @@ const adminSlice = createSlice({
       // Inquiries
 
       .addCase(getInquiriesAPI.fulfilled, (state, action) => {
-        state.inquiriesDetails = action.payload || [];
+        state.inquiriesDetails = action.payload?.inquiries || [];
       })
 
       // Daily Short Videos
@@ -263,7 +268,7 @@ const adminSlice = createSlice({
       })
 
       .addCase(fetchAllShortVideosAPI.fulfilled, (state, action) => {
-        state.shortVideosDetails = action.payload || [];
+        state.shortVideosDetails = action.payload?.videos || [];
       })
 
       .addCase(updateShortVideoAPI.fulfilled, (state, action) => {
@@ -291,7 +296,7 @@ const adminSlice = createSlice({
 
       .addCase(fetchProgressTasksQuestionsAPI.fulfilled, (state, action) => {
         state.ptqLoading = false;
-        state.progressTasksQuestions = action.payload;
+        state.progressTasksQuestions = action.payload?.questions || [];
       })
 
       .addCase(updateProgressTasksQuestionAPI.fulfilled, (state, action) => {
@@ -319,7 +324,7 @@ const adminSlice = createSlice({
       })
 
       .addCase(fetchProgressToolsQuestionsAPI.fulfilled, (state, action) => {
-        state.progressToolsQuestions = action.payload || [];
+        state.progressToolsQuestions = action.payload?.tools || [];
       })
 
       .addCase(updateProgressToolsQuestionAPI.fulfilled, (state, action) => {

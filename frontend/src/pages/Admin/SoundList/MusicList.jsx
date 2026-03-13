@@ -227,11 +227,7 @@ const MusicList = () => {
             </div>
           </div>
 
-          <CustomButton
-            onClick={openAddDrawer}
-            variant="primary"
-            className="relative group overflow-hidden px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300  cursor-pointer"
-          >
+          <CustomButton onClick={openAddDrawer} variant="primary">
             <Plus className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
             Add New Song
           </CustomButton>
@@ -428,7 +424,7 @@ const MusicList = () => {
             <CustomButton
               onClick={openAddDrawer}
               variant="primary"
-              className="relative group overflow-hidden px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300  cursor-pointer"
+              className="mx-auto"
             >
               <Plus className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
               Add first Song
