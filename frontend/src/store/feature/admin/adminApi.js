@@ -81,7 +81,7 @@ export const updateSubDomain = async (subdomainId, subdomainData) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 // delete a subdomain with subdomain_id in the payload
 export const deleteSubDomain = async (subdomainId) => {
@@ -93,7 +93,6 @@ export const deleteSubDomain = async (subdomainId) => {
     tokenType: "admin",
   });
 };
-
 
 // Fetch all coaches with pagination
 export const fetchAllCoaches = async (pageNo, pageSize) => {
@@ -114,7 +113,7 @@ export const addNewCoach = async (coachData) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 //update a coach
 export const updateCoach = async (coachId, coachData) => {
   return await makeRequest({
@@ -124,7 +123,7 @@ export const updateCoach = async (coachId, coachData) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 //delete a coach
 export const deleteCoach = async (coachId) => {
   return await makeRequest({
@@ -133,7 +132,7 @@ export const deleteCoach = async (coachId) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 //coach details
 export const fetchCoachDetails = async (coachId) => {
@@ -143,10 +142,10 @@ export const fetchCoachDetails = async (coachId) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 // Fetch all courses with pagination
-export const fetchAllCourses = async (pageNo = 1, pageSize = 50) => {
+export const fetchAllCourses = async (pageNo = 1, pageSize = 10) => {
   return await makeRequest({
     service: `admin/coaches/courses/${pageNo}/${pageSize}`,
     method: API_METHODS.GET,
@@ -174,7 +173,7 @@ export const addNewCourse = async (courseData) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 //get all coaches
 export const fetchCoaches = async () => {
@@ -184,7 +183,7 @@ export const fetchCoaches = async () => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 //post curriculum data
 // Add curriculum outline for a course (POST)
@@ -228,7 +227,7 @@ export const deleteCourse = async (courseId) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 //update course
 export const updateCourse = async (courseId, courseData) => {
@@ -239,8 +238,7 @@ export const updateCourse = async (courseId, courseData) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
-
+};
 
 // fetch Frequently Asked Questions list
 export const fetchFAQs = async (pageNo, pageSize) => {
@@ -261,7 +259,7 @@ export const addNewFAQ = async (faqData) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 //update faq
 export const updateFAQ = async (faqId, faqData) => {
@@ -272,7 +270,7 @@ export const updateFAQ = async (faqId, faqData) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 //delete faq
 export const deleteFAQ = async (faqId) => {
@@ -282,7 +280,7 @@ export const deleteFAQ = async (faqId) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 //delete curriculum item
 export const deleteCourseCurriculum = async (courseId, curriculumId) => {
@@ -305,8 +303,7 @@ export const updateCurriculumItem = async (curriculumId, curriculumData) => {
   });
 };
 
-
-// mediation  music 
+// mediation  music
 
 // add new music
 export const postMusic = async (musicData) => {
@@ -338,7 +335,7 @@ export const updateMusic = async (id, data) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 // delete music
 export const deleteMusic = async (musicId) => {
@@ -348,7 +345,7 @@ export const deleteMusic = async (musicId) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 // Fetch Inquiries with pagination
 export const fetchInquiries = async (pageNo, pageSize) => {
@@ -403,7 +400,7 @@ export const updateShortVideo = async (id, data) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 // delete daily short video
 export const deleteShortVideo = async (shortId) => {
@@ -412,12 +409,11 @@ export const deleteShortVideo = async (shortId) => {
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "admin",
-  })
-}
+  });
+};
 
 // fetch progress tracking questions by week number and day number
-export const fetchProgressTrackingQuestions = async (weekNo, dayNo) => {
-  console.log("weekNo:", weekNo, "dayNo:", dayNo);
+export const fetchProgressTrackingQuestions = async ({ weekNo, dayNo }) => {
   return await makeRequest({
     service: `admin/progress-tracking/questions?weekNo=${weekNo}&dayNo=${dayNo}`,
     method: API_METHODS.GET,
@@ -447,8 +443,7 @@ export const updateProgressTrackingQuestion = async (id, data) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
-
+};
 
 // delete progress tracking question
 export const deleteProgressTrackingQuestion = async (questionId) => {
@@ -457,8 +452,8 @@ export const deleteProgressTrackingQuestion = async (questionId) => {
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "admin",
-  })
-}
+  });
+};
 
 // fetch all progress tracking option
 export const fetchProgressTrackingOptions = async () => {
@@ -468,7 +463,7 @@ export const fetchProgressTrackingOptions = async () => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 // post progress tracking options for a question
 export const postProgressTrackingOptions = async (questionId, optionsData) => {
@@ -490,7 +485,7 @@ export const updateProgressTrackingOption = async (optionId, data) => {
     authRequired: true,
     tokenType: "admin",
   });
-}
+};
 
 // delete progress tracking option
 export const deleteProgressTrackingOption = async (optionId) => {
@@ -499,5 +494,5 @@ export const deleteProgressTrackingOption = async (optionId) => {
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "admin",
-  })
-}
+  });
+};

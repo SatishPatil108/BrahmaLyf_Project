@@ -33,9 +33,10 @@ const AdminNavbar = () => {
   }, [location.pathname]);
 
   const linkStyle = ({ isActive }) =>
-    `block px-2 lg:px-3 py-2.5 rounded-lg text-sm lg:text-base font-medium transition-all duration-300 ${isActive
-      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
-      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
+    `block px-2 lg:px-3 py-2.5 rounded-lg text-sm lg:text-base font-medium transition-all duration-300 ${
+      isActive
+        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
+        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
     }`;
 
   const handleLogout = () => {
@@ -49,10 +50,11 @@ const AdminNavbar = () => {
 
   return (
     <header
-      className={`sticky top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled
-        ? "bg-white/90 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-800"
-        : "bg-transparent"
-        }`}
+      className={`sticky top-0 left-0 w-full z-50 transition-all duration-500 ${
+        isScrolled
+          ? "bg-white/90 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-800"
+          : "bg-transparent"
+      }`}
     >
       <div className="w-full px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8">
         <div className="flex justify-between items-center h-16 sm:h-20">
@@ -78,11 +80,7 @@ const AdminNavbar = () => {
           {adminLoginSuccess && (
             <nav className="hidden lg:flex items-center gap-1 flex-1 min-w-0 overflow-x-auto scrollbar-hide mx-4 xl:mx-6">
               {navItems.map((item) => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  className={linkStyle}
-                >
+                <NavLink key={item.path} to={item.path} className={linkStyle}>
                   {item.name}
                 </NavLink>
               ))}
@@ -153,7 +151,6 @@ const AdminNavbar = () => {
         </div>
       </div>
 
-
       {/* Mobile Menu - Small screens */}
       {menuOpen && (
         <div className="md:flex lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-xl">
@@ -170,9 +167,10 @@ const AdminNavbar = () => {
                       key={item.path}
                       to={item.path}
                       className={({ isActive }) =>
-                        `flex items-center px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ${isActive
-                          ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 border-l-4 border-indigo-600"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        `flex items-center px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ${
+                          isActive
+                            ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 border-l-4 border-indigo-600"
+                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                         }`
                       }
                       onClick={() => setMenuOpen(false)}

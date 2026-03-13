@@ -1,10 +1,17 @@
-import { addNewDomain, deleteDomainAPI,   getAllDomains,   updateDomainAPI } from "@/store/feature/admin";
+import {
+  addNewDomain,
+  deleteDomainAPI,
+  getAllDomains,
+  updateDomainAPI,
+} from "@/store/feature/admin";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const useDomainsList = (pageNo, pageSize) => {
   const dispatch = useDispatch();
-  const { domainsDetails, loading, error } = useSelector((state) => state.admin);
+  const { domainsDetails, loading, error } = useSelector(
+    (state) => state.admin,
+  );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
@@ -26,7 +33,10 @@ const useDomainsList = (pageNo, pageSize) => {
     clearMessage();
     try {
       await dispatch(addNewDomain(domainData)).unwrap();
-      setActionMessage({ type: "success", text: "Domain created successfully!" });
+      setActionMessage({
+        type: "success",
+        text: "Domain created successfully!",
+      });
       refetch();
     } catch (err) {
       console.error("Failed to add domain:", err);
@@ -46,7 +56,10 @@ const useDomainsList = (pageNo, pageSize) => {
     clearMessage();
     try {
       await dispatch(updateDomainAPI({ domainId, domainData })).unwrap();
-      setActionMessage({ type: "success", text: "Domain updated successfully!" });
+      setActionMessage({
+        type: "success",
+        text: "Domain updated successfully!",
+      });
       refetch();
     } catch (err) {
       console.error("Failed to update domain:", err);
@@ -66,7 +79,10 @@ const useDomainsList = (pageNo, pageSize) => {
     clearMessage();
     try {
       await dispatch(deleteDomainAPI(domainId)).unwrap();
-      setActionMessage({ type: "success", text: "Domain deleted successfully!" });
+      setActionMessage({
+        type: "success",
+        text: "Domain deleted successfully!",
+      });
       refetch();
     } catch (err) {
       console.error("Failed to delete domain:", err);

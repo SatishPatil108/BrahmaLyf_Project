@@ -12,32 +12,7 @@ import {
 } from "@/store/feature/admin";
 import usePagination from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination/Pagination";
-
-// Color configuration
-const COLORS = {
-  primary: {
-    light: { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200" },
-    dark: { bg: "bg-indigo-900/20", text: "text-indigo-400", border: "border-indigo-800" },
-    icon: "text-indigo-600 dark:text-indigo-400",
-    gradient: "from-indigo-600 to-purple-600"
-  },
-  danger: {
-    light: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
-    dark: { bg: "bg-red-900/20", text: "text-red-400", border: "border-red-800" },
-    icon: "text-red-600 dark:text-red-400"
-  },
-  success: {
-    light: { bg: "bg-green-50", text: "text-green-700", border: "border-green-200" },
-    dark: { bg: "bg-green-900/20", text: "text-green-400", border: "border-green-800" },
-    icon: "text-green-600 dark:text-green-400"
-  },
-  warning: {
-    light: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
-    dark: { bg: "bg-amber-900/20", text: "text-amber-400", border: "border-amber-800" },
-    icon: "text-amber-600 dark:text-amber-400"
-  }
-};
-
+ 
 const FrequentlyAskQue = () => {
   const dispatch = useDispatch();
   const { pageNo, pageSize, setPageNo, setPageSize } = usePagination(1, 5);

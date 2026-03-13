@@ -6,7 +6,7 @@ import AddCourseInfo from "./AddCourseInfo";
 import AddCourseCurriculum from "./AddCourseCurriculum";
 import useDomainData from "./useDomainData";
 import { addNewCourseAPI, postProgressTrackingQuestionAPI } from "@/store/feature/admin";
-import ProgressTracking from "./ProgressTracking";
+import ProgressTracking from "../ProgressTracking/ProgressTracking";
 
 const steps = ["Course Information", "Curriculum Setup", "Progress Tracking"];
 
@@ -16,7 +16,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
 
   const domains = domainsDetails.domains || [];
   const subdomains = subdomainsDetails.subdomains || [];
-  const [activeStep, setActiveStep] = useState(2);
+  const [activeStep, setActiveStep] = useState(0);
   const [formErrors, setFormErrors] = useState({});
   const [apiError, setApiError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -47,8 +47,7 @@ import {
   updateProgressTrackingOption,
   deleteProgressTrackingOption,
   fetchProgressTrackingOptions,
-}
-  from "./adminApi";
+} from "./adminApi";
 
 export const getAdminDashboardData = createAsyncThunk(
   "admin/getDashboardData",
@@ -58,10 +57,10 @@ export const getAdminDashboardData = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch dashboard data"
+        error.response?.data?.message || "Failed to fetch dashboard data",
       );
     }
-  }
+  },
 );
 
 //get all Domains List
@@ -73,10 +72,10 @@ export const getAllDomains = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch domains"
+        error.response?.data?.message || "Failed to fetch domains",
       );
     }
-  }
+  },
 );
 
 // Add New Domain
@@ -88,10 +87,10 @@ export const addNewDomain = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to add new domain"
+        error.response?.data?.message || "Failed to add new domain",
       );
     }
-  }
+  },
 );
 // Update Domain
 export const updateDomainAPI = createAsyncThunk(
@@ -102,10 +101,10 @@ export const updateDomainAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to update domain"
+        error.response?.data?.message || "Failed to update domain",
       );
     }
-  }
+  },
 );
 
 // Delete Domain
@@ -117,14 +116,11 @@ export const deleteDomainAPI = createAsyncThunk(
       return domainId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete domain"
+        error.response?.data?.message || "Failed to delete domain",
       );
     }
-  }
+  },
 );
-
-
-
 
 export const fetchAllSubDomainsAPI = createAsyncThunk(
   "subdomains/fetchAll",
@@ -136,7 +132,7 @@ export const fetchAllSubDomainsAPI = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 // Add New Subdomain
@@ -149,7 +145,7 @@ export const addNewSubDomain = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 //update Subdomain
@@ -162,12 +158,10 @@ export const updateSubDomainAPI = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
-
 //Delete subdomain
-
 
 export const deleteSubDomainAPI = createAsyncThunk(
   "admin/deleteSubDomain",
@@ -177,12 +171,11 @@ export const deleteSubDomainAPI = createAsyncThunk(
       return { subdomain_id: subdomainId };
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete subdomain"
+        error.response?.data?.message || "Failed to delete subdomain",
       );
     }
-  }
+  },
 );
-
 
 //fetch all coaches with pagination
 export const fetchAllCoachesAPI = createAsyncThunk(
@@ -194,7 +187,7 @@ export const fetchAllCoachesAPI = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 // Add New Coach
@@ -206,10 +199,10 @@ export const addNewCoachAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to add new coach"
+        error.response?.data?.message || "Failed to add new coach",
       );
     }
-  }
+  },
 );
 //update coach
 export const updateCoachAPI = createAsyncThunk(
@@ -220,10 +213,10 @@ export const updateCoachAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to update coach"
+        error.response?.data?.message || "Failed to update coach",
       );
     }
-  }
+  },
 );
 //delete a coach
 export const deleteCoachAPI = createAsyncThunk(
@@ -234,10 +227,10 @@ export const deleteCoachAPI = createAsyncThunk(
       return coachId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete coach"
+        error.response?.data?.message || "Failed to delete coach",
       );
     }
-  }
+  },
 );
 
 //fetch coach details
@@ -249,10 +242,10 @@ export const fetchCoachDetailsAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch coach details"
+        error.response?.data?.message || "Failed to fetch coach details",
       );
     }
-  }
+  },
 );
 
 // Fetch all courses with pagination
@@ -265,7 +258,7 @@ export const fetchAllCoursesAPI = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 //course details
@@ -277,10 +270,10 @@ export const fetchCourseDetailsAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch course details"
+        error.response?.data?.message || "Failed to fetch course details",
       );
     }
-  }
+  },
 );
 
 // new Code
@@ -293,10 +286,10 @@ export const addNewCourseAPI = createAsyncThunk(
     } catch (error) {
       console.error("error: ", error);
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to add new course"
+        error.response?.data?.message || "Failed to add new course",
       );
     }
-  }
+  },
 );
 
 //fetch coaches in dropdown
@@ -308,10 +301,10 @@ export const fetchCoachesDropdownAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch coaches dropdown"
+        error.response?.data?.message || "Failed to fetch coaches dropdown",
       );
     }
-  }
+  },
 );
 
 //delete course
@@ -323,10 +316,10 @@ export const deleteCourseAPI = createAsyncThunk(
       return courseId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete course"
+        error.response?.data?.message || "Failed to delete course",
       );
     }
-  }
+  },
 );
 
 // delete curriculum item
@@ -341,10 +334,10 @@ export const deleteCurriculumItemAPI = createAsyncThunk(
       return curriculumId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete curriculum item"
+        error.response?.data?.message || "Failed to delete curriculum item",
       );
     }
-  }
+  },
 );
 
 //update course
@@ -356,10 +349,10 @@ export const updateCourseAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to update course"
+        error.response?.data?.message || "Failed to update course",
       );
     }
-  }
+  },
 );
 
 // add curriculum item
@@ -371,10 +364,10 @@ export const addCurriculumItemAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to add curriculum item"
+        error.response?.data?.message || "Failed to add curriculum item",
       );
     }
-  }
+  },
 );
 
 // update curriculum item
@@ -386,10 +379,10 @@ export const updateCurriculumItemAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to update curriculum item"
+        error.response?.data?.message || "Failed to update curriculum item",
       );
     }
-  }
+  },
 );
 
 //fetch frequently ask questions list
@@ -402,10 +395,10 @@ export const fetchFAQsAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch FAQs"
+        error.response?.data?.message || "Failed to fetch FAQs",
       );
     }
-  }
+  },
 );
 
 //add new FAQ
@@ -417,10 +410,10 @@ export const addNewFAQAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to add new FAQ"
+        error.response?.data?.message || "Failed to add new FAQ",
       );
     }
-  }
+  },
 );
 
 //update FAQ
@@ -432,10 +425,10 @@ export const updateFAQAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to update FAQ"
+        error.response?.data?.message || "Failed to update FAQ",
       );
     }
-  }
+  },
 );
 
 //delete FAQ
@@ -447,14 +440,13 @@ export const deleteFAQAPI = createAsyncThunk(
       return faqId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete FAQ"
+        error.response?.data?.message || "Failed to delete FAQ",
       );
     }
-  }
+  },
 );
 
-
-// music 
+// music
 // post music
 export const postMusicAPI = createAsyncThunk(
   "admin/postmusic",
@@ -463,12 +455,12 @@ export const postMusicAPI = createAsyncThunk(
       const response = await postMusic(musicData);
       return response.data;
     } catch (error) {
-      console.error(error)
+      console.error(error);
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to add music"
+        error.response?.message || "Failed to add music",
       );
     }
-  }
+  },
 );
 
 // fetch All music list
@@ -480,10 +472,10 @@ export const fetchAllMusicsAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to fetch musicAudios"
+        error.response?.message || "Failed to fetch musicAudios",
       );
     }
-  }
+  },
 );
 
 // update music details
@@ -495,13 +487,13 @@ export const updateMusicAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to update music"
+        error.response?.data?.message || "Failed to update music",
       );
     }
-  }
+  },
 );
 
-// delete music 
+// delete music
 export const deleteMusicAPI = createAsyncThunk(
   "admin/delete/music",
   async (musicId, thunkAPI) => {
@@ -510,10 +502,10 @@ export const deleteMusicAPI = createAsyncThunk(
       return musicId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete Music"
+        error.response?.data?.message || "Failed to delete Music",
       );
     }
-  }
+  },
 );
 
 export const getInquiriesAPI = createAsyncThunk(
@@ -524,10 +516,10 @@ export const getInquiriesAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch inquiries"
+        error.response?.data?.message || "Failed to fetch inquiries",
       );
     }
-  }
+  },
 );
 
 export const sendReplyAPI = createAsyncThunk(
@@ -538,10 +530,10 @@ export const sendReplyAPI = createAsyncThunk(
       return response;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to send reply"
+        error.response?.data?.message || "Failed to send reply",
       );
     }
-  }
+  },
 );
 
 // add New short video
@@ -552,12 +544,12 @@ export const addNewShortVideoAPI = createAsyncThunk(
       const response = await postShortVideo(shortVideoData);
       return response.data;
     } catch (error) {
-      console.error(error)
+      console.error(error);
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to add short video"
+        error.response?.message || "Failed to add short video",
       );
     }
-  }
+  },
 );
 
 // fetch All Short Videos list
@@ -569,10 +561,10 @@ export const fetchAllShortVideosAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to fetch Short Videos"
+        error.response?.message || "Failed to fetch Short Videos",
       );
     }
-  }
+  },
 );
 
 // update short video details
@@ -584,13 +576,13 @@ export const updateShortVideoAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to update short video"
+        error.response?.data?.message || "Failed to update short video",
       );
     }
-  }
+  },
 );
 
-// delete short video 
+// delete short video
 export const deleteShortVideoAPI = createAsyncThunk(
   "admin/delete/short-video",
   async (shortVideoId, thunkAPI) => {
@@ -599,25 +591,26 @@ export const deleteShortVideoAPI = createAsyncThunk(
       return shortVideoId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete Short Video"
+        error.response?.data?.message || "Failed to delete Short Video",
       );
     }
-  }
+  },
 );
 
 // fetch progress tracking question by week no and day no
 export const fetchProgressTrackingQuestionsAPI = createAsyncThunk(
-  "admin/get/progress-tracking-questions",
+  "admin/get/progress-tracking/questions",
   async ({ weekNo, dayNo }, thunkAPI) => {
     try {
-      const response = await fetchProgressTrackingQuestions(weekNo, dayNo);
+      const response = await fetchProgressTrackingQuestions({ weekNo, dayNo });
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to fetch progress tracking questions"
+        error.response?.message ||
+          "Failed to fetch progress tracking questions",
       );
     }
-  }
+  },
 );
 
 // post progress tracking question
@@ -628,28 +621,34 @@ export const postProgressTrackingQuestionAPI = createAsyncThunk(
       const response = await postProgressTrackingQuestion(questionData);
       return response.data;
     } catch (error) {
-      console.error(error)
+      console.error(error);
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to add progress tracking question"
+        error.response?.message || "Failed to add progress tracking question",
       );
     }
-  }
+  },
 );
 
 // update progress tracking question
 export const updateProgressTrackingQuestionAPI = createAsyncThunk(
   "admin/updateProgressTrackingQuestion",
   async ({ questionId, questionData }, thunkAPI) => {
+    
     try {
-      const response = await updateProgressTrackingQuestion(questionId, questionData);
+      console.log("Thunk sending:", { questionId, questionData });
+      const response = await updateProgressTrackingQuestion(
+        questionId,
+        questionData,
+      );
       return response.data;
     } catch (error) {
-      console.error(error)
+      console.error(error);
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to update progress tracking question"
+        error.response?.message ||
+          "Failed to update progress tracking question",
       );
     }
-  }
+  },
 );
 
 // delete progress tracking question
@@ -657,14 +656,16 @@ export const deleteProgressTrackingQuestionAPI = createAsyncThunk(
   "admin/deleteProgressTrackingQuestion",
   async (questionId, thunkAPI) => {
     try {
-      await deleteProgressTrackingQuestion(questionId);
+      const id = parseInt(questionId);
+      await deleteProgressTrackingQuestion(id);
       return questionId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete progress tracking question"
+        error.response?.data?.message ||
+          "Failed to delete progress tracking question",
       );
     }
-  }
+  },
 );
 
 // post progress tracking options
@@ -675,12 +676,12 @@ export const postProgressTrackingOptionsAPI = createAsyncThunk(
       const response = await postProgressTrackingOptions(optionsData);
       return response.data;
     } catch (error) {
-      console.error(error)
+      console.error(error);
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to add progress tracking options"
+        error.response?.message || "Failed to add progress tracking options",
       );
     }
-  }
+  },
 );
 
 // update progress tracking options
@@ -691,12 +692,12 @@ export const updateProgressTrackingOptionAPI = createAsyncThunk(
       const response = await updateProgressTrackingOption(optionId, optionData);
       return response.data;
     } catch (error) {
-      console.error(error)
+      console.error(error);
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to update progress tracking option"
+        error.response?.message || "Failed to update progress tracking option",
       );
     }
-  }
+  },
 );
 
 // delete progress tracking option
@@ -708,10 +709,11 @@ export const deleteProgressTrackingOptionAPI = createAsyncThunk(
       return optionId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete progress tracking option"
+        error.response?.data?.message ||
+          "Failed to delete progress tracking option",
       );
     }
-  }
+  },
 );
 
 //fetch progress tracking option in dropdown
@@ -723,8 +725,9 @@ export const fetchProgressTrackingOptionsAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch progress tracking options"
+        error.response?.data?.message ||
+          "Failed to fetch progress tracking options",
       );
     }
-  }
+  },
 );

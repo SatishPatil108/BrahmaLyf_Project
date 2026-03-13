@@ -70,7 +70,7 @@ const adminSlice = createSlice({
   reducers: {
     clearAdminError: (state) => {
       state.error = null;
-    }
+    },
   },
 
   extraReducers: (builder) => {
@@ -88,11 +88,15 @@ const adminSlice = createSlice({
         state.domainsDetails.domains.push(action.payload);
       })
       .addCase(updateDomainAPI.fulfilled, (state, action) => {
-        const index = state.domainsDetails.domains.findIndex((d) => d.domain_id == action.payload.domain_id);
+        const index = state.domainsDetails.domains.findIndex(
+          (d) => d.domain_id == action.payload.domain_id,
+        );
         if (index !== -1) state.domainsDetails.domains[index] = action.payload;
       })
       .addCase(deleteDomainAPI.fulfilled, (state, action) => {
-        state.domainsDetails.domains = state.domainsDetails.domains.filter((d) => d.id !== action.payload.id);
+        state.domainsDetails.domains = state.domainsDetails.domains.filter(
+          (d) => d.id !== action.payload.id,
+        );
       })
 
       // Subdomains
@@ -106,14 +110,15 @@ const adminSlice = createSlice({
         const updated = action.payload;
         if (!updated) return;
         const index = state.subdomainsDetails.subdomains.findIndex(
-          (s) => s.subdomain_id === updated.subdomain_id
+          (s) => s.subdomain_id === updated.subdomain_id,
         );
         if (index !== -1) state.subdomainsDetails.subdomains[index] = updated;
       })
       .addCase(deleteSubDomainAPI.fulfilled, (state, action) => {
-        state.subdomainsDetails.subdomains = state.subdomainsDetails.subdomains.filter(
-          (s) => s.subdomain_id !== action.payload.subdomain_id
-        );
+        state.subdomainsDetails.subdomains =
+          state.subdomainsDetails.subdomains.filter(
+            (s) => s.subdomain_id !== action.payload.subdomain_id,
+          );
       })
 
       // Coaches
@@ -121,20 +126,30 @@ const adminSlice = createSlice({
         state.coachesDetails = action.payload || {};
       })
       .addCase(addNewCoachAPI.fulfilled, (state, action) => {
-        state.coachesDetails.coaches.push({ coach_id: action.payload.id, ...action.payload });
+        state.coachesDetails.coaches.push({
+          coach_id: action.payload.id,
+          ...action.payload,
+        });
       })
       .addCase(updateCoachAPI.fulfilled, (state, action) => {
         const index = state.coachesDetails.coaches.findIndex(
-          (c) => c.coach_id === action.payload.id
+          (c) => c.coach_id === action.payload.id,
         );
         if (index !== -1)
-          state.coachesDetails.coaches[index] = { coach_id: action.payload.id, ...action.payload };
+          state.coachesDetails.coaches[index] = {
+            coach_id: action.payload.id,
+            ...action.payload,
+          };
       })
       .addCase(deleteCoachAPI.fulfilled, (state, action) => {
-        state.coachesDetails.coaches = state.coachesDetails.coaches.filter((c) => c.coach_id !== action.payload);
+        state.coachesDetails.coaches = state.coachesDetails.coaches.filter(
+          (c) => c.coach_id !== action.payload,
+        );
       })
       .addCase(fetchCoachDetailsAPI.fulfilled, (state, action) => {
-        const index = state.coachesDetails.coaches.findIndex((c) => c.id === action.payload.id);
+        const index = state.coachesDetails.coaches.findIndex(
+          (c) => c.id === action.payload.id,
+        );
         if (index !== -1) state.coachesDetails.coaches[index] = action.payload;
         else state.coachesDetails.coaches.push(action.payload);
       })
@@ -154,7 +169,9 @@ const adminSlice = createSlice({
         state.coachesList = action.payload || [];
       })
       .addCase(deleteCourseAPI.fulfilled, (state, action) => {
-        state.coursesDetails.courses = state.coursesDetails.courses.filter((c) => c.id !== action.payload.id);
+        state.coursesDetails.courses = state.coursesDetails.courses.filter(
+          (c) => c.id !== action.payload.id,
+        );
       })
       .addCase(updateCourseAPI.fulfilled, (state, action) => {
         state.courseDetails = {
@@ -173,11 +190,15 @@ const adminSlice = createSlice({
         state.faqsDetails.faqs.push(action.payload);
       })
       .addCase(updateFAQAPI.fulfilled, (state, action) => {
-        const index = state.faqsDetails.faqs.findIndex((f) => f.id === action.payload.id);
+        const index = state.faqsDetails.faqs.findIndex(
+          (f) => f.id === action.payload.id,
+        );
         if (index !== -1) state.faqsDetails.faqs[index] = action.payload;
       })
       .addCase(deleteFAQAPI.fulfilled, (state, action) => {
-        state.faqsDetails.faqs = state.faqsDetails.faqs.filter((f) => f.id !== action.payload.id);
+        state.faqsDetails.faqs = state.faqsDetails.faqs.filter(
+          (f) => f.id !== action.payload.id,
+        );
       })
 
       // Curriculum
@@ -187,27 +208,28 @@ const adminSlice = createSlice({
       })
       .addCase(updateCurriculumItemAPI.fulfilled, (state, action) => {
         const { curriculum, video } = action.payload;
-        state.courseDetails.curriculum_outline = state.courseDetails.curriculum_outline.map((item) =>
-          item.id === curriculum.id ? curriculum : item
-        );
+        state.courseDetails.curriculum_outline =
+          state.courseDetails.curriculum_outline.map((item) =>
+            item.id === curriculum.id ? curriculum : item,
+          );
         state.courseDetails.videos = state.courseDetails.videos.map((v) =>
-          v.id === video.id ? video : v
+          v.id === video.id ? video : v,
         );
       })
       .addCase(deleteCurriculumItemAPI.fulfilled, (state, action) => {
         const id = action.payload;
         if (state.courseDetails) {
-          state.courseDetails.curriculum_outline = state.courseDetails.curriculum_outline.filter(
-            (item) => item.id !== id
-          );
+          state.courseDetails.curriculum_outline =
+            state.courseDetails.curriculum_outline.filter(
+              (item) => item.id !== id,
+            );
           state.courseDetails.videos = state.courseDetails.videos.filter(
-            (video) => video.curriculum_outline_id !== id
+            (video) => video.curriculum_outline_id !== id,
           );
         }
       })
 
-
-      // meditation music 
+      // meditation music
       .addCase(postMusicAPI.fulfilled, (state, action) => {
         state.audiosDetails.audios.unshift(action.payload);
       })
@@ -217,13 +239,15 @@ const adminSlice = createSlice({
       .addCase(updateMusicAPI.fulfilled, (state, action) => {
         state.audiosDetails.audios = state.audiosDetails.audios.map((music) => {
           if (music.id == action.payload.music_id)
-            music = { id: action.payload.music_id, ...action.payload }
-          return music
-        })
+            music = { id: action.payload.music_id, ...action.payload };
+          return music;
+        });
       })
 
       .addCase(deleteMusicAPI.fulfilled, (state, action) => {
-        state.audiosDetails.audios = state.audiosDetails.audios.filter((m) => m.id !== action.payload.id);
+        state.audiosDetails.audios = state.audiosDetails.audios.filter(
+          (m) => m.id !== action.payload.id,
+        );
       })
 
       // Inquiries
@@ -242,22 +266,28 @@ const adminSlice = createSlice({
       })
 
       .addCase(updateShortVideoAPI.fulfilled, (state, action) => {
-        state.shortVideosDetails.videos = state.shortVideosDetails.videos.map((video) => {
-          if (video.id == action.payload.id)
-            video = { id: action.payload.id, ...action.payload }
-          return video
-        })
+        state.shortVideosDetails.videos = state.shortVideosDetails.videos.map(
+          (video) => {
+            if (video.id == action.payload.id)
+              video = { id: action.payload.id, ...action.payload };
+            return video;
+          },
+        );
       })
 
       .addCase(deleteShortVideoAPI.fulfilled, (state, action) => {
-        state.shortVideosDetails.videos = state.shortVideosDetails.videos.filter((m) => m.id !== action.payload.id);
+        state.shortVideosDetails.videos =
+          state.shortVideosDetails.videos.filter(
+            (m) => m.id !== action.payload.id,
+          );
       })
 
-
-      // progress tracking questions  
+      // progress tracking questions
       .addCase(postProgressTrackingQuestionAPI.fulfilled, (state, action) => {
         state.ptqLoading = false;
-        state.progressTrackingQuestionsDetails.questions.unshift(action.payload);
+        state.progressTrackingQuestionsDetails.questions.unshift(
+          action.payload,
+        );
       })
 
       .addCase(fetchProgressTrackingQuestionsAPI.fulfilled, (state, action) => {
@@ -265,30 +295,26 @@ const adminSlice = createSlice({
         state.progressTrackingQuestionsDetails = action.payload;
       })
 
-      .addCase(fetchProgressTrackingQuestionsAPI.rejected, (state, action) => {
-        state.ptqLoading = false;
-        state.ptqError = action.payload;
-        console.error("fetchProgressTrackingQuestionsAPI rejected:", action.payload);
-        state.progressTrackingQuestionsDetails = { questions: [] };
-      })
-
       .addCase(updateProgressTrackingQuestionAPI.fulfilled, (state, action) => {
         state.ptqLoading = false;
-        state.progressTrackingQuestionsDetails.questions =
-          state.progressTrackingQuestionsDetails.questions.map((question) => {
-            if (question.id == action.payload.id)
-              return { id: action.payload.id, ...action.payload };
-            return question;
-          });
+        state.progressTrackingQuestionsDetails.questions = (
+          state.progressTrackingQuestionsDetails.questions || []
+        ).map((question) => {
+          if (question.question_id === action.payload.id)
+            return { id: action.payload.id, ...action.payload };
+          return question;
+        });
       })
 
       .addCase(deleteProgressTrackingQuestionAPI.fulfilled, (state, action) => {
         state.ptqLoading = false;
         state.progressTrackingQuestionsDetails.questions =
-          state.progressTrackingQuestionsDetails.questions.filter((q) => q.id !== action.payload.id);
+          state.progressTrackingQuestionsDetails.questions.filter(
+            (q) => q.id !== action.payload.id,
+          );
       })
 
-      // progress tracking options  
+      // progress tracking options
       .addCase(postProgressTrackingOptionsAPI.fulfilled, (state, action) => {
         state.progressTrackingOptionsDetails.options.unshift(action.payload);
       })
@@ -298,17 +324,20 @@ const adminSlice = createSlice({
       })
 
       .addCase(updateProgressTrackingOptionAPI.fulfilled, (state, action) => {
-        state.progressTrackingOptionsDetails.options = state.progressTrackingOptionsDetails.options.map((option) => {
-          if (option.id == action.payload.id)
-            option = { id: action.payload.id, ...action.payload }
-          return option
-        })
+        state.progressTrackingOptionsDetails.options =
+          state.progressTrackingOptionsDetails.options.map((option) => {
+            if (option.id == action.payload.id)
+              option = { id: action.payload.id, ...action.payload };
+            return option;
+          });
       })
 
       .addCase(deleteProgressTrackingOptionAPI.fulfilled, (state, action) => {
-        state.progressTrackingOptionsDetails.options = state.progressTrackingOptionsDetails.options.filter((o) => o.id !== action.payload.id);
+        state.progressTrackingOptionsDetails.options =
+          state.progressTrackingOptionsDetails.options.filter(
+            (o) => o.id !== action.payload.id,
+          );
       })
-
 
       // ✅ Global matchers
       .addMatcher(
@@ -316,13 +345,13 @@ const adminSlice = createSlice({
         (state) => {
           state.loading = true;
           state.error = null;
-        }
+        },
       )
       .addMatcher(
         (action) => action.type.endsWith("/fulfilled"),
         (state) => {
           state.loading = false;
-        }
+        },
       )
       .addMatcher(
         (action) => action.type.endsWith("/rejected"),
@@ -330,11 +359,9 @@ const adminSlice = createSlice({
           state.loading = false;
           console.error("Error: ", action);
           state.error = action.payload || "Something went wrong";
-        }
+        },
       );
   },
 });
-export const {
-  clearAdminError
-} = adminSlice.actions;
+export const { clearAdminError } = adminSlice.actions;
 export default adminSlice.reducer;

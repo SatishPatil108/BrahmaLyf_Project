@@ -8,6 +8,7 @@ import AdminDashboard from "@/pages/Admin/Dashboard/AdminDashboard";
 import DomainsList from "@/pages/Admin/Domains";
 import FrequentlyAskQue from "@/pages/Admin/FrequentlyAskQue";
 import Inquiries from "@/pages/Admin/Inquiries/Inquiries";
+import ProgressTrackingQuestionDetails from "@/pages/Admin/ProgressTracking/ProgressTrackingQuestionDetails";
 import MusicList from "@/pages/Admin/SoundList/MusicList";
 import SubDomainsList from "@/pages/Admin/SubDomains";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -23,9 +24,10 @@ const AdminRoutes = () => {
         <Route path="domains" element={<DomainsList />} />
         <Route path="domains/:domainId/subdomains" element={<SubDomainsList />} />
         <Route path="coaches" element={<CoachesList />} />
+        <Route path="courses" element={<CourseList />} />
+        <Route path="progress-tracking" element={<ProgressTrackingQuestionDetails />} />
         <Route path="musics" element={<MusicList />} />
         <Route path="short-video" element={<ShortsList />} />
-        <Route path="courses" element={<CourseList />} />
         <Route path="courses/:courseId" element={<CourseDetails />} />
         <Route path="frequently-asked-questions" element={<FrequentlyAskQue />} />
         <Route path="inquiries" element={<Inquiries />} />
