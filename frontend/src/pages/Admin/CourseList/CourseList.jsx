@@ -26,7 +26,7 @@ const CourseList = () => {
   const { pageNo, pageSize, setPageNo, setPageSize } = usePagination(1, 6);
 
   const { coursesDetails, loading, error } = useCourseList(pageNo, pageSize);
-  const courses = coursesDetails || [];
+  const courses = coursesDetails.courses || [];
 
   const dispatch = useDispatch();
   const navigate = useNavigate();

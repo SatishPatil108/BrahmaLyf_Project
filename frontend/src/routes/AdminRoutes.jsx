@@ -9,7 +9,7 @@ import DomainsList from "@/pages/Admin/Domains";
 import FrequentlyAskQue from "@/pages/Admin/FrequentlyAskQue";
 import Inquiries from "@/pages/Admin/Inquiries/Inquiries";
 import ProgressTasksQuestionDetails from "@/pages/Admin/ProgressTasksTracking/ProgressTasksQuestionDetails";
-import ProgressToolsQuestionDetails from "@/pages/Admin/ProgressTasksTracking/ProgressTasksQuestionDetails";
+import ProgressToolsQuestionDetails from "@/pages/Admin/ProgressToolsQuestion/ProgressToolsQuestionDetails";
 import MusicList from "@/pages/Admin/SoundList/MusicList";
 import SubDomainsList from "@/pages/Admin/SubDomains";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -39,8 +39,12 @@ const AdminRoutes = () => {
         />
         <Route path="inquiries" element={<Inquiries />} />
         <Route
-          path="/progress-tools/questions/:courseId"
+          path="/progress-tasks/questions/:courseId"
           element={<ProgressTasksQuestionDetails />}
+        />
+        <Route
+          path="/progress-tools/questions/:courseId"
+          element={<ProgressToolsQuestionDetails />}
         />
       </Routes>
     </>

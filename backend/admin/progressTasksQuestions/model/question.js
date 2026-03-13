@@ -162,6 +162,21 @@ export const updateProgressTasksQuestionModel = async (req, res) => {
 
     const { question_text, option_type, week_no, day_no, options } = req.body;
 
+    // ----------------------------------------------
+    // Check if question exists
+    // ----------------------------------------------
+    const existingQuestion = await getProgressTasksQuestionService(questionId);
+
+    if (!existingQuestion) {
+      return error(
+        res,
+        HTTP_NOT_FOUND,
+        APP_RESPONSE_CODE_ERROR,
+        QUESTION_NOT_FOUND,
+        null,
+      );
+    }
+
     const result = await updateProgressTasksQuestionService(
       Number(questionId),
       question_text,

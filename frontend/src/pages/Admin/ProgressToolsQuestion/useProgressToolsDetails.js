@@ -23,6 +23,7 @@ const useProgressToolsDetails = (weekNo, dayNo) => {
     useSelector((state) => state.admin);
 
   const tools = progressToolsQuestions?.tools ?? [];
+  const courses = coursesDetails?.courses || [];
 
   const clearMessage = useCallback(() => setActionMessage(null), []);
 
@@ -55,12 +56,14 @@ const useProgressToolsDetails = (weekNo, dayNo) => {
   }, [actionMessage]);
 
   // ✅ Add Tool
-  const addTool = async (toolData) => {
+  const addTool = async (courseId, questionData) => {
     setIsSubmitting(true);
     clearMessage();
 
     try {
-      await dispatch(postProgressToolsQuestionAPI(toolData)).unwrap();
+      await dispatch(
+        postProgressToolsQuestionAPI({ courseId, questionData }),
+      ).unwrap();
 
       setActionMessage({
         type: "success",
@@ -81,7 +84,7 @@ const useProgressToolsDetails = (weekNo, dayNo) => {
   };
 
   // ✅ Update Tool
-  const updateTool = async (tools_question_id, questionData) => {
+  const updateTool = async (tools_question_id, courseId, questionData) => {
     setIsSubmitting(true);
     clearMessage();
 
@@ -89,6 +92,7 @@ const useProgressToolsDetails = (weekNo, dayNo) => {
       await dispatch(
         updateProgressToolsQuestionAPI({
           tools_question_id,
+          courseId,
           questionData,
         }),
       ).unwrap();
@@ -118,7 +122,9 @@ const useProgressToolsDetails = (weekNo, dayNo) => {
     clearMessage();
 
     try {
-      await dispatch(deleteProgressToolsQuestionAPI(tools_question_id)).unwrap();
+      await dispatch(
+        deleteProgressToolsQuestionAPI(tools_question_id),
+      ).unwrap();
 
       setActionMessage({
         type: "success",

@@ -11,7 +11,6 @@ export const postProgressToolsQuestionValidator = (req, res, next) => {
     tools_question: joi.string().min(3).required(),
     week_no: joi.number().integer().min(1).max(52).required(),
     day_no: joi.number().integer().min(1).max(7).required(),
-    course_id: joi.number().integer().positive().required(),
   });
 
   // If you're sending array of tools
@@ -29,12 +28,12 @@ export const postProgressToolsQuestionValidator = (req, res, next) => {
       null,
     );
   }
-
   next();
 };
 
 export const updateProgressToolsQuestionValidator = (req, res, next) => {
   const paramsSchema = joi.object({
+    courseId: joi.number().integer().required(),
     tools_question_id: joi.number().integer().positive().required(),
   });
 
@@ -42,9 +41,7 @@ export const updateProgressToolsQuestionValidator = (req, res, next) => {
     tools_question: joi.string().min(3).required(),
     week_no: joi.number().integer().min(1).max(52).required(),
     day_no: joi.number().integer().min(1).max(7).required(),
-    course_id: joi.number().integer().positive().required(),
   });
-
 
   // Validate params
   const { error: paramsError } = paramsSchema.validate(req.params, {

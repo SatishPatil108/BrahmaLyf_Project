@@ -172,14 +172,26 @@ const adminSlice = createSlice({
 
       // Courses
       .addCase(fetchAllCoursesAPI.fulfilled, (state, action) => {
-        state.coursesDetails = action.payload?.courses || [];
+        state.coursesDetails.courses = action.payload?.courses || [];
       })
       .addCase(fetchCourseDetailsAPI.fulfilled, (state, action) => {
         state.courseDetails = action.payload;
       })
       .addCase(addNewCourseAPI.fulfilled, (state, action) => {
+        // Ensure courses array exists before using unshift()
+        if (!Array.isArray(state.coursesDetails?.courses)) {
+          state.coursesDetails = {
+            ...state.coursesDetails,
+            courses: [],
+          };
+        }
+
         state.coursesDetails.courses.unshift(action.payload);
-        state.coursesDetails.courses.pop();
+
+        // Remove last item only if needed (for paginated lists)
+        if (state.coursesDetails.courses.length > 0) {
+          state.coursesDetails.courses.pop();
+        }
       })
       .addCase(fetchCoachesDropdownAPI.fulfilled, (state, action) => {
         state.coachesList = action.payload || [];
@@ -197,7 +209,7 @@ const adminSlice = createSlice({
           intro_video: action.payload.video,
         };
       })
-
+      
       // FAQs
       .addCase(fetchFAQsAPI.fulfilled, (state, action) => {
         state.faqsDetails.faqs = action.payload?.faqs || [];

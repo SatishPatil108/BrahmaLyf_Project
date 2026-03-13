@@ -3,6 +3,8 @@ import CustomButton from "@/components/CustomButton";
 import {
   AlertCircle,
   CheckCircle,
+  Eye,
+  Flame,
   Plus,
   MoreVertical,
   X,
@@ -10,6 +12,7 @@ import {
   Sparkles,
   Music,
   Video,
+  Clapperboard,
 } from "lucide-react";
 import CustomDrawer from "@/components/CustomDrawer";
 import FileUploaderWithPreview from "@/components/FileUploaderWithPreview/FileUploaderWithPreview";
@@ -256,6 +259,28 @@ const ShortsList = () => {
             </button>
           </div>
         )}
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <StatCard
+            label="Total Shorts"
+            value={videos.length}
+            icon={Clapperboard}
+            color="indigo"
+          />
+          <StatCard
+            label="Total Views"
+            value={formatViews(videos)}
+            icon={Eye}
+            color="blue"
+          />
+          <StatCard
+            label="Trending"
+            value={trendingCount}
+            icon={Flame}
+            color="orange"
+          />
+        </div>
 
         {/* Domain Filters */}
         <div className="mb-6">

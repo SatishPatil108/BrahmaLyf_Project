@@ -471,9 +471,9 @@ export const fetchProgressToolsQuestions = async ({ weekNo, dayNo }) => {
 };
 
 // post progress tools question
-export const postProgressToolsQuestion = async (questionData) => {
+export const postProgressToolsQuestion = async ({ courseId, questionData }) => {
   return await makeRequest({
-    service: `admin/progress-tools/questions`,
+    service: `admin/progress-tools/questions/${courseId}`,
     method: API_METHODS.POST,
     data: questionData,
     authRequired: true,
@@ -483,13 +483,18 @@ export const postProgressToolsQuestion = async (questionData) => {
 };
 
 // update progress tools question details
-export const updateProgressToolsQuestion = async (tools_question_id, data) => {
+export const updateProgressToolsQuestion = async ({
+  tools_question_id,
+  courseId,
+  questionData,
+}) => {
   return await makeRequest({
-    service: `admin/progress-tools/questions/${tools_question_id}`,
+    service: `admin/progress-tools/questions/${courseId}/${tools_question_id}`,
     method: API_METHODS.PUT,
-    data: data,
+    data: questionData,
     authRequired: true,
     tokenType: "admin",
+    contentType: "application/json",
   });
 };
 

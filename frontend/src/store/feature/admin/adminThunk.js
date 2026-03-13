@@ -615,9 +615,9 @@ export const fetchProgressTasksQuestionsAPI = createAsyncThunk(
 // post progress tools question
 export const postProgressTasksQuestionAPI = createAsyncThunk(
   "admin/postProgressTasksQuestion",
-  async (questionData, thunkAPI) => {
+  async (courseId, questionData, thunkAPI) => {
     try {
-      const response = await postProgressTasksQuestion(questionData);
+      const response = await postProgressTasksQuestion(courseId, questionData);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -670,14 +670,14 @@ export const deleteProgressTasksQuestionAPI = createAsyncThunk(
 // post progress tools options
 export const postProgressToolsQuestionAPI = createAsyncThunk(
   "admin/postProgressToolsQuestion",
-  async (questionData, thunkAPI) => {
+  async (courseId, questionData, thunkAPI) => {
     try {
-      const response = await postProgressToolsQuestion(questionData);
+      const response = await postProgressToolsQuestion(courseId, questionData);
       return response.data;
     } catch (error) {
       console.error(error);
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to add progress tasks options",
+        error.response?.message || "Failed to add progress tools question",
       );
     }
   },
@@ -701,12 +701,13 @@ export const fetchProgressToolsQuestionsAPI = createAsyncThunk(
 // update progress tools question
 export const updateProgressToolsQuestionAPI = createAsyncThunk(
   "admin/updateProgressToolsQuestion",
-  async ({ tools_question_id, questionData }, thunkAPI) => {
+  async ({ tools_question_id, courseId, questionData }, thunkAPI) => {
     try {
-      const response = await updateProgressToolsQuestion(
+      const response = await updateProgressToolsQuestion({
         tools_question_id,
+        courseId,
         questionData,
-      );
+      });
       return response.data;
     } catch (error) {
       console.error(error);

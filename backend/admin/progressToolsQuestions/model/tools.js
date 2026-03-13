@@ -1,4 +1,4 @@
- import {
+import {
   error,
   success,
   HTTP_BAD_REQUEST,
@@ -42,7 +42,7 @@ export const getProgressToolsQuestionModel = async (req, res) => {
         HTTP_BAD_REQUEST,
         APP_RESPONSE_CODE_ERROR,
         INVALID_QUESTION_ID,
-        null
+        null,
       );
     }
 
@@ -54,7 +54,7 @@ export const getProgressToolsQuestionModel = async (req, res) => {
         HTTP_NOT_FOUND,
         APP_RESPONSE_CODE_ERROR,
         QUESTION_NOT_FOUND,
-        null
+        null,
       );
     }
 
@@ -63,7 +63,7 @@ export const getProgressToolsQuestionModel = async (req, res) => {
       HTTP_OK,
       APP_RESPONSE_CODE_SUCCESS,
       QUESTION_FOUND,
-      question
+      question,
     );
   } catch (err) {
     console.error("Get Tools Question Error:", err);
@@ -72,7 +72,7 @@ export const getProgressToolsQuestionModel = async (req, res) => {
       HTTP_INTERNAL_SERVER_ERROR,
       APP_RESPONSE_CODE_ERROR,
       SOMETHING_WENT_WRONG,
-      null
+      null,
     );
   }
 };
@@ -83,10 +83,7 @@ export const getAllProgressToolsQuestionsModel = async (req, res) => {
     const weekNo = Number(req.query.weekNo);
     const dayNo = Number(req.query.dayNo);
 
-    const response = await getAllProgressToolsQuestionsService(
-      weekNo,
-      dayNo
-    );
+    const response = await getAllProgressToolsQuestionsService(weekNo, dayNo);
 
     if (response === -1) {
       return error(
@@ -94,7 +91,7 @@ export const getAllProgressToolsQuestionsModel = async (req, res) => {
         HTTP_OK,
         APP_RESPONSE_CODE_ERROR,
         NO_RECORD_FOUND,
-        null
+        null,
       );
     }
 
@@ -103,7 +100,7 @@ export const getAllProgressToolsQuestionsModel = async (req, res) => {
       HTTP_OK,
       APP_RESPONSE_CODE_SUCCESS,
       ALL_QUESTION_LIST,
-      response
+      response,
     );
   } catch (err) {
     console.error("Get All Tools Questions Error:", err);
@@ -112,7 +109,7 @@ export const getAllProgressToolsQuestionsModel = async (req, res) => {
       HTTP_INTERNAL_SERVER_ERROR,
       APP_RESPONSE_CODE_ERROR,
       SOMETHING_WENT_WRONG,
-      null
+      null,
     );
   }
 };
@@ -121,16 +118,17 @@ export const getAllProgressToolsQuestionsModel = async (req, res) => {
 export const postProgressToolsQuestionModel = async (req, res) => {
   try {
     const questions = req.body;
+    const { courseId } = req.params;
 
     const results = await Promise.all(
-      questions.map(({ tools_question, week_no, day_no, course_id }) =>
+      questions.map(({ tools_question, week_no, day_no }) =>
         postProgressToolsQuestionService(
           tools_question,
           week_no,
           day_no,
-          course_id
-        )
-      )
+          Number(courseId),
+        ),
+      ),
     );
 
     if (!results || results.length === 0) {
@@ -139,7 +137,7 @@ export const postProgressToolsQuestionModel = async (req, res) => {
         HTTP_BAD_REQUEST,
         APP_RESPONSE_CODE_ERROR,
         QUESTION_ADDED_FAILED,
-        null
+        null,
       );
     }
 
@@ -148,7 +146,7 @@ export const postProgressToolsQuestionModel = async (req, res) => {
       HTTP_CREATED,
       APP_RESPONSE_CODE_SUCCESS,
       QUESTION_ADDED_SUCCESS,
-      results
+      results,
     );
   } catch (err) {
     console.error("Tools Question Create Error:", err);
@@ -157,7 +155,7 @@ export const postProgressToolsQuestionModel = async (req, res) => {
       HTTP_INTERNAL_SERVER_ERROR,
       APP_RESPONSE_CODE_ERROR,
       SOMETHING_WENT_WRONG,
-      null
+      null,
     );
   }
 };
@@ -165,8 +163,8 @@ export const postProgressToolsQuestionModel = async (req, res) => {
 // ✅ Update tool question
 export const updateProgressToolsQuestionModel = async (req, res) => {
   try {
-    const { tools_question_id } = req.params;
-    const { tools_question, week_no, day_no, course_id } = req.body;
+    const { courseId, tools_question_id } = req.params;
+    const { tools_question, week_no, day_no } = req.body;
 
     const existingQuestion =
       await getProgressToolsQuestionService(tools_question_id);
@@ -177,16 +175,16 @@ export const updateProgressToolsQuestionModel = async (req, res) => {
         HTTP_NOT_FOUND,
         APP_RESPONSE_CODE_ERROR,
         QUESTION_NOT_FOUND,
-        null
+        null,
       );
     }
 
     const response = await updateProgressToolsQuestionService(
-      tools_question_id,
+      Number(tools_question_id),
       tools_question,
       week_no,
       day_no,
-      course_id
+      Number(courseId),
     );
 
     if (!response) {
@@ -195,7 +193,7 @@ export const updateProgressToolsQuestionModel = async (req, res) => {
         HTTP_BAD_REQUEST,
         APP_RESPONSE_CODE_ERROR,
         SOMETHING_WENT_WRONG,
-        null
+        null,
       );
     }
 
@@ -204,7 +202,7 @@ export const updateProgressToolsQuestionModel = async (req, res) => {
       HTTP_OK,
       APP_RESPONSE_CODE_SUCCESS,
       QUESTION_UPDATED_SUCCESS,
-      response
+      response,
     );
   } catch (err) {
     console.error("Tools Question Update Error:", err);
@@ -213,7 +211,7 @@ export const updateProgressToolsQuestionModel = async (req, res) => {
       HTTP_INTERNAL_SERVER_ERROR,
       APP_RESPONSE_CODE_ERROR,
       SOMETHING_WENT_WRONG,
-      null
+      null,
     );
   }
 };
@@ -232,7 +230,7 @@ export const deleteProgressToolsQuestionModel = async (req, res) => {
         HTTP_NOT_FOUND,
         APP_RESPONSE_CODE_ERROR,
         QUESTION_NOT_FOUND,
-        null
+        null,
       );
     }
 
@@ -245,7 +243,7 @@ export const deleteProgressToolsQuestionModel = async (req, res) => {
         HTTP_BAD_REQUEST,
         APP_RESPONSE_CODE_ERROR,
         SOMETHING_WENT_WRONG,
-        null
+        null,
       );
     }
 
@@ -254,7 +252,7 @@ export const deleteProgressToolsQuestionModel = async (req, res) => {
       HTTP_OK,
       APP_RESPONSE_CODE_SUCCESS,
       QUESTION_DELETED_SUCCESS,
-      response
+      response,
     );
   } catch (err) {
     console.error("Tools Question Delete Error:", err);
@@ -263,7 +261,7 @@ export const deleteProgressToolsQuestionModel = async (req, res) => {
       HTTP_INTERNAL_SERVER_ERROR,
       APP_RESPONSE_CODE_ERROR,
       SOMETHING_WENT_WRONG,
-      null
+      null,
     );
   }
 };

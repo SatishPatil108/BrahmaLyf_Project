@@ -15,6 +15,7 @@ import {
 import CustomButton from "@/components/CustomButton";
 import CustomDrawer from "@/components/CustomDrawer";
 import useProgressToolsDetails from "./useProgressToolsDetails";
+import { useParams } from "react-router-dom";
 
 // Component for View Question Details Drawer
 const ViewQuestionDrawer = ({ isOpen, onClose, question }) => {
@@ -325,11 +326,11 @@ const ProgressToolsQuestionDetails = ({
     handleDeleteTool,
   } = useProgressToolsDetails(weekNo, dayNo);
 
+  const { courseId } = useParams();
   const tools = progressToolsQuestions?.tools || [];
-  const courses = coursesDetails?.courses || [];
 
   // UI state
-  const [isListDrawerOpen, setIsListDrawerOpen] = useState(drawerOnly); // Changed: open automatically in drawerOnly mode
+  const [isListDrawerOpen, setIsListDrawerOpen] = useState(drawerOnly);
   const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState({});
@@ -339,7 +340,6 @@ const ProgressToolsQuestionDetails = ({
     tools_question: "",
     week_no: weekNo,
     day_no: dayNo,
-    course_id: "",
   });
 
   // If in drawerOnly mode, automatically open the list drawer
@@ -372,7 +372,7 @@ const ProgressToolsQuestionDetails = ({
 
     setFormData((prev) => ({
       ...prev,
-      [name]: ["course_id", "week_no", "day_no"].includes(name)
+      [name]: ["week_no", "day_no"].includes(name)
         ? value === ""
           ? ""
           : Number(value)
@@ -387,7 +387,6 @@ const ProgressToolsQuestionDetails = ({
       tools_question: "",
       week_no: weekNo,
       day_no: dayNo,
-      course_id: "",
     });
     setErrors({});
     clearMessage();
@@ -401,7 +400,6 @@ const ProgressToolsQuestionDetails = ({
       tools_question: tool.tools_question,
       week_no: tool.week_no,
       day_no: tool.day_no,
-      course_id: tool.course_id ?? "",
     });
     setErrors({});
     clearMessage();
@@ -425,8 +423,8 @@ const ProgressToolsQuestionDetails = ({
       err.tools_question = "Minimum 3 characters required";
     }
 
-    if (!formData.course_id) err.course_id = "Course required";
     if (!formData.week_no) err.week_no = "Week required";
+
     if (!formData.day_no) err.day_no = "Day required";
 
     setErrors(err);
@@ -435,20 +433,25 @@ const ProgressToolsQuestionDetails = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validate()) return;
+
+    if (!courseId) {
+      console.error("courseId not found in params");
+      return;
+    }
 
     const payload = {
       tools_question: formData.tools_question.trim(),
-      course_id: Number(formData.course_id),
       week_no: Number(formData.week_no),
       day_no: Number(formData.day_no),
     };
 
     try {
       if (isEditing) {
-        await updateTool(formData.id, payload);
+        await updateTool(formData.id, courseId, payload);
       } else {
-        await addTool([payload]);
+        await addTool(courseId, [payload]);
       }
       resetForm();
     } catch {
@@ -506,38 +509,6 @@ const ProgressToolsQuestionDetails = ({
           }
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Course */}
-            <div>
-              <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
-                Course <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="course_id"
-                value={formData.course_id}
-                onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-xl border shadow-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800
-                  focus:outline-none focus:ring-2 transition-all duration-200 cursor-pointer
-                  ${
-                    errors.course_id
-                      ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
-                      : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
-                  }`}
-              >
-                <option value="">Select course</option>
-                {courses.map((course) => (
-                  <option key={course.course_id} value={course.course_id}>
-                    {course.course_name}
-                  </option>
-                ))}
-              </select>
-              {errors.course_id && (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  {errors.course_id}
-                </p>
-              )}
-            </div>
-
             {/* Question - Textarea only */}
             <div>
               <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
@@ -836,38 +807,6 @@ const ProgressToolsQuestionDetails = ({
           }
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Course */}
-            <div>
-              <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
-                Course <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="course_id"
-                value={formData.course_id}
-                onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-xl border shadow-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800
-                  focus:outline-none focus:ring-2 transition-all duration-200 cursor-pointer
-                  ${
-                    errors.course_id
-                      ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
-                      : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
-                  }`}
-              >
-                <option value="">Select course</option>
-                {courses.map((course) => (
-                  <option key={course.course_id} value={course.course_id}>
-                    {course.course_name}
-                  </option>
-                ))}
-              </select>
-              {errors.course_id && (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  {errors.course_id}
-                </p>
-              )}
-            </div>
-
             {/* Question - Textarea only */}
             <div>
               <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
