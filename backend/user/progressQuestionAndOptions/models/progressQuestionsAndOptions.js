@@ -93,8 +93,6 @@ export const postUserProgressModel = async (req, res) => {
     const { weekNo, dayNo, courseId, answers } = req.body;
     const userId = req.userId;
 
-    console.log(req.body);
-
     if (!userId) {
       return error(
         res,

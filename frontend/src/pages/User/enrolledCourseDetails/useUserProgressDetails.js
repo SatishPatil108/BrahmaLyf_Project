@@ -26,8 +26,6 @@ const useUserProgressDetails = (courseId) => {
 
   const submittedAnswers = weekData?.submittedAnswers || {};
 
-  console.log(submittedAnswers);
-
   useEffect(() => {
     if (!courseId) return;
 
