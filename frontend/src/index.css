@@ -5,22 +5,28 @@
 @import "tailwindcss";
 @import "./animation.css";
 
-*{
-      font-family: 'Poppins', sans-serif;
+* {
+  font-family: 'Poppins', sans-serif;
 }
 
-@theme{
-    --color-primary: #5044E5;
-    --color-primary-dull: #5087D0;
+@theme {
+  --color-primary: #5044E5;
+  --color-primary-dull: #5087D0;
 }
 
 /* Add in your index.css or globals.css */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
-
+img {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}

@@ -36,6 +36,14 @@ import {
   fetchAllShortVideosAPI,
   updateShortVideoAPI,
   deleteShortVideoAPI,
+  postProgressTrackingQuestionAPI,
+  fetchProgressTrackingQuestionsAPI,
+  deleteProgressTrackingQuestionAPI,
+  updateProgressTrackingQuestionAPI,
+  postProgressTrackingOptionsAPI,
+  fetchProgressTrackingOptionsAPI,
+  updateProgressTrackingOptionAPI,
+  deleteProgressTrackingOptionAPI,
 } from "./adminThunk";
 
 const adminSlice = createSlice({
@@ -50,6 +58,8 @@ const adminSlice = createSlice({
     audiosDetails: { audios: [] },
     shortVideosDetails: { videos: [] },
     inquiriesDetails: { inquiries: [] },
+    progressTrackingQuestionsDetails: { questions: [] },
+    progressTrackingOptionsDetails: { options: [] },
     coachesList: [],
     courseDetails: null,
     loading: false,
@@ -220,8 +230,6 @@ const adminSlice = createSlice({
         state.inquiriesDetails = action.payload || [];
       })
 
-
-
       // Daily Short Videos
       .addCase(addNewShortVideoAPI.fulfilled, (state, action) => {
         state.shortVideosDetails.videos.unshift(action.payload);
@@ -241,6 +249,49 @@ const adminSlice = createSlice({
 
       .addCase(deleteShortVideoAPI.fulfilled, (state, action) => {
         state.shortVideosDetails.videos = state.shortVideosDetails.videos.filter((m) => m.id !== action.payload.id);
+      })
+
+
+      // progress tracking questions  
+      .addCase(postProgressTrackingQuestionAPI.fulfilled, (state, action) => {
+        state.progressTrackingQuestionsDetails.questions.unshift(action.payload);
+      })
+
+      .addCase(fetchProgressTrackingQuestionsAPI.fulfilled, (state, action) => {
+        state.progressTrackingQuestionsDetails = action.payload || [];
+      })
+
+      .addCase(updateProgressTrackingQuestionAPI.fulfilled, (state, action) => {
+        state.progressTrackingQuestionsDetails.questions = state.progressTrackingQuestionsDetails.questions.map((question) => {
+          if (question.id == action.payload.id)
+            question = { id: action.payload.id, ...action.payload }
+          return question
+        })
+      })
+
+      .addCase(deleteProgressTrackingQuestionAPI.fulfilled, (state, action) => {
+        state.progressTrackingQuestionsDetails.questions = state.progressTrackingQuestionsDetails.questions.filter((q) => q.id !== action.payload.id);
+      })
+
+      // progress tracking options  
+      .addCase(postProgressTrackingOptionsAPI.fulfilled, (state, action) => {
+        state.progressTrackingOptionsDetails.options.unshift(action.payload);
+      })
+
+      .addCase(fetchProgressTrackingOptionsAPI.fulfilled, (state, action) => {
+        state.progressTrackingOptionsDetails = action.payload || [];
+      })
+
+      .addCase(updateProgressTrackingOptionAPI.fulfilled, (state, action) => {
+        state.progressTrackingOptionsDetails.options = state.progressTrackingOptionsDetails.options.map((option) => {
+          if (option.id == action.payload.id)
+            option = { id: action.payload.id, ...action.payload }
+          return option 
+        })
+      })
+
+      .addCase(deleteProgressTrackingOptionAPI.fulfilled, (state, action) => {
+        state.progressTrackingOptionsDetails.options = state.progressTrackingOptionsDetails.options.filter((o) => o.id !== action.payload.id);
       })
 
 

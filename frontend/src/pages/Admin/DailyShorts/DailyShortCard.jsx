@@ -1,4 +1,4 @@
-import { Globe, Heart, SquarePen, Play, Trash2 } from "lucide-react";
+import { Globe, Heart, SquarePen, Play, Trash2, X } from "lucide-react";
 import { useState } from "react";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL_IMG ?? '';
@@ -198,12 +198,7 @@ const DailyShortCard = ({ short, isPlaying, onPlayPause, onEdit, onDelete, isSub
                 )}
             </div>
 
-            {/* ── Card Footer with Description ── */}
-            {/* <div className="mt-2 px-1">
-                <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
-                    {description || 'No description'}
-                </p>
-            </div> */}
+ 
         </div>
     );
 };

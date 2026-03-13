@@ -71,28 +71,42 @@ const MusicList = () => {
             <div className="px-4 sm:px-6 lg:px-8">
 
                 {/* Title + scroll arrows */}
-                <div className="flex items-center justify-between mb-5">
-                    <div>
-                        <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+                <div>
+                    <div className="flex items-center gap-2 mb-3">
+                        <span className="inline-block w-8 h-px bg-gradient-to-r from-purple-600 to-pink-600" />
+                        <span className="font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent uppercase tracking-widest lg:text-xl text-1xl">
                             All Tracks
-                        </h3>
-                        {totalRecords > 0 && (
+                        </span>
+                    </div>
+
+                    <div className="flex flex-col items-start sm:items-end gap-3 mb-5">
+                        {musics.length > 3 && (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => scroll("left")}
+                                    className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 ${isDark
+                                        ? "border-white/15 text-white/40 hover:border-white/40 hover:text-white"
+                                        : "border-black/15 text-black/40 hover:border-black/40 hover:text-black"}`}
+                                >
+                                    <ChevronLeft className="w-4 h-4 cursor-pointer" />
+                                </button>
+                                <button
+                                    onClick={() => scroll("right")}
+                                    className="w-10 h-10 rounded-full bg-purple-600 to-pink-600 flex items-center justify-center hover:bg-purple-400 transition-all duration-200 text-white cursor-pointer"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        )}
+
+                          {totalRecords > 0 && (
                             <p className={`text-xs mt-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}>
                                 {totalRecords} track{totalRecords !== 1 ? "s" : ""} • Page {currentPage}
                             </p>
                         )}
-                    </div>
-                    {musics.length > 3 && (
-                        <div className="flex items-center gap-2">
-                            <button onClick={() => scroll("left")} className={`p-2 rounded-full transition-all ${isDark ? "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
-                                <ChevronLeft className="w-5 h-5" />
-                            </button>
-                            <button onClick={() => scroll("right")} className={`p-2 rounded-full transition-all ${isDark ? "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
-                                <ChevronRight className="w-5 h-5" />
-                            </button>
-                        </div>
-                    )}
+                    </div>                    
                 </div>
+                
 
                 {/* Loading skeleton */}
                 {loading && (

@@ -49,7 +49,7 @@ const ShortsList = () => {
     } = useDailyShortList(pageNo, pageSize);
 
     const videos = shortVideosDetails?.videos ?? [];
-    const { domainsDetails } = useDomainData(1, 100);
+    const { domainsDetails } = useDomainData(1, 10);
     const domains = (domainsDetails?.domains ?? []).map(({ domain_id, domain_name }) => ({ domain_id, domain_name }));
 
     const [currentPlaying, setCurrentPlaying] = useState(null);

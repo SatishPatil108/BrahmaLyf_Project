@@ -408,7 +408,92 @@ export const updateShortVideo = async (id, data) => {
 // delete daily short video
 export const deleteShortVideo = async (shortId) => {
   return await makeRequest({
-    service:`admin/short-video/${shortId}`,
+    service: `admin/short-video/${shortId}`,
+    method: API_METHODS.DELETE,
+    authRequired: true,
+    tokenType: "admin",
+  })
+}
+
+// fetch progress tracking questions by week number and day number
+export const fetchProgressTrackingQuestions = async (weekNo, dayNo) => {
+  return await makeRequest({
+    service: `admin/progress-tracking/questions?weekNo=${weekNo}&dayNo=${dayNo}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// post progress tracking questions
+export const postProgressTrackingQuestion = async (questionData) => {
+  return await makeRequest({
+    service: `admin/progress-tracking/questions`,
+    method: API_METHODS.POST,
+    data: questionData,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// update progress tracking question details
+export const updateProgressTrackingQuestion = async (id, data) => {
+  return await makeRequest({
+    service: `admin/progress-tracking/questions/${id}`,
+    method: API_METHODS.PUT,
+    data: data,
+    authRequired: true,
+    tokenType: "admin",
+  });
+}
+
+
+// delete progress tracking question
+export const deleteProgressTrackingQuestion = async (questionId) => {
+  return await makeRequest({
+    service: `admin/progress-tracking/questions/${questionId}`,
+    method: API_METHODS.DELETE,
+    authRequired: true,
+    tokenType: "admin",
+  })
+}
+
+// fetch all progress tracking option
+export const fetchProgressTrackingOptions = async () => {
+  return await makeRequest({
+    service: "admin/progress-tracking/options",
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "admin",
+  });
+}
+
+// post progress tracking options for a question
+export const postProgressTrackingOptions = async (questionId, optionsData) => {
+  return await makeRequest({
+    service: `admin/progress-tracking/questions/${questionId}/options`,
+    method: API_METHODS.POST,
+    data: optionsData,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// update progress tracking option details
+export const updateProgressTrackingOption = async (optionId, data) => {
+  return await makeRequest({
+    service: `admin/progress-tracking/options/${optionId}`,
+    method: API_METHODS.PUT,
+    data: data,
+    authRequired: true,
+    tokenType: "admin",
+  });
+}
+
+// delete progress tracking option
+export const deleteProgressTrackingOption = async (optionId) => {
+  return await makeRequest({
+    service: `admin/progress-tracking/options/${optionId}`,
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "admin",

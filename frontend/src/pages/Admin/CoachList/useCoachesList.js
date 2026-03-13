@@ -16,7 +16,7 @@ const useCoachesList = (pageNo, pageSize) => {
 
   // Fetch all domains
   useEffect(() => {
-    dispatch(getAllDomains({ pageNo: 1, pageSize: '*' }));// fetch all domains
+    dispatch(getAllDomains({ pageNo: 1, pageSize: 10 }));// fetch all domains
   }, [dispatch]);
 
   // add new coach

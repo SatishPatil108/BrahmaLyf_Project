@@ -64,7 +64,6 @@ function Header() {
   // Define bottom navigation items explicitly
   const bottomNavItems = [
     { to: "/", label: "Home", icon: Home },
-    { to: "/categories", label: "Categories", icon: BookOpen },
     { to: "/about", label: "About", icon: Info },
     { to: "/contact", label: "Contact", icon: Mail },
   ];
@@ -73,8 +72,6 @@ function Header() {
   } else {
     bottomNavItems.splice(2, 0, { to: "/my-courses", label: "Courses", icon: BookMarked });
     bottomNavItems.splice(2, 0, { to: "/notes", label: "Notes", icon: NotebookTabs });
-    // bottomNavItems.push({ to: "/notes", label: "Notes", icon: NotebookTabs });
-
   }
 
   // Dark theme styles for navbar

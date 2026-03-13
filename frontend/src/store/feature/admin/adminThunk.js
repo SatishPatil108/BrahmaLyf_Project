@@ -39,6 +39,14 @@ import {
   fetchShortVideos,
   updateShortVideo,
   deleteShortVideo,
+  postProgressTrackingQuestion,
+  updateProgressTrackingQuestion,
+  deleteProgressTrackingQuestion,
+  fetchProgressTrackingQuestions,
+  postProgressTrackingOptions,
+  updateProgressTrackingOption,
+  deleteProgressTrackingOption,
+  fetchProgressTrackingOptions,
 }
   from "./adminApi";
 
@@ -527,14 +535,14 @@ export const sendReplyAPI = createAsyncThunk(
   async ({ inquiry_id, formData }, thunkAPI) => {
     try {
       const response = await sendReply(inquiry_id, formData);
-      return response ;
+      return response;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to send reply"
       );
     }
   }
-); 
+);
 
 // add New short video
 export const addNewShortVideoAPI = createAsyncThunk(
@@ -592,6 +600,130 @@ export const deleteShortVideoAPI = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to delete Short Video"
+      );
+    }
+  }
+);
+
+// fetch progress tracking question by week no and day no
+export const fetchProgressTrackingQuestionsAPI = createAsyncThunk(
+  "admin/get/progress-tracking-questions",
+  async ({ weekNo, dayNo }, thunkAPI) => {
+    try {
+      const response = await fetchProgressTrackingQuestions(weekNo, dayNo);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to fetch progress tracking questions"
+      );
+    }
+  }
+);
+
+// post progress tracking question
+export const postProgressTrackingQuestionAPI = createAsyncThunk(
+  "admin/postProgressTrackingQuestion",
+  async (questionData, thunkAPI) => {
+    try {
+      const response = await postProgressTrackingQuestion(questionData);
+      return response.data;
+    } catch (error) {
+      console.error(error)
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to add progress tracking question"
+      );
+    }
+  }
+);
+
+// update progress tracking question
+export const updateProgressTrackingQuestionAPI = createAsyncThunk(
+  "admin/updateProgressTrackingQuestion",
+  async ({ questionId, questionData }, thunkAPI) => {
+    try {
+      const response = await updateProgressTrackingQuestion(questionId, questionData);
+      return response.data;
+    } catch (error) {
+      console.error(error)
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to update progress tracking question"
+      );
+    }
+  }
+);
+
+// delete progress tracking question
+export const deleteProgressTrackingQuestionAPI = createAsyncThunk(
+  "admin/deleteProgressTrackingQuestion",
+  async (questionId, thunkAPI) => {
+    try {
+      await deleteProgressTrackingQuestion(questionId);
+      return questionId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to delete progress tracking question"
+      );
+    }
+  }
+);
+
+// post progress tracking options
+export const postProgressTrackingOptionsAPI = createAsyncThunk(
+  "admin/postProgressTrackingOptions",
+  async (optionsData, thunkAPI) => {
+    try {
+      const response = await postProgressTrackingOptions(optionsData);
+      return response.data;
+    } catch (error) {
+      console.error(error)
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to add progress tracking options"
+      );
+    }
+  }
+);
+
+// update progress tracking options
+export const updateProgressTrackingOptionAPI = createAsyncThunk(
+  "admin/updateProgressTrackingOption",
+  async ({ optionId, optionData }, thunkAPI) => {
+    try {
+      const response = await updateProgressTrackingOption(optionId, optionData);
+      return response.data;
+    } catch (error) {
+      console.error(error)
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to update progress tracking option"
+      );
+    }
+  }
+);
+
+// delete progress tracking option
+export const deleteProgressTrackingOptionAPI = createAsyncThunk(
+  "admin/deleteProgressTrackingOption",
+  async (optionId, thunkAPI) => {
+    try {
+      await deleteProgressTrackingOption(optionId);
+      return optionId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to delete progress tracking option"
+      );
+    }
+  }
+);
+
+//fetch progress tracking option in dropdown
+export const fetchProgressTrackingOptionsAPI = createAsyncThunk(
+  "admin/fetchProgressTrackingOptions",
+  async (_, thunkAPI) => {
+    try {
+      const response = await fetchProgressTrackingOptions();
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch progress tracking options"
       );
     }
   }

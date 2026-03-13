@@ -8,6 +8,8 @@ import faqRoutes from "./faq/routes/faq.js";
 import musicRoutes from "./music/routes/music.js";
 import shortVideoRoutes from "./shortvideos/routes/video.js";
 import contactUs from "./contactUs/routes/contactUs.js";
+import questionRoutes from "./trackingQuestions/routes/question.js";
+import optionsRoutes from "./trackingOptions/routes/option.js";
 
 export default (app) => {
 	app.get("/", (req, res) => {
@@ -24,4 +26,6 @@ export default (app) => {
 	musicRoutes(app);
 	shortVideoRoutes(app);
 	contactUs(app);
+	questionRoutes(app);
+	optionsRoutes(app);
 };

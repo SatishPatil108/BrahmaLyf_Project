@@ -7,7 +7,7 @@ import AddCourseCurriculum from "./AddCourseCurriculum";
 import useDomainData from "./useDomainData";
 import { addNewCourseAPI } from "@/store/feature/admin";
 
-const steps = ["Course Information", "Curriculum Setup"];
+const steps = ["Course Information", "Curriculum Setup","Progress Tracking"];
 
 const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
   const dispatch = useDispatch();
@@ -15,11 +15,12 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
 
   const domains = domainsDetails.domains || [];
   const subdomains = subdomainsDetails.subdomains || [];
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(1);
   const [formErrors, setFormErrors] = useState({});
   const [apiError, setApiError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // step 1 state variable
   const [courseData, setCourseData] = useState({
     domain: "",
     subdomain: "",
@@ -36,6 +37,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
     videoThumbnail: null,
   });
 
+  // step 2 state variable
   const [curriculums, setCurriculums] = useState([
     {
       header_type: "",
@@ -46,7 +48,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       thumbnail_file: null,
     },
   ]);
-
+  
   // Validate step 1 (course information)
   const validateStep1 = () => {
     const errors = {};

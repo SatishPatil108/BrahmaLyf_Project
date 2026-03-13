@@ -3,18 +3,13 @@ import { Play, ChevronLeft, ChevronRight, Clapperboard, CalendarDays, Sparkles }
 
 const BASE_URL = import.meta.env.VITE_BASE_URL_IMG;
 
+
 const ShortCard = ({ video, index, hoveredIndex, setHoveredIndex, isDark, domains, onPress }) => {
     const isHovered = hoveredIndex === index;
     const domainName = domains.find((d) => d.domain_id === video.domain_id)?.domain_name ?? "General";
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.5, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ y: -8, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
-            whileTap={{ scale: 0.96 }}
+        <div
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
             onClick={onPress}
@@ -31,16 +26,23 @@ const ShortCard = ({ video, index, hoveredIndex, setHoveredIndex, isDark, domain
             />
 
             {/* Card inner */}
-            <div className="relative rounded-[20px] overflow-hidden z-[1]" style={{ aspectRatio: "9/16" }}>
-                {/* Thumbnail */}
+            <div
+                className="relative rounded-[20px] overflow-hidden"
+                style={{
+                    aspectRatio: "9/16",
+                    WebkitMaskImage: "-webkit-radial-gradient(white, black)",
+                    isolation: "isolate",
+                }}
+            >
+                {/* Thumbnail — CSS only, no framer on img */}
                 <img
                     src={`${BASE_URL}${video.video_thumbnail}`}
                     alt={video.video_title}
                     className="w-full h-full object-cover"
                     style={{
-                        transform: isHovered ? "scale(1.08)" : "scale(1)",
+                        transform: isHovered ? "scale(1)" : "scale(1)",
                         transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
-                    }}
+                  }}
                 />
 
                 {/* Vignette */}
@@ -52,14 +54,14 @@ const ShortCard = ({ video, index, hoveredIndex, setHoveredIndex, isDark, domain
                 {/* Top badge */}
                 <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
                     <span
-                        className="bg-rose-500 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase"
+                        className="bg-rose-500 text-white px-2 py-0.5 rounded uppercase"
                         style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "11px", letterSpacing: "0.1em" }}
                     >
                         Short
                     </span>
                 </div>
 
-                {/* Play button */}
+                {/* Play button — keep motion here only */}
                 <motion.div
                     className="absolute inset-0 flex items-center justify-center"
                     animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.7 }}
@@ -115,7 +117,7 @@ const ShortCard = ({ video, index, hoveredIndex, setHoveredIndex, isDark, domain
             >
                 {String(index + 1).padStart(2, "0")}
             </div>
-        </motion.div>
+        </div>
     );
 };
 

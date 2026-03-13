@@ -371,55 +371,6 @@ const CourseDetailsPage = () => {
                   )}
                 </button>
               </div>
-
-              {/* Coach Card */}
-              <div className="rounded-2xl p-6 border shadow-sm"
-                style={cardStyle}>
-                <h3 className="text-lg font-bold mb-4" style={textPrimaryStyle}>
-                  Meet Your Instructor
-                </h3>
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <div className="absolute -inset-1 rounded-full blur" style={{
-                      background: 'linear-gradient(to right, #2563eb, #1d4ed8)',
-                      opacity: theme === 'dark' ? 0.3 : 0.2
-                    }}></div>
-                    <img
-                      src={`${BASE_URL}${coach?.profile_image}`}
-                      alt={coach?.coach_name}
-                      className="relative w-100 rounded-full object-cover border-2"
-                      style={{
-                        borderColor: theme === 'dark' ? '#111827' : '#ffffff'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <h4 className="font-bold" style={textPrimaryStyle}>
-                      {coach?.coach_name}
-                    </h4>
-                    <p className="text-sm mb-1" style={{
-                      color: theme === 'dark' ? '#93c5fd' : '#2563eb'
-                    }}>
-                      {coach?.professional_title}
-                    </p>
-                    <p className="text-xs line-clamp-2" style={textSecondaryStyle}>
-                      {coach?.bio}
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  to={`/coach/${coach?.coach_id}`}
-                  className="mt-4 inline-flex items-center gap-2 text-sm transition-colors"
-                  style={{
-                    color: theme === 'dark' ? '#93c5fd' : '#2563eb'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = theme === 'dark' ? '#bfdbfe' : '#1e40af'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = theme === 'dark' ? '#93c5fd' : '#2563eb'}
-                >
-                  View full profile
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
             </div>
           </div>
         </div>

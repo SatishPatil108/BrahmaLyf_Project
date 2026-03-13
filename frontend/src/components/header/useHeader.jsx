@@ -7,7 +7,6 @@ export function useHeader() {
 
   const links = [
     { to: "/", label: "Home" , icon:Home },
-    { to: "/categories", label: "Categories", icon:BookOpen },
     { to: "/about", label: "About", icon: Command },
     { to: "/contact", label: "Contact", icon: Mail },
   ];
@@ -16,7 +15,6 @@ export function useHeader() {
     links.push({ to: "/login", label: "Login", icon: Menu });
   } else {
     links.splice(2, 0, { to: "/my-courses", label: "Courses", icon: BookOpenText });
-    // links.splice(2, 0, { to: "/notes", label: "Notes", icon: NotebookTabs });
     links.push({ to: "/notes", label: "Notes", icon: NotebookTabs });
 
   }

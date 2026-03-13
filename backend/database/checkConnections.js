@@ -18,6 +18,7 @@ import pool from './database.js';
 
 
         const result = await pool.query(query);
+     
         console.log('📊 DB Connection Info:', result.rows[0]);
     } catch (err) {
         console.error('❌ Error fetching connection info:', err);

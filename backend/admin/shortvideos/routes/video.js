@@ -36,7 +36,7 @@ export default (app) => {
         updateShortVideoController
     );
 
-    app.get("/apis/admin/short-video/:pageNo/:pageSize", verifyAdminToken, getShortVideosController);
+    app.get("/apis/admin/short-videos/:pageNo/:pageSize", verifyAdminToken, getShortVideosController);
 
     app.get("/apis/admin/short-video/:shortVideoId", verifyAdminToken, getShortVideoController);
 

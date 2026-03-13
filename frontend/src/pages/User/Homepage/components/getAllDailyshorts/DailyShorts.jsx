@@ -96,36 +96,18 @@ const DailyShorts = () => {
       {/* ── Header ── */}
       <div className="relative z-10 pt-16 pb-10 px-6 sm:px-10 lg:px-16">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6"
-          >
+          
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="inline-block w-8 h-px bg-rose-500" />
-                <span className="text-rose-500 uppercase tracking-widest text-xs font-bold">
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-8 h-px bg-gradient-to-r from-purple-600 to-pink-600" />
+                <span className="font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent uppercase tracking-widest lg:text-xl text-1xl">
                   Daily Shorts
                 </span>
               </div>
-              <h2
-                className={`leading-none lg:text-7xl text-5xl tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
-              >
-                Learn in
-                <br />
-                <ShimmerText>60 Seconds</ShimmerText>
-              </h2>
             </div>
 
             <div className="flex flex-col items-start sm:items-end gap-3">
-              <p
-                className={`text-sm leading-relaxed max-w-xs ${isDark ? "text-white" : "text-gray-900"}`}
-                style={{ fontStyle: "italic" }}
-              >
-                Quick, inspiring micro-lessons crafted for modern learners on the go.
-              </p>
               {videos.length > 3 && (
                 <div className="flex items-center gap-2">
                   <button
@@ -134,31 +116,26 @@ const DailyShorts = () => {
                       ? "border-white/15 text-white/40 hover:border-white/40 hover:text-white"
                       : "border-black/15 text-black/40 hover:border-black/40 hover:text-black"}`}
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-4 h-4 cursor-pointer" />
                   </button>
                   <button
                     onClick={() => scroll("right")}
-                    className="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center hover:bg-rose-400 transition-all duration-200 text-white"
+                    className="w-10 h-10 rounded-full bg-purple-600 to-pink-600 flex items-center justify-center hover:bg-purple-400 transition-all duration-200 text-white cursor-pointer"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
 
+           
           {totalRecords > 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className={`mt-6 flex items-center gap-3 text-xs ${isDark ? "text-white/30" : "text-black/30"}`}
-            >
+            <div className={`mt-6 flex items-center gap-3 text-xs ${isDark ? "text-white/30" : "text-black/30"}`}>
               <span>{totalRecords} videos</span>
               <span className="w-1 h-1 rounded-full bg-current inline-block opacity-50" />
               <span>Page {currentPage}</span>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>

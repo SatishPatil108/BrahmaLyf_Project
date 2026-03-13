@@ -10,9 +10,9 @@ const placeholderReducer = (state = {}, action) => {
 
 const rootReducer = combineReducers({
   app: placeholderReducer,
-   auth: authReducer,
-   user:userReducer,
-   admin:adminReducer
+  auth: authReducer,
+  user: userReducer,
+  admin: adminReducer
 });
 
 export default rootReducer;

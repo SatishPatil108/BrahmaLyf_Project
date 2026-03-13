@@ -17,7 +17,8 @@ import {
 } from "../services/dashboard.js";
 
 // ====================== DASHBOARD ======================
-export const getDashboardDataModel = async (req, res) => {
+export const getDashboardDataModel = async (req, res) => {   
+
     const data = await getDashboardDataService();
     if (data === -1) {
         return error(res, HTTP_OK, APP_RESPONSE_CODE_ERROR, NO_RECORD_FOUND, null);
