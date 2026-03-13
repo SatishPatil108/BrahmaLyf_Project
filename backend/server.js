@@ -5,7 +5,7 @@ import cors from "cors";
 import fs from "fs";
 import mainRoutes from "./routes/main_routes.js";
 import { NODE_ENV, PORT } from "./config/config.js";
-import "./commons/AddTrackingQuestionCorn.js"
+import "./commons/AddTrackingQuestionCorn.js";
 
 const app = express();
 
@@ -34,13 +34,19 @@ mainRoutes(app);
 let server;
 
 if (NODE_ENV === "production") {
-  const sslOptions = {
-    key: fs.readFileSync("/etc/letsencrypt/live/brahmalyf.com/privkey.pem"),
-    cert: fs.readFileSync("/etc/letsencrypt/live/brahmalyf.com/fullchain.pem"),
-  };
+  let sslOptions;
+  try {
+    sslOptions = {
+      key: fs.readFileSync("/etc/letsencrypt/live/brahmalyf.com/privkey.pem"),
+      cert: fs.readFileSync(
+        "/etc/letsencrypt/live/brahmalyf.com/fullchain.pem",
+      ),
+    };
+  } catch (err) {
+    console.error("❌ Failed to read SSL certs:", err.message);
+    process.exit(1);
+  }
   server = createHttpsServer(sslOptions, app);
-} else {
-  server = createHttpServer(app);
 }
 
 server.listen(PORT, "0.0.0.0", () => {
