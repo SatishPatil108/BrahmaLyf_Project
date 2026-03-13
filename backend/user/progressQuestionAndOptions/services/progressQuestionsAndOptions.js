@@ -8,7 +8,7 @@ export const checkUserAlreadySubmittedService = (
 ) => {
   return new Promise((resolve, reject) => {
     const query = `
-      SELECT id, form_data, status
+      SELECT id, user_response, status
       FROM bm.user_progress
       WHERE user_id = $1
         AND course_id = $2
@@ -177,14 +177,14 @@ export const postUserResponseService = (
         week_no,
         day_no,
         progress_date,
-        form_data,
+        user_response,
         status,
         created_on
       )
       VALUES ($1, $2, $3, $4, NOW(), $5::jsonb, 1, NOW())
       ON CONFLICT (user_id, course_id, week_no, day_no)
       DO UPDATE SET
-        form_data = bm.user_progress.form_data || EXCLUDED.form_data
+        user_response = bm.user_progress.user_response || EXCLUDED.user_response
       RETURNING *
     `;
 
