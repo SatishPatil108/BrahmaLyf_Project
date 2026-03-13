@@ -478,9 +478,9 @@ export const postProgressToolsQuestion = async (questionData) => {
 };
 
 // update progress tools question details
-export const updateProgressToolsQuestion = async (questionId, data) => {
+export const updateProgressToolsQuestion = async (tools_question_id, data) => {
   return await makeRequest({
-    service: `admin/progress-tools/questions/${questionId}`,
+    service: `admin/progress-tools/questions/${tools_question_id}`,
     method: API_METHODS.PUT,
     data: data,
     authRequired: true,
@@ -489,9 +489,9 @@ export const updateProgressToolsQuestion = async (questionId, data) => {
 };
 
 // delete progress tools question
-export const deleteProgressToolsQuestion = async (questionId) => {
+export const deleteProgressToolsQuestion = async (tools_question_id) => {
   return await makeRequest({
-    service: `admin/progress-tools/questions/${questionId}`,
+    service: `admin/progress-tools/questions/${tools_question_id}`,
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "admin",

@@ -206,8 +206,7 @@ export const postCurriculumOutlineValidator = (req, res, next) => {
 	// Validate body
 	// -------------------------------------
 	const bodySchema = joi.object({
-		header_type: joi.string().valid("Chapter", "Section", "Lesson").required(),
-		sequence_no: joi.number().integer().min(1).required(),
+		week_no: joi.number().integer().min(1).required(),
 		title: joi.string().min(2).max(255).required(),
 		description: joi.string().min(2).max(1000).required(),
 		video_url: joi.string().uri().required()
@@ -274,8 +273,7 @@ export const updateCurriculumOutlineValidator = (req, res, next) => {
 	// Validate body
 	// -------------------------------------
 	const bodySchema = joi.object({
-		header_type: joi.string().valid("Chapter", "Section", "Lesson").required(),
-		sequence_no: joi.number().integer().min(1).required(),
+		week_no: joi.number().integer().min(1).required(),
 		title: joi.string().min(2).max(255).required(),
 		description: joi.string().min(2).max(1000).required(),
 		video_url: joi.string().uri().required(),

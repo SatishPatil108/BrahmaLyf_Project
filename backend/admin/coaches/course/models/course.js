@@ -117,7 +117,7 @@ export const postCourseModel = async (req, res) => {
           curriculum.header_type,
           curriculum.title,
           curriculum.description,
-          curriculum.sequence_no,
+          curriculum.week_no,
           createdOn,
           status,
           client
@@ -166,9 +166,9 @@ export const postCurriculumOutlineModel = async (req, res) => {
     const result = await runTransaction(async (client) => {
 
       const courseId = req.params.courseId;
-      const { header_type, sequence_no, title, description, video_url } = req.body;
+      const { week_no, title, description, video_url } = req.body;
 
-      if (!courseId || !header_type || !title) {
+      if (!courseId || !week_no || !title) {
         throw new Error("Missing required fields");
       }
 
@@ -183,10 +183,9 @@ export const postCurriculumOutlineModel = async (req, res) => {
 
       const outlineResponse = await postCurriculumOutlineService(
         courseId,
-        header_type,
         title,
         description,
-        sequence_no,
+        week_no,
         createdOn,
         status,
         client
@@ -323,7 +322,7 @@ export const updateCourseModel = async (req, res) => {
 export const updateCurriculumOutlineModel = async (req, res) => {
 	try {
 		const curriculumId = req.params.curriculumId;
-		const { header_type, sequence_no, title, description, video_id, video_url } = req.body;
+		const {  week_no, title, description, video_id, video_url } = req.body;
 
 		const updatedOn = new Date();
 
@@ -368,8 +367,7 @@ export const updateCurriculumOutlineModel = async (req, res) => {
 		// ------------------------------------------------------
 		const result = await updateCurriculumOutlineAndRelatedVideoService(
 			curriculumId,
-			header_type,
-			sequence_no,
+			week_no,
 			title,
 			description,
 			video_id,

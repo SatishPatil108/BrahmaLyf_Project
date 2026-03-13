@@ -56,10 +56,12 @@ export const updateProgressTasksQuestionValidator = (req, res, next) => {
     }),
   });
 
+
   // ✅ convert: true — coerces "35" string to 35 number
   const { error: paramsError } = paramsSchema.validate(req.params, {
     convert: true,
   });
+
   if (paramsError) {
     console.error("Params error:", paramsError.message);
     return _error(

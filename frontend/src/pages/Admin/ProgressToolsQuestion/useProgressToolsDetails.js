@@ -72,15 +72,15 @@ const useProgressToolsDetails = (weekNo, dayNo) => {
   };
 
   // ✅ Update Tool
-  const updateTool = async (toolsQuestionId, toolData) => {
+  const updateTool = async (tools_question_id, questionData) => {
     setIsSubmitting(true);
     clearMessage();
 
     try {
       await dispatch(
         updateProgressToolsQuestionAPI({
-          toolsQuestionId,
-          toolData,
+          tools_question_id,
+          questionData,
         }),
       ).unwrap();
 
@@ -104,12 +104,12 @@ const useProgressToolsDetails = (weekNo, dayNo) => {
   };
 
   // ✅ Delete Tool
-  const handleDeleteTool = async (toolsQuestionId) => {
+  const handleDeleteTool = async (tools_question_id) => {
     setIsSubmitting(true);
     clearMessage();
 
     try {
-      await dispatch(deleteProgressToolsQuestionAPI(toolsQuestionId)).unwrap();
+      await dispatch(deleteProgressToolsQuestionAPI(tools_question_id)).unwrap();
 
       setActionMessage({
         type: "success",

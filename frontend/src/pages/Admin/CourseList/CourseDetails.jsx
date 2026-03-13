@@ -18,6 +18,14 @@ import {
   Tag,
   BadgeQuestionMarkIcon,
   List,
+  Play,
+  FileText,
+  Award,
+  Sparkles,
+  ArrowRight,
+  CalendarDays,
+  Bookmark,
+  GraduationCap,
 } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer";
 import EditCourse from "./EditCourse";
@@ -26,8 +34,9 @@ import useCourseDetails from "./useCourseDetails";
 import CustomButton from "@/components/CustomButton";
 import ProgressTasksQuestionDetails from "../ProgressTasksTracking/ProgressTasksQuestionDetails";
 import ProgressToolsQuestionDetails from "../ProgressToolsQuestion/ProgressToolsQuestionDetails";
+import CustomDrawer from "@/components/CustomDrawer";
 
-// Color configuration for consistent theming
+// Enhanced color configuration
 const COLORS = {
   primary: {
     light: {
@@ -115,29 +124,28 @@ const CourseDetails = () => {
     setIsCurriculumEditing,
   } = useCourseDetails(courseId);
 
-  // state declarations with your other states
   const [isTasksDrawerOpen, setIsTasksDrawerOpen] = useState(false);
   const [isToolsDrawerOpen, setIsToolsDrawerOpen] = useState(false);
+  const [drawerItem, setDrawerItem] = useState(null);
+  const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
   const [activeProgressTab, setActiveProgressTab] = useState("tasks");
+  const [hoveredModule, setHoveredModule] = useState(null);
 
-  //  handler functions
-  const openTasksDrawer = () => {
-    setIsTasksDrawerOpen(true);
+  const openTasksDrawer = () => setIsTasksDrawerOpen(true);
+  const closeTasksDrawer = () => setIsTasksDrawerOpen(false);
+  const openToolsDrawer = () => setIsToolsDrawerOpen(true);
+  const closeToolsDrawer = () => setIsToolsDrawerOpen(false);
+
+  const handleViewDetails = (item) => {
+    setDrawerItem(item);
+    setIsDetailDrawerOpen(true);
   };
 
-  const closeTasksDrawer = () => {
-    setIsTasksDrawerOpen(false);
+  const closeDetailDrawer = () => {
+    setIsDetailDrawerOpen(false);
+    setTimeout(() => setDrawerItem(null), 300);
   };
 
-  const openToolsDrawer = () => {
-    setIsToolsDrawerOpen(true);
-  };
-
-  const closeToolsDrawer = () => {
-    setIsToolsDrawerOpen(false);
-  };
-
-  // --- Error State ---
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -161,7 +169,6 @@ const CourseDetails = () => {
     );
   }
 
-  // --- Not Found ---
   if (!courseDetails) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -178,7 +185,6 @@ const CourseDetails = () => {
     );
   }
 
-  // --- Extract Details ---
   const {
     course_name,
     target_audience,
@@ -206,19 +212,22 @@ const CourseDetails = () => {
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-screen p-4 sm:p-6 lg:p-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* --- Course Header --- */}
-        <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        {/* Course Header - Enhanced */}
+        <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 sm:p-8 text-white shadow-xl overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-32 -mt-32" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/5 rounded-full blur-2xl -ml-24 -mb-24" />
+
+          <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Tag className="w-5 h-5 opacity-80" />
-                <span className="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">
+                <Sparkles className="w-5 h-5 opacity-80" />
+                <span className="text-sm font-medium bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
                   {domain_name || "Course"}
                 </span>
               </div>
 
               <div>
-                <h1 className="text-3xl sm:text-4xl font-bold">
+                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
                   {course_name}
                 </h1>
                 {subdomain_name && (
@@ -244,12 +253,11 @@ const CourseDetails = () => {
               </div>
             </div>
 
-            {/* --- Action Buttons --- */}
             <div className="flex items-center gap-3">
               <CustomButton
                 onClick={handleEdit}
                 variant="outline"
-                className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30 text-white"
               >
                 <SquarePen className="w-4 h-4 mr-2" />
                 Edit Course
@@ -265,7 +273,7 @@ const CourseDetails = () => {
                     handleDelete(courseId);
                   }
                 }}
-                className="p-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-white transition-colors border border-red-400/30"
+                className="p-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-white transition-all duration-300 border border-red-400/30 backdrop-blur-sm"
                 aria-label="Delete course"
               >
                 <Trash2 className="w-5 h-5" />
@@ -274,11 +282,11 @@ const CourseDetails = () => {
           </div>
         </div>
 
-        {/* --- Main Content Grid --- */}
+        {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Info */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Target Audience & Learning Outcomes Cards */}
+            {/* Info Cards with enhanced design */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <InfoCard
                 title="Target Audience"
@@ -288,25 +296,25 @@ const CourseDetails = () => {
               />
               <InfoCard
                 title="Learning Outcomes"
-                icon={<Target className="w-5 h-5" />}
+                icon={<Award className="w-5 h-5" />}
                 content={learning_outcomes}
                 color="success"
               />
             </div>
 
-            {/* Overview Section */}
+            {/* Course Overview */}
             <Section
               title="Course Overview"
               content={curriculum_description}
               icon={<BookOpen className="w-5 h-5" />}
             />
 
-            {/* Intro Video */}
+            {/* Intro Video with enhanced design */}
             {intro_video && (
-              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
+              <div className="group bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                    <Video className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                    <Video className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -328,7 +336,7 @@ const CourseDetails = () => {
                     </p>
                   </div>
 
-                  <div className="rounded-lg overflow-hidden">
+                  <div className="rounded-lg overflow-hidden shadow-lg">
                     <VideoPlayer
                       videoUrl={intro_video.video_url}
                       thumbnailUrl={intro_video.thumbnail_url}
@@ -339,226 +347,391 @@ const CourseDetails = () => {
               </div>
             )}
 
-            {/* Curriculum Outline */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                    <ListChecks className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            {/* Enhanced Curriculum Section */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20 px-6 py-5 border-b border-gray-200 dark:border-gray-800">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
+                      <ListChecks className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                        Curriculum Outline
+                      </h2>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {curriculum_outline.length} modules • Complete learning
+                        path
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                      Curriculum Outline
-                    </h2>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {curriculum_outline.length} modules • Complete learning
-                      path
-                    </p>
-                  </div>
-                </div>
 
-                <CustomButton
-                  onClick={() => {
-                    setIsCurriculumDrawerOpen(true);
-                    setIsCurriculumEditing(false);
-                  }}
-                  variant="primary"
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Module
-                </CustomButton>
+                  <CustomButton
+                    onClick={() => {
+                      setIsCurriculumDrawerOpen(true);
+                      setIsCurriculumEditing(false);
+                    }}
+                    variant="primary"
+                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-300"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Module
+                  </CustomButton>
+                </div>
               </div>
 
-              {/* Curriculum List */}
-              <div className="space-y-4">
+              {/* Enhanced Module List */}
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {curriculum_outline.length > 0 ? (
                   curriculum_outline.map((item, index) => {
                     const relatedVideos = videos.filter(
                       (vid) => vid.curriculum_outline_id === item.id,
                     );
+                    const isHovered = hoveredModule === item.id;
 
                     return (
                       <div
                         key={item.id}
-                        className="group border border-gray-200 dark:border-gray-800 rounded-xl p-5 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-900"
+                        onClick={() => handleViewDetails(item)}
+                        onMouseEnter={() => setHoveredModule(item.id)}
+                        onMouseLeave={() => setHoveredModule(null)}
+                        className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-950/20 dark:hover:to-purple-950/20"
                       >
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
-                              <span className="font-bold text-gray-700 dark:text-gray-300">
-                                {index + 1}
-                              </span>
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                                  {item.header_type}
-                                </span>
-                                <span className="text-sm text-gray-500 dark:text-gray-400">
-                                  Sequence: {item.sequence_no}
-                                </span>
-                              </div>
-                              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                {item.title}
-                              </h3>
-                            </div>
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() => handleCurriculumEdit(item.id)}
-                              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                              aria-label="Edit module"
-                            >
-                              <SquarePen className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (
-                                  window.confirm(
-                                    "Are you sure you want to delete this module?",
-                                  )
-                                ) {
-                                  handleCurriculumDelete(item.id);
-                                }
-                              }}
-                              className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-800/50 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
-                              aria-label="Delete module"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
+                        {/* Animated gradient border on hover */}
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10" />
                         </div>
 
-                        <p className="text-gray-600 dark:text-gray-300 mb-4">
-                          {item.description}
-                        </p>
-
-                        {/* Videos */}
-                        {relatedVideos.length > 0 && (
-                          <div className="border-t border-gray-200 dark:border-gray-800 pt-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <FileVideo className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                Videos ({relatedVideos.length})
-                              </h4>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              {relatedVideos.map((video) => (
-                                <div key={video.id} className="space-y-2">
-                                  <VideoPlayer
-                                    videoUrl={video.video_url}
-                                    thumbnailUrl={video.thumbnail_url}
-                                    title={video.title}
-                                    showControls={false}
-                                    className="rounded-lg"
-                                  />
-                                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                                    {video.title}
-                                  </p>
+                        <div className="relative px-6 py-5">
+                          <div className="flex items-center justify-between">
+                            {/* Left section with enhanced visuals */}
+                            <div className="flex items-center gap-5 flex-1">
+                              {/* Module number with enhanced styling */}
+                              <div className="relative">
+                                <div
+                                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                                    isHovered
+                                      ? "bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg transform scale-110"
+                                      : "bg-gray-100 dark:bg-gray-800"
+                                  }`}
+                                >
+                                  <span
+                                    className={`text-lg font-bold transition-all duration-300 ${
+                                      isHovered
+                                        ? "text-white"
+                                        : "text-gray-600 dark:text-gray-400"
+                                    }`}
+                                  >
+                                    {index + 1}
+                                  </span>
                                 </div>
-                              ))}
+                                {isHovered && (
+                                  <div className="absolute -inset-1 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-xl opacity-50 blur-md -z-10" />
+                                )}
+                              </div>
+
+                              {/* Module info with enhanced typography */}
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <h3
+                                    className={`text-lg font-semibold transition-colors duration-300 ${
+                                      isHovered
+                                        ? "text-indigo-700 dark:text-indigo-400"
+                                        : "text-gray-900 dark:text-gray-100"
+                                    }`}
+                                  >
+                                    {item.title}
+                                  </h3>
+                                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400">
+                                    Week {item.week_no}
+                                  </span>
+                                </div>
+
+                                {/* Module metadata with icons */}
+                                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                                  <div className="flex items-center gap-1">
+                                    <FileVideo className="w-4 h-4" />
+                                    <span>
+                                      {relatedVideos.length} video
+                                      {relatedVideos.length !== 1 ? "s" : ""}
+                                    </span>
+                                  </div>
+                                  {item.description && (
+                                    <div className="flex items-center gap-1">
+                                      <FileText className="w-4 h-4" />
+                                      <span className="line-clamp-1">
+                                        {item.description.substring(0, 60)}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Action buttons with enhanced hover effects */}
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCurriculumEdit(item.id);
+                                }}
+                                className={`p-2 rounded-lg transition-all duration-300 ${
+                                  isHovered
+                                    ? "opacity-100 translate-x-0"
+                                    : "opacity-0 translate-x-4"
+                                } hover:bg-indigo-100 dark:hover:bg-indigo-900/30 text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400`}
+                              >
+                                <SquarePen className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (
+                                    window.confirm(
+                                      "Are you sure you want to delete this module?",
+                                    )
+                                  ) {
+                                    handleCurriculumDelete(item.id);
+                                  }
+                                }}
+                                className={`p-2 rounded-lg transition-all duration-300 ${
+                                  isHovered
+                                    ? "opacity-100 translate-x-0"
+                                    : "opacity-0 translate-x-4"
+                                } hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-500 hover:text-red-600 dark:hover:text-red-400`}
+                              >
+                                <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+                              </button>
+                              <ArrowRight
+                                className={`w-5 h-5 text-gray-400 transition-all duration-300 ${
+                                  isHovered
+                                    ? "translate-x-1 text-indigo-500"
+                                    : ""
+                                }`}
+                              />
                             </div>
                           </div>
-                        )}
-
-                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                          <span>Module ID: {item.id}</span>
-                          <button
-                            onClick={() => handleCurriculumEdit(item.id)}
-                            className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
-                          >
-                            View details
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
                         </div>
                       </div>
                     );
                   })
                 ) : (
-                  <div className="text-center py-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900">
-                    <ListChecks className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
+                  <div className="text-center py-12 bg-white dark:bg-gray-900">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 flex items-center justify-center mx-auto mb-4">
+                      <Sparkles className="w-10 h-10 text-indigo-500 dark:text-indigo-400" />
+                    </div>
                     <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      No Curriculum Added
+                      No Curriculum Added Yet
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-400 mb-4">
-                      Start building your course by adding modules
+                    <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                      Start building your course by adding modules, lessons, and
+                      resources
                     </p>
                     <CustomButton
                       onClick={() => {
                         setIsCurriculumDrawerOpen(true);
                         setIsCurriculumEditing(false);
                       }}
-                      variant="outline"
+                      variant="primary"
+                      className="bg-gradient-to-r from-indigo-600 to-purple-600"
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Add First Module
+                      Add Your First Module
                     </CustomButton>
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Enhanced Detail Drawer */}
+            <CustomDrawer
+              isOpen={isDetailDrawerOpen}
+              onClose={closeDetailDrawer}
+              title={drawerItem?.title || "Module Details"}
+              width="700px"
+            >
+              {drawerItem &&
+                (() => {
+                  const relatedVideos = videos.filter(
+                    (vid) => vid.curriculum_outline_id === drawerItem.id,
+                  );
+                  return (
+                    <div className="space-y-8">
+                      {/* Header with gradient */}
+                      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 -m-6 p-6 rounded-t-2xl">
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                            <GraduationCap className="w-8 h-8 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                              {drawerItem.title}
+                            </h3>
+                            <div className="flex items-center gap-3 mt-2">
+                              <span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-medium rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400">
+                                <CalendarDays className="w-4 h-4" />
+                                Week {drawerItem.week_no}
+                              </span>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                Module ID: {drawerItem.id}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="px-2 space-y-6">
+                        {/* Description Card */}
+                        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Bookmark className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                            <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                              Module Description
+                            </h4>
+                          </div>
+                          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {drawerItem.description ||
+                              "No description provided"}
+                          </p>
+                        </div>
+
+                        {/* Videos Section */}
+                        <div>
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                              <Video className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                                Module Videos ({relatedVideos.length})
+                              </h4>
+                            </div>
+                            {relatedVideos.length > 0 && (
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {relatedVideos.length} video
+                                {relatedVideos.length !== 1 ? "s" : ""}{" "}
+                                available
+                              </span>
+                            )}
+                          </div>
+
+                          {relatedVideos.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                              {relatedVideos.map((video, idx) => (
+                                <div
+                                  key={video.id}
+                                  className="group/video space-y-3"
+                                >
+                                  <div className="relative rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
+                                    <VideoPlayer
+                                      videoUrl={video.video_url}
+                                      thumbnailUrl={video.thumbnail_url}
+                                      title={video.title}
+                                      showControls={false}
+                                      className="rounded-xl"
+                                    />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                      <Play className="w-12 h-12 text-white" />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
+                                      {video.title}
+                                    </p>
+                                    {video.description && (
+                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                        {video.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 bg-gray-50 dark:bg-gray-800/30 rounded-xl">
+                              <FileVideo className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-2" />
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                No videos attached to this module yet
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                          <CustomButton
+                            onClick={() => {
+                              closeDetailDrawer();
+                              handleCurriculumEdit(drawerItem.id);
+                            }}
+                            variant="primary"
+                            className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600"
+                          >
+                            <SquarePen className="w-4 h-4 mr-2" />
+                            Edit Module
+                          </CustomButton>
+                          <CustomButton
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  "Are you sure you want to delete this module?",
+                                )
+                              ) {
+                                handleCurriculumDelete(drawerItem.id);
+                                closeDetailDrawer();
+                              }
+                            }}
+                            variant="outline"
+                            className="flex-1 border-red-300 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete Module
+                          </CustomButton>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+            </CustomDrawer>
           </div>
 
-          {/* Right Column - Sidebar */}
+          {/* Right Column - Sidebar (Keep existing but enhance slightly) */}
           <div className="space-y-6">
-            {/* Course Stats */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                Course Statistics
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Modules
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">
-                    {curriculum_outline.length}
-                  </span>
+            {/* Course Stats - Enhanced */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <Target className="w-5 h-5 text-white" />
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Total Videos
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">
-                    {videos.length}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Duration
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">
-                    {duration}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Created
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">
-                    {formatDate(created_on)}
-                  </span>
-                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Course Statistics
+                </h3>
+              </div>
+              <div className="space-y-3">
+                <StatItem label="Modules" value={curriculum_outline.length} />
+                <StatItem label="Total Videos" value={videos.length} />
+                <StatItem label="Duration" value={duration} />
+                <StatItem label="Created" value={formatDate(created_on)} />
               </div>
             </div>
 
-            {/* Coach Info */}
+            {/* Coach Info - Enhanced */}
             {coach_name && (
-              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                  Course Coach
-                </h3>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold">
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Course Coach
+                  </h3>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md flex-shrink-0">
+                    <span className="text-white font-bold text-xl">
                       {coach_name.charAt(0)}
                     </span>
                   </div>
                   <div className="min-w-0">
-                    <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
                       {coach_name}
                     </h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
@@ -569,8 +742,8 @@ const CourseDetails = () => {
               </div>
             )}
 
-            {/* Quick Actions */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
+            {/* Quick Actions - Keep existing */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                 Quick Actions
               </h3>
@@ -594,7 +767,6 @@ const CourseDetails = () => {
                   <Plus className="w-4 h-4 mr-2" />
                   Add New Module
                 </CustomButton>
-
                 <button
                   onClick={() => window.print()}
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
@@ -605,13 +777,11 @@ const CourseDetails = () => {
               </div>
             </div>
 
-            {/* Quick Actions - Progress Tasks & Tools (Tabbed Section) */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300 overflow-hidden">
+            {/* Progress Tasks & Tools Tabbed Section */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
               <div className="flex border-b border-gray-200 dark:border-gray-800">
                 <button
-                  onClick={() => {
-                    setActiveProgressTab("tasks");
-                  }}
+                  onClick={() => setActiveProgressTab("tasks")}
                   className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 ${
                     activeProgressTab === "tasks"
                       ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10"
@@ -623,11 +793,8 @@ const CourseDetails = () => {
                     Progress Tasks
                   </span>
                 </button>
-
                 <button
-                  onClick={() => {
-                    setActiveProgressTab("tools");
-                  }}
+                  onClick={() => setActiveProgressTab("tools")}
                   className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 ${
                     activeProgressTab === "tools"
                       ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10"
@@ -641,8 +808,7 @@ const CourseDetails = () => {
                 </button>
               </div>
 
-              {/* Tab Content - Tasks */}
-              {activeProgressTab === "tasks" && (
+              {activeProgressTab === "tasks" ? (
                 <div className="p-5">
                   <div className="text-center py-8">
                     <ListChecks className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
@@ -662,10 +828,7 @@ const CourseDetails = () => {
                     </CustomButton>
                   </div>
                 </div>
-              )}
-
-              {/* Tab Content - Tools */}
-              {activeProgressTab === "tools" && (
+              ) : (
                 <div className="p-5">
                   <div className="text-center py-8">
                     <BadgeQuestionMarkIcon className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
@@ -715,7 +878,6 @@ const CourseDetails = () => {
           />
         )}
 
-        {/* Tasks Drawer */}
         {isTasksDrawerOpen && (
           <ProgressTasksQuestionDetails
             isOpen={isTasksDrawerOpen}
@@ -724,7 +886,6 @@ const CourseDetails = () => {
           />
         )}
 
-        {/* Tools Drawer */}
         {isToolsDrawerOpen && (
           <ProgressToolsQuestionDetails
             isOpen={isToolsDrawerOpen}
@@ -737,11 +898,11 @@ const CourseDetails = () => {
   );
 };
 
-// --- Sub components ---
+// Helper Components
 const InfoCard = ({ title, icon, content, color = "info" }) => {
   return (
     <div
-      className={`rounded-xl p-5 border transition-colors duration-300
+      className={`rounded-xl p-5 border transition-all duration-300 hover:shadow-lg
       ${COLORS[color].light.bg} ${COLORS[color].light.border}
       dark:${COLORS[color].dark.bg} dark:${COLORS[color].dark.border}`}
     >
@@ -762,9 +923,11 @@ const InfoCard = ({ title, icon, content, color = "info" }) => {
 };
 
 const Section = ({ title, content, icon }) => (
-  <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
+  <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
     <div className="flex items-center gap-3 mb-4">
-      <div className="text-indigo-600 dark:text-indigo-400">{icon}</div>
+      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+        <div className="text-white">{icon}</div>
+      </div>
       <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
         {title}
       </h2>
@@ -774,6 +937,15 @@ const Section = ({ title, content, icon }) => (
         {content}
       </p>
     </div>
+  </div>
+);
+
+const StatItem = ({ label, value }) => (
+  <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
+    <span className="text-gray-600 dark:text-gray-400">{label}</span>
+    <span className="font-semibold text-gray-900 dark:text-gray-100">
+      {value}
+    </span>
   </div>
 );
 

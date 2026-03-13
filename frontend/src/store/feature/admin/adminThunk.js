@@ -701,9 +701,9 @@ export const fetchProgressToolsQuestionsAPI = createAsyncThunk(
 // update progress tools question
 export const updateProgressToolsQuestionAPI = createAsyncThunk(
   "admin/updateProgressToolsQuestion",
-  async ({ questionId, questionData }, thunkAPI) => {
+  async ({ tools_question_id, questionData }, thunkAPI) => {
     try {
-      const response = await updateProgressToolsQuestion(questionId, questionData);
+      const response = await updateProgressToolsQuestion(tools_question_id, questionData);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -717,10 +717,10 @@ export const updateProgressToolsQuestionAPI = createAsyncThunk(
 // delete progress tools question
 export const deleteProgressToolsQuestionAPI = createAsyncThunk(
   "admin/deleteProgressToolsQuestion",
-  async (questionId, thunkAPI) => {
+  async (tools_question_id, thunkAPI) => {
     try {
-      await deleteProgressToolsQuestion(questionId);
-      return questionId;
+      await deleteProgressToolsQuestion(tools_question_id);
+      return tools_question_id;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message ||

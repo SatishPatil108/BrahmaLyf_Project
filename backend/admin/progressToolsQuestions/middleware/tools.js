@@ -45,6 +45,7 @@ export const updateProgressToolsQuestionValidator = (req, res, next) => {
     course_id: joi.number().integer().positive().required(),
   });
 
+
   // Validate params
   const { error: paramsError } = paramsSchema.validate(req.params, {
     convert: true,

@@ -262,8 +262,7 @@ export const getCourseByIdService = async (courseId) => {
         json_agg(
           json_build_object(
             'id', co.id,
-            'header_type', co.header_type,
-            'sequence_no', co.sequence_no,
+            'week_no', co.week_no,
             'title', co.title,
             'description', co.description,
             'created_on', co.created_on,
@@ -375,10 +374,9 @@ export const getCourseVideoByVideoIdService = async (videoId) => {
 
 export const postCurriculumOutlineService = async (
   courseId,
-  headerType,
   title,
   description,
-  sequenceNo,
+  week_no,
   createdOn,
   status,
   client = connection
@@ -386,18 +384,16 @@ export const postCurriculumOutlineService = async (
   const text = `
     INSERT INTO bm.curriculum_outlines (
       course_id,
-      header_type,
       title,
       description,
-      sequence_no,
+      week_no,
       created_on,
       status
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7)
+    ) VALUES ($1,$2,$3,$4,$5,$6)
     RETURNING
       id,
       course_id,
-      header_type,
-      sequence_no,
+      week_no,
       title,
       description,
       created_on,
@@ -406,10 +402,9 @@ export const postCurriculumOutlineService = async (
   try {
     const result = await runQuery(client, text, [
       courseId,
-      headerType,
       title,
       description,
-      sequenceNo,
+      week_no,
       createdOn,
       status,
     ]);
@@ -467,22 +462,20 @@ export const updateCourseService = async (
 export const updateCurriculumOutlineService = async (
   courseId,
   id,
-  headerType,
   title,
   description,
-  sequenceNo,
+  week_no,
   updatedOn,
   status
 ) => {
   const text = `
     UPDATE bm.curriculum_outlines
     SET
-      header_type = $3,
-      title = $4,
-      description = $5,
-      sequence_no = $6,
-      created_on = $7,
-      status = $8
+      title = $3,
+      description = $4,
+      week_no = $5,
+      created_on = $6,
+      status = $7
     WHERE course_id = $1 AND id = $2 AND status = 1
     RETURNING *
   `;
@@ -490,10 +483,9 @@ export const updateCurriculumOutlineService = async (
     const result = await runQuery(connection, text, [
       courseId,
       id,
-      headerType,
       title,
       description,
-      sequenceNo,
+      week_no,
       updatedOn,
       status,
     ]);
@@ -507,8 +499,7 @@ export const updateCurriculumOutlineService = async (
 
 export const updateCurriculumOutlineAndRelatedVideoService = async (
   curriculumId,
-  headerType,
-  sequenceNo,
+  week_no,
   title,
   description,
   videoId,
@@ -520,11 +511,11 @@ export const updateCurriculumOutlineAndRelatedVideoService = async (
     {
       text: `
         UPDATE bm.curriculum_outlines
-        SET header_type = $2, title = $3, description = $4, sequence_no = $5, created_on = $6
+        SET title = $2, description = $3, week_no = $4, created_on = $5
         WHERE id = $1 AND status = 1
         RETURNING *
       `,
-      params: [curriculumId, headerType, title, description, sequenceNo, updatedOn],
+      params: [curriculumId, title, description, week_no, updatedOn],
     },
     {
       text: `

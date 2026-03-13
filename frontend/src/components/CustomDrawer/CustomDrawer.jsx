@@ -10,58 +10,43 @@ const CustomDrawer = ({
   width = "800px",
   closeOnBackdrop = true,
 }) => {
-  // Prevent body scroll when drawer is open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    
+    document.body.style.overflow = isOpen ? "hidden" : "unset";
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
-  // Handle backdrop click
   const handleBackdropClick = (e) => {
-    if (closeOnBackdrop && e.target === e.currentTarget) {
-      onClose();
-    }
+    if (closeOnBackdrop && e.target === e.currentTarget) onClose();
   };
 
-  // Handle escape key
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
+      if (e.key === "Escape" && isOpen) onClose();
     };
-    
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
   return (
     <>
-      {/* Backdrop */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 dark:bg-black/60 backdrop-blur-sm transition-opacity duration-300"
-          onClick={handleBackdropClick}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Drawer */}
+      {/* ✅ Backdrop — always rendered, fades in/out via opacity */}
       <div
-        className={`fixed top-0 right-0 h-full z-50 transform transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : 'translate-x-full'}
+        className={`fixed inset-0 z-40 bg-black/50 dark:bg-black/60 backdrop-blur-sm
+          transition-opacity duration-300 ease-in-out
+          ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        onClick={handleBackdropClick}
+        aria-hidden="true"
+      />
+
+      {/* ✅ Drawer — duration-300 instead of duration-400 */}
+      <div
+        className={`fixed top-0 right-0 h-full z-50
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? "translate-x-0" : "translate-x-full"}
           bg-white dark:bg-gray-900 shadow-2xl`}
-        style={{
-          width: '90%',
-          maxWidth: width,
-        }}
+        style={{ width: "90%", maxWidth: width }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"
@@ -71,7 +56,7 @@ const CustomDrawer = ({
           <div className="flex items-center gap-3">
             <div className="w-2 h-8 rounded-full bg-gradient-to-b from-indigo-500 to-purple-600" />
             <div>
-              <h2 
+              <h2
                 id="drawer-title"
                 className="text-xl font-bold text-gray-900 dark:text-gray-100"
               >
@@ -82,10 +67,10 @@ const CustomDrawer = ({
               </p>
             </div>
           </div>
-          
+
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800
               text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300
               transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             aria-label="Close drawer"
@@ -95,16 +80,19 @@ const CustomDrawer = ({
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto" style={{ height: 'calc(100vh - 140px)' }}>
-          <div className="space-y-6">
-            {children}
-          </div>
+        <div
+          className="p-6 overflow-y-auto"
+          style={{ height: "calc(100vh - 140px)" }}
+        >
+          <div className="space-y-6">{children}</div>
         </div>
 
         {/* Footer */}
         {footer && (
-          <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 dark:border-gray-800 
-            bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
+          <div
+            className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 dark:border-gray-800
+            bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm"
+          >
             <div className="flex items-center justify-between gap-4">
               {footer}
             </div>
