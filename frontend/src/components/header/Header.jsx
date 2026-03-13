@@ -24,7 +24,6 @@ function Header() {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
 
-   
   useEffect(() => {
     // Only apply the scroll effect on the homepage ('/')
     if (location.pathname === "/") {
@@ -152,9 +151,11 @@ function Header() {
                 </ul>
 
                 {/* Language Selector - Desktop */}
-                <div className="ml-2">
-                  <LanguageSelector />
-                </div>
+                {user && (
+                  <div className="ml-2">
+                    <LanguageSelector />
+                  </div>
+                )}
 
                 {/* Theme Toggle - Desktop */}
                 <div className="ml-2">
@@ -192,7 +193,11 @@ function Header() {
               {/* Right side - Language selector, Theme toggle and User Menu */}
               <div className="flex items-center gap-1.5">
                 {/* Language Selector - Mobile */}
-                <LanguageSelector />
+                {user && (
+                  <div className="ml-2">
+                    <LanguageSelector />
+                  </div>
+                )}
 
                 {/* Theme Toggle - Mobile */}
                 <ThemeToggleButton isMobile={true} />
