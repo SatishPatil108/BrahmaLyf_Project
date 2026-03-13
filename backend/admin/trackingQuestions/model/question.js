@@ -20,6 +20,7 @@ import {
     QUESTION_NOT_FOUND,
     QUESTION_UPDATED_SUCCESS,
     SOMETHING_WENT_WRONG,
+    NO_RECORD_FOUND,
 } from "../messages/question.js";
 
 import {
@@ -65,19 +66,20 @@ export const getAllProgressTrackingQuestionsModel = async (req, res) => {
 
 export const postProgressTrackingQuestionModel = async (req, res) => {
     try {
-        const { question_text, answer_type, week_no, day_no } = req.body;
+        const questions = req.body;
 
-        // ----------------------------------------------
-        // Insert DB record
-        // ----------------------------------------------
-        const response = await postProgressTrackingQuestionService(
-            question_text,
-            answer_type,
-            week_no,
-            day_no
+        const results = await Promise.all(
+            questions.map(({ question_text, option_type, week_no, day_no }) =>
+                postProgressTrackingQuestionService(
+                    question_text,
+                    option_type,
+                    week_no,
+                    day_no
+                )
+            )
         );
 
-        if (!response) {
+        if (!results || results.length === 0) {
             return error(
                 res,
                 HTTP_BAD_REQUEST,
@@ -92,7 +94,7 @@ export const postProgressTrackingQuestionModel = async (req, res) => {
             HTTP_CREATED,
             APP_RESPONSE_CODE_SUCCESS,
             QUESTION_ADDED_SUCCESS,
-            response
+            results
         );
 
     } catch (err) {
@@ -107,11 +109,10 @@ export const postProgressTrackingQuestionModel = async (req, res) => {
     }
 };
 
-
 export const updateProgressTrackingQuestionModel = async (req, res) => {
     try {
         const { question_id } = req.params;
-        const { question_text, answer_type, week_no, day_no } = req.body;
+        const { question_text, option_type, week_no, day_no } = req.body;
 
         // ----------------------------------------------
         // Check if question exists
@@ -134,7 +135,7 @@ export const updateProgressTrackingQuestionModel = async (req, res) => {
         const response = await updateProgressTrackingQuestionService(
             question_id,
             question_text,
-            answer_type,
+            option_type,
             week_no,
             day_no
         );

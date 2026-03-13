@@ -7,12 +7,14 @@ import {
 import joi from "joi";
 
 export const postProgressTrackingQuestionValidator = (req, res, next) => {
-    const schema = joi.object({
-        question_text: joi.string().min(2).max(255).required(),
-        answer_type: joi.string().min(2).max(50).required(),
-        week_no: joi.number().integer().positive().required(),
-        day_no: joi.number().integer().positive().required(),
-    });
+    const schema = joi.array().items(
+        joi.object({
+            question_text: joi.string().min(3).required(),
+            option_type: joi.number().integer().valid(1, 2, 3, 4, 5).required(),
+            week_no: joi.number().integer().min(1).max(52).required(),
+            day_no: joi.number().integer().min(1).max(7).required(),
+        })
+    ).min(1).required();
 
     const { error } = schema.validate(req.body);
 
@@ -35,12 +37,14 @@ export const updateProgressTrackingQuestionValidator = (req, res, next) => {
         question_id: joi.number().integer().positive().required(),
     });
 
-    const bodySchema = joi.object({
-        question_text: joi.string().min(2).max(255).required(),
-        answer_type: joi.string().min(2).max(50).required(),
-        week_no: joi.number().integer().positive().required(),
-        day_no: joi.number().integer().positive().required(),
-    });
+    const bodySchema = joi.array().items(
+        joi.object({
+            question_text: joi.string().min(3).required(),
+            option_type: joi.number().integer().valid(1, 2, 3, 4, 5).required(),
+            week_no: joi.number().integer().min(1).max(52).required(),
+            day_no: joi.number().integer().min(1).max(7).required(),
+        })
+    ).min(1).required();
 
     const { error: paramsError } = paramsSchema.validate(req.params);
     if (paramsError) {

@@ -18,8 +18,10 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
   (config) => {
     let token = null;
+    const tokenType = config.tokenType;
 
-    if (config.tokenType === "admin") {
+
+    if (tokenType === "admin") {
       token = localStorage.getItem("admin_token");
     } else {
       token =
@@ -59,7 +61,7 @@ axiosClient.interceptors.response.use(
         // navigateTo("/admin/login");
       } else {
         localStorage.removeItem("user_token");
-        sessionStorage.removeItem("user_token");        
+        sessionStorage.removeItem("user_token");
       }
     }
 

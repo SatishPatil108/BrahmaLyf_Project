@@ -9,7 +9,7 @@ import joi from "joi";
 export const postProgressTrackingOptionValidator = (req, res, next) => {
     const schema = joi.object({
         question_id: joi.number().integer().positive().required(),
-        option_text: joi.string().min(2).max(25).required(),
+        options: joi.array().items(joi.string()).required()
     });
 
     const { error } = schema.validate(req.body);
@@ -35,7 +35,8 @@ export const updateProgressTrackingOptionValidator = (req, res, next) => {
 
     const bodySchema = joi.object({
         question_id: joi.number().integer().positive().required(),
-        option_text: joi.string().min(2).max(25).required(),
+        options: joi.array().items(joi.string()).required()
+
     });
 
     const { error: paramsError } = paramsSchema.validate(req.params);

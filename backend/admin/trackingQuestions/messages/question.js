@@ -9,3 +9,4 @@ export const INVALID_REQUEST = "Invalid request";
 export const SOMETHING_WENT_WRONG = "Something went wrong";
 export const INVALID_QUESTION_ID = "Invalid question ID";
 export const QUESTION_TEXT_REQUIRED = "Question text is required";
+export const NO_RECORD_FOUND = "No record found";

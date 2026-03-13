@@ -25,7 +25,8 @@ export const useCourseDetails = (courseId) => {
     const { courseDetails, loading, error } = useSelector(
         (state) => state.admin
     );
-
+   
+    
     // Fetch course details on component mount or when courseId changes
     useEffect(() => {
         if (courseId) {
@@ -131,6 +132,8 @@ export const useCourseDetails = (courseId) => {
         setIsCurriculumEditing(true);
         setIsCurriculumDrawerOpen(true);
     };
+
+    
     const handleCurriculumFormSubmit = (formData) => {
         if (isCurriculumEditing) {
             const toastId = toast.loading("Updating curriculum item...");

@@ -5,9 +5,10 @@ import CustomButton from "@/components/CustomButton";
 import AddCourseInfo from "./AddCourseInfo";
 import AddCourseCurriculum from "./AddCourseCurriculum";
 import useDomainData from "./useDomainData";
-import { addNewCourseAPI } from "@/store/feature/admin";
+import { addNewCourseAPI, postProgressTrackingQuestionAPI } from "@/store/feature/admin";
+import ProgressTracking from "./ProgressTracking";
 
-const steps = ["Course Information", "Curriculum Setup","Progress Tracking"];
+const steps = ["Course Information", "Curriculum Setup", "Progress Tracking"];
 
 const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
   const dispatch = useDispatch();
@@ -15,7 +16,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
 
   const domains = domainsDetails.domains || [];
   const subdomains = subdomainsDetails.subdomains || [];
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(2);
   const [formErrors, setFormErrors] = useState({});
   const [apiError, setApiError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,127 +49,176 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       thumbnail_file: null,
     },
   ]);
-  
+
+  // step 3 state variable
+  const [progressTracking, setProgressTracking] = useState([
+    {
+      question_text: "",
+      option_type: "",
+      week_no: "",
+      day_no: "",
+    },
+  ]);
+
   // Validate step 1 (course information)
   const validateStep1 = () => {
     const errors = {};
-    
+
     if (!courseData.domain) {
       errors.domain = "Domain is required";
     }
-    
+
     if (!courseData.subdomain) {
       errors.subdomain = "Subdomain is required";
     }
-    
+
     if (!courseData.coachId?.trim()) {
       errors.coachId = "Coach is required";
     }
-    
+
     if (!courseData.courseName?.trim()) {
       errors.courseName = "Course name is required";
     } else if (courseData.courseName.trim().length < 3) {
       errors.courseName = "Course name must be at least 3 characters";
     }
-    
+
     if (!courseData.targetedAudience?.trim()) {
       errors.targetedAudience = "Target audience is required";
     }
-    
+
     if (!courseData.learningOutcome?.trim()) {
       errors.learningOutcome = "Learning outcome is required";
     }
-    
+
     if (!courseData.curriculumDesc?.trim()) {
       errors.curriculumDesc = "Curriculum description is required";
     } else if (courseData.curriculumDesc.trim().length < 20) {
       errors.curriculumDesc = "Please provide a more detailed curriculum description (minimum 20 characters)";
     }
-    
+
     if (!courseData.courseDurationHours?.toString().trim()) {
       errors.courseDurationHours = "Course duration hours are required";
     } else if (isNaN(courseData.courseDurationHours) || parseInt(courseData.courseDurationHours) < 0) {
       errors.courseDurationHours = "Please enter a valid number";
     }
-    
+
     if (!courseData.courseDurationMinutes?.toString().trim()) {
       errors.courseDurationMinutes = "Course duration minutes are required";
     } else if (isNaN(courseData.courseDurationMinutes) || parseInt(courseData.courseDurationMinutes) < 0 || parseInt(courseData.courseDurationMinutes) > 59) {
       errors.courseDurationMinutes = "Please enter a valid number between 0-59";
     }
-    
+
     if (!courseData.videoTitle?.trim()) {
       errors.videoTitle = "Video title is required";
     }
-    
+
     if (!courseData.videoDesc?.trim()) {
       errors.videoDesc = "Video description is required";
     }
-    
+
     if (!courseData.videoUrl?.trim()) {
       errors.videoUrl = "Video URL is required";
     }
-    
+
     if (!courseData.videoThumbnail) {
       errors.videoThumbnail = "Video thumbnail is required";
     }
-    
+
     return errors;
   };
 
   // Validate step 2 (curriculum)
   const validateStep2 = () => {
     const errors = {};
-    
+
     curriculums.forEach((curriculum, index) => {
       const curriculumErrors = {};
-      
+
       if (!curriculum.header_type?.trim()) {
         curriculumErrors.header_type = "Header type is required";
       }
-      
+
       if (!curriculum.sequence_no?.toString().trim()) {
         curriculumErrors.sequence_no = "Sequence number is required";
       } else if (isNaN(curriculum.sequence_no) || curriculum.sequence_no < 1) {
         curriculumErrors.sequence_no = "Sequence must be a positive number";
       }
-      
+
       if (!curriculum.title?.trim()) {
         curriculumErrors.title = "Title is required";
       } else if (curriculum.title.trim().length < 3) {
         curriculumErrors.title = "Title must be at least 3 characters";
       }
-      
+
       if (!curriculum.description?.trim()) {
         curriculumErrors.description = "Description is required";
       } else if (curriculum.description.trim().length < 10) {
         curriculumErrors.description = "Description must be at least 10 characters";
       }
-      
+
       if (!curriculum.video_url?.trim()) {
         curriculumErrors.video_url = "Video URL is required";
       }
-      
+
       if (!curriculum.thumbnail_file) {
         curriculumErrors.thumbnail_file = "Thumbnail is required";
       }
-      
+
       if (Object.keys(curriculumErrors).length > 0) {
         errors[index] = curriculumErrors;
       }
     });
-    
+
+    return errors;
+  };
+
+  // Validate step 3 (progress tracking)
+  const validateStep3 = () => {
+    const errors = {};
+
+    progressTracking.forEach((question, index) => {
+      const questionErrors = {};
+
+      if (!question.question_text?.trim()) {
+        questionErrors.question_text = "Question text is required";
+      } else if (question.question_text.trim().length < 10) {
+        questionErrors.question_text = "Question text must be at least 10 characters";
+      }
+
+      if (!question.option_type) {
+        questionErrors.option_type = "Option type is required";
+      } else if (![1, 2, 3, 4, 5].includes(Number(question.option_type))) {
+        questionErrors.option_type = "Option type must be 1 (Text), 2 (Radio Buttons), 3 (Dropdown), 4 (Multiple Select), 5 (Rating Scale)";
+      }
+
+      if (!question.week_no?.toString().trim()) {
+        questionErrors.week_no = "Week number is required";
+      } else if (isNaN(question.week_no) || question.week_no < 1 || question.week_no > 52) {
+        questionErrors.week_no = "Week must be between 1 and 52";
+      }
+
+      if (!question.day_no?.toString().trim()) {
+        questionErrors.day_no = "Day number is required";
+      } else if (isNaN(question.day_no) || question.day_no < 1 || question.day_no > 7) {
+        questionErrors.day_no = "Day must be between 1 and 7";
+      }
+
+      if (Object.keys(questionErrors).length > 0) {
+        errors[index] = questionErrors;
+      }
+    });
+
     return errors;
   };
 
   const handleNext = async () => {
     setApiError(null);
-    
+
     if (activeStep === 0) {
       const errors = validateStep1();
       if (Object.keys(errors).length > 0) {
         setFormErrors({ step1: errors });
-        
+
         // Scroll to first error
         const firstErrorField = Object.keys(errors)[0];
         const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
@@ -178,16 +228,16 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
         }
         return;
       }
-      
+
       // Clear step 1 errors and proceed
       setFormErrors({});
     }
-    
+
     if (activeStep === 1) {
       const errors = validateStep2();
       if (Object.keys(errors).length > 0) {
         setFormErrors({ step2: errors });
-        
+
         // Scroll to first curriculum with errors
         const firstErrorIndex = Object.keys(errors)[0];
         const errorElement = document.querySelector(`[data-curriculum-index="${firstErrorIndex}"]`);
@@ -196,20 +246,37 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
         }
         return;
       }
-      
+      // Clear step 2 errors and proceed
+      setFormErrors({});
+    }
+
+    if (activeStep === 2) {
+      const errors = validateStep3();
+      if (Object.keys(errors).length > 0) {
+        setFormErrors({ step3: errors });
+
+        // Scroll to first curriculum with errors
+        const firstErrorIndex = Object.keys(errors)[0];
+        const errorElement = document.querySelector(`[data-curriculum-index="${firstErrorIndex}"]`);
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+
       // Submit the form
       try {
         setIsSubmitting(true);
-        
+
         const formData = new FormData();
-        
+
         // Add course data
         Object.entries(courseData).forEach(([key, value]) => {
           if (value !== null && value !== undefined) {
             formData.append(key, value);
           }
         });
-        
+
         // Add curriculum data
         curriculums.forEach((item, i) => {
           Object.entries(item).forEach(([key, value]) => {
@@ -218,12 +285,29 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
             }
           });
         });
-        
-        await dispatch(addNewCourseAPI(formData)).unwrap();
+
+        const courseResult = await dispatch(addNewCourseAPI(formData)).unwrap();
+        console.log("Course created:", courseResult);
+
+
+        // Add progress tracking data, send as plain JSON array
+        const questionData = progressTracking.map(item => ({
+          question_text: item.question_text,
+          option_type: Number(item.option_type),
+          week_no: Number(item.week_no),
+          day_no: Number(item.day_no),
+        }));
+
+        console.log("Sending questionData:", questionData);
+
+        const token = localStorage.getItem("admin_token");  
+        console.log("Token before question API:", token);
+        await dispatch(postProgressTrackingQuestionAPI(questionData)).unwrap();
+
         onClose();
       } catch (err) {
         setApiError(err.message || "Failed to create course. Please try again.");
-        
+
         // Scroll to error
         const errorElement = document.getElementById('api-error-display');
         if (errorElement) {
@@ -232,10 +316,10 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       } finally {
         setIsSubmitting(false);
       }
-      
+
       return;
     }
-    
+
     // Move to next step
     if (activeStep < steps.length - 1) {
       setActiveStep((s) => s + 1);
@@ -256,6 +340,10 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       const errors = validateStep2();
       return Object.keys(errors).length === 0;
     }
+    if (activeStep === 2) {
+      const errors = validateStep3();
+      return Object.keys(errors).length === 0;
+    }
     return false;
   };
 
@@ -271,16 +359,16 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
             Step {activeStep + 1} of {steps.length}
           </div>
         </div>
-        
+
         {/* Stepper Progress */}
         <div className="relative">
           {/* Progress Line */}
           <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-200 dark:bg-gray-800 -translate-y-1/2"></div>
-          <div 
+          <div
             className="absolute top-1/2 left-0 h-0.5 bg-indigo-600 dark:bg-indigo-500 -translate-y-1/2 transition-all duration-300"
             style={{ width: `${(activeStep / (steps.length - 1)) * 100}%` }}
           ></div>
-          
+
           {/* Step Indicators */}
           <div className="relative flex justify-between">
             {steps.map((label, index) => (
@@ -289,11 +377,11 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
                   className={`
                     w-10 h-10 rounded-full flex items-center justify-center relative z-10
                     transition-all duration-300
-                    ${index < activeStep 
+                    ${index < activeStep
                       ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-lg'
                       : index === activeStep
-                      ? 'bg-white dark:bg-gray-900 border-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-lg'
-                      : 'bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                        ? 'bg-white dark:bg-gray-900 border-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-lg'
+                        : 'bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                     }
                   `}
                 >
@@ -339,7 +427,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
 
       {/* Step Content */}
       <div className="space-y-6">
-        {activeStep === 0 ? (
+        {activeStep === 0 && (
           <AddCourseInfo
             courseData={courseData}
             setCourseData={setCourseData}
@@ -349,10 +437,20 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
             subdomains={subdomains}
             fetchSubdomains={fetchSubdomains}
           />
-        ) : (
+        )}
+
+        {activeStep === 1 && (
           <AddCourseCurriculum
             curriculums={curriculums}
             setCurriculum={setCurriculums}
+          />
+        )}
+
+        {activeStep === 2 && (
+          <ProgressTracking
+            progressTracking={progressTracking}
+            setProgressTracking={setProgressTracking}
+            formErrors={formErrors?.step3 || {}}
           />
         )}
       </div>
@@ -380,6 +478,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {activeStep === 0 && `${Object.keys(validateStep1()).length} errors remaining`}
             {activeStep === 1 && `${Object.keys(validateStep2()).length} curriculum items need attention`}
+            {activeStep === 2 && `${Object.keys(validateStep3()).length} questions need attention`}
           </div>
         </div>
       </div>
@@ -397,7 +496,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
             </button>
           )}
         </div>
-        
+
         <div className="flex items-center gap-3">
           <CustomButton
             onClick={onClose}
@@ -406,7 +505,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
           >
             Cancel
           </CustomButton>
-          
+
           <CustomButton
             onClick={handleNext}
             variant="primary"
@@ -432,12 +531,16 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       {/* Step Instructions */}
       <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4">
         <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-400 mb-1">
-          {activeStep === 0 ? "Course Information" : "Curriculum Setup"}
+          {activeStep === 0 ? "Course Information"
+            : activeStep === 1 ? "Curriculum Setup"
+              : "Progress Tracking"}
         </h4>
         <p className="text-sm text-blue-700 dark:text-blue-500">
-          {activeStep === 0 
+          {activeStep === 0
             ? "Fill in all the basic course information. Make sure to provide clear descriptions and select the appropriate domain and coach."
-            : "Add modules, chapters, and lessons to structure your course. Each curriculum item should have a video and thumbnail."
+            : activeStep === 1
+              ? "Add modules, chapters, and lessons to structure your course. Each curriculum item should have a video and thumbnail."
+              : "Add progress tracking questions for this course. Each question can have a specific type, week, and day assigned."
           }
         </p>
       </div>

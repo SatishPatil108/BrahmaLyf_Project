@@ -23,7 +23,7 @@ export const getAllProgressTrackingQuestionsService = (week_no, day_no) => {
             SELECT
                 q.id AS question_id,
                 q.question_text,
-                q.answer_type,
+                q.option_type,
                 q.week_no,
                 q.day_no
             FROM bm.progress_tracking_questions q
@@ -41,12 +41,12 @@ export const getAllProgressTrackingQuestionsService = (week_no, day_no) => {
 };
 
 
-export const postProgressTrackingQuestionService = (question_text, answer_type, week_no, day_no) => {
+export const postProgressTrackingQuestionService = (question_text, option_type, week_no, day_no) => {
     return new Promise((resolve, reject) => {
         const query = `
             INSERT INTO bm.progress_tracking_questions (
                 question_text,
-                answer_type,
+                option_type,
                 week_no,
                 day_no,
                 status,
@@ -59,7 +59,7 @@ export const postProgressTrackingQuestionService = (question_text, answer_type, 
         connection.query(query,
             [
                 question_text,
-                answer_type,
+                option_type,
                 week_no,
                 day_no,
             ],
@@ -71,13 +71,13 @@ export const postProgressTrackingQuestionService = (question_text, answer_type, 
     });
 };
 
-export const updateProgressTrackingQuestionService = (question_id, question_text, answer_type, week_no, day_no) => {
+export const updateProgressTrackingQuestionService = (question_id, question_text, option_type, week_no, day_no) => {
     return new Promise((resolve, reject) => {
         const query = `
             UPDATE bm.progress_tracking_questions
             SET
                 question_text = $1,
-                answer_type = $2,
+                option_type = $2,
                 week_no = $3,
                 day_no = $4,
                 updated_on = NOW()
@@ -87,7 +87,7 @@ export const updateProgressTrackingQuestionService = (question_id, question_text
         `;
         const values = [
             question_text,
-            answer_type,
+            option_type,
             week_no,
             day_no,
             question_id

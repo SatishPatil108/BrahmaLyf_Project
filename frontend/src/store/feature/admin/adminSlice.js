@@ -64,6 +64,8 @@ const adminSlice = createSlice({
     courseDetails: null,
     loading: false,
     error: null,
+    ptqLoading: false,
+    ptqError: null,
   },
   reducers: {
     clearAdminError: (state) => {
@@ -254,23 +256,36 @@ const adminSlice = createSlice({
 
       // progress tracking questions  
       .addCase(postProgressTrackingQuestionAPI.fulfilled, (state, action) => {
+        state.ptqLoading = false;
         state.progressTrackingQuestionsDetails.questions.unshift(action.payload);
       })
 
       .addCase(fetchProgressTrackingQuestionsAPI.fulfilled, (state, action) => {
-        state.progressTrackingQuestionsDetails = action.payload || [];
+        state.ptqLoading = false;
+        state.progressTrackingQuestionsDetails = action.payload;
+      })
+
+      .addCase(fetchProgressTrackingQuestionsAPI.rejected, (state, action) => {
+        state.ptqLoading = false;
+        state.ptqError = action.payload;
+        console.error("fetchProgressTrackingQuestionsAPI rejected:", action.payload);
+        state.progressTrackingQuestionsDetails = { questions: [] };
       })
 
       .addCase(updateProgressTrackingQuestionAPI.fulfilled, (state, action) => {
-        state.progressTrackingQuestionsDetails.questions = state.progressTrackingQuestionsDetails.questions.map((question) => {
-          if (question.id == action.payload.id)
-            question = { id: action.payload.id, ...action.payload }
-          return question
-        })
+        state.ptqLoading = false;
+        state.progressTrackingQuestionsDetails.questions =
+          state.progressTrackingQuestionsDetails.questions.map((question) => {
+            if (question.id == action.payload.id)
+              return { id: action.payload.id, ...action.payload };
+            return question;
+          });
       })
 
       .addCase(deleteProgressTrackingQuestionAPI.fulfilled, (state, action) => {
-        state.progressTrackingQuestionsDetails.questions = state.progressTrackingQuestionsDetails.questions.filter((q) => q.id !== action.payload.id);
+        state.ptqLoading = false;
+        state.progressTrackingQuestionsDetails.questions =
+          state.progressTrackingQuestionsDetails.questions.filter((q) => q.id !== action.payload.id);
       })
 
       // progress tracking options  
@@ -286,7 +301,7 @@ const adminSlice = createSlice({
         state.progressTrackingOptionsDetails.options = state.progressTrackingOptionsDetails.options.map((option) => {
           if (option.id == action.payload.id)
             option = { id: action.payload.id, ...action.payload }
-          return option 
+          return option
         })
       })
 

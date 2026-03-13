@@ -15,7 +15,8 @@ import {
   Eye,
   ChevronRight,
   FileVideo,
-  Tag
+  Tag,
+  BadgeQuestionMarkIcon
 } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer";
 import EditCourse from "./EditCourse";
@@ -74,7 +75,9 @@ const CourseDetails = () => {
     setIsCurriculumDrawerOpen,
     setIsCurriculumEditing,
   } = useCourseDetails(courseId);
-    // --- Loading State ---
+
+
+  // --- Loading State ---
   if (loading && !isDrawerOpen) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -570,7 +573,7 @@ const CourseDetails = () => {
   );
 };
 
-// --- Subcomponents ---
+// --- Sub components ---
 const InfoCard = ({ title, icon, content, color = "info" }) => {
   return (
     <div className={`rounded-xl p-5 border transition-colors duration-300

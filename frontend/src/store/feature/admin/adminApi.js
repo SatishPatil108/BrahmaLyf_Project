@@ -387,7 +387,7 @@ export const postShortVideo = async (shortData) => {
 // fetch all daily shorts videos
 export const fetchShortVideos = async (pageNo, pageSize) => {
   return await makeRequest({
-    service: `admin/short-video/${pageNo}/${pageSize}`,
+    service: `admin/short-videos/${pageNo}/${pageSize}`,
     method: API_METHODS.GET,
     authRequired: true,
     tokenType: "admin",
@@ -417,6 +417,7 @@ export const deleteShortVideo = async (shortId) => {
 
 // fetch progress tracking questions by week number and day number
 export const fetchProgressTrackingQuestions = async (weekNo, dayNo) => {
+  console.log("weekNo:", weekNo, "dayNo:", dayNo);
   return await makeRequest({
     service: `admin/progress-tracking/questions?weekNo=${weekNo}&dayNo=${dayNo}`,
     method: API_METHODS.GET,
@@ -433,6 +434,7 @@ export const postProgressTrackingQuestion = async (questionData) => {
     data: questionData,
     authRequired: true,
     tokenType: "admin",
+    contentType: "application/json",
   });
 };
 

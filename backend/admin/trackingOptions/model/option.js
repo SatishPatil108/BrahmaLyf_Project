@@ -17,7 +17,8 @@ import {
     OPTION_DELETED_SUCCESS,
     OPTION_FOUND,
     OPTION_NOT_FOUND,
-    OPTION_UPDATED_SUCCESS
+    OPTION_UPDATED_SUCCESS,
+    SOMETHING_WENT_WRONG
 } from "../messages/option.js";
 
 
@@ -63,14 +64,14 @@ export const getAllProgressTrackingOptionsModel = async (req, res) => {
 
 export const postProgressTrackingOptionModel = async (req, res) => {
     try {
-        const { question_id, option_text } = req.body;
+        const { question_id, options } = req.body;
 
         // ----------------------------------------------
         // Insert DB record
         // ----------------------------------------------
         const response = await postProgressTrackingOptionService(
             question_id,
-            option_text
+            options
         );
 
         if (!response) {
@@ -107,7 +108,7 @@ export const postProgressTrackingOptionModel = async (req, res) => {
 export const updateProgressTrackingOptionModel = async (req, res) => {
     try {
         const { option_id } = req.params;
-        const { question_id, option_text } = req.body;
+        const { question_id, options } = req.body;
 
         // ----------------------------------------------
         // Check if option exists
@@ -130,7 +131,7 @@ export const updateProgressTrackingOptionModel = async (req, res) => {
         const response = await updateProgressTrackingOptionService(
             option_id,
             question_id,
-            option_text
+            options
         );
 
         if (!response) {

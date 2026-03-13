@@ -33,7 +33,7 @@ const AdminNavbar = () => {
   }, [location.pathname]);
 
   const linkStyle = ({ isActive }) =>
-    `block px-4 lg:px-5 py-2.5 rounded-lg text-sm lg:text-base font-medium transition-all duration-300 ${isActive
+    `block px-2 lg:px-3 py-2.5 rounded-lg text-sm lg:text-base font-medium transition-all duration-300 ${isActive
       ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
     }`;
@@ -50,8 +50,8 @@ const AdminNavbar = () => {
   return (
     <header
       className={`sticky top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled
-          ? "bg-white/90 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-800"
-          : "bg-transparent"
+        ? "bg-white/90 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-800"
+        : "bg-transparent"
         }`}
     >
       <div className="w-full px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8">
@@ -76,7 +76,7 @@ const AdminNavbar = () => {
 
           {/* Desktop Navigation - Large screens */}
           {adminLoginSuccess && (
-            <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+            <nav className="hidden lg:flex items-center gap-1 flex-1 min-w-0 overflow-x-auto scrollbar-hide mx-4 xl:mx-6">
               {navItems.map((item) => (
                 <NavLink
                   key={item.path}
@@ -89,7 +89,6 @@ const AdminNavbar = () => {
             </nav>
           )}
 
-          
           {/* Desktop Actions - Large screens */}
           <div className="hidden lg:flex items-center gap-3">
             {adminLoginSuccess ? (
@@ -154,7 +153,7 @@ const AdminNavbar = () => {
         </div>
       </div>
 
-       
+
       {/* Mobile Menu - Small screens */}
       {menuOpen && (
         <div className="md:flex lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-xl">

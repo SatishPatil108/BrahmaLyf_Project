@@ -51,7 +51,6 @@ export const adminLoginAPI = createAsyncThunk(
       const response = await authAPI.adminLogin(credentials);
 
       if (response?.data?.token) {
-
         localStorage.setItem("admin_token", response.data.token);
         localStorage.setItem("isAdminAuthenticated", "true");
         localStorage.setItem("admin_info", JSON.stringify(response.data));
