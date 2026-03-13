@@ -751,10 +751,7 @@ export const postProgressPracticeMessageAPI = createAsyncThunk(
   "admin/postProgressPracticeMessage",
   async (courseId, messageData, thunkAPI) => {
     try {
-      const response = await postProgressPracticeMessage(
-        courseId,
-        messageData,
-      );
+      const response = await postProgressPracticeMessage(courseId, messageData);
       return response.data;
     } catch (error) {
       console.error(error);

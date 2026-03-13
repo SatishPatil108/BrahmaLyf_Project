@@ -53,13 +53,13 @@ export default (app) => {
 
   // Additional routes for progress practice messages can be added here following the same pattern
   app.get(
-    "/apis/admin/progress-messages/messages",
+    "/apis/admin/progress-practice/message",
     verifyAdminToken,
-    getAllProgressTasksQuestionsController,
+    getAllProgressPracticeMessagesController,
   );
 
   app.get(
-    "/apis/admin/progress-messages/:message_id",
+    "/apis/admin/progress-practice/message/:message_id",
     verifyAdminToken,
     getAllProgressPracticeMessagesController,
   );

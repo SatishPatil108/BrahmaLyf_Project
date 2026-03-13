@@ -214,7 +214,7 @@ const adminSlice = createSlice({
           intro_video: action.payload.video,
         };
       })
-      
+
       // FAQs
       .addCase(fetchFAQsAPI.fulfilled, (state, action) => {
         state.faqsDetails.faqs = action.payload?.faqs || [];
@@ -380,27 +380,33 @@ const adminSlice = createSlice({
 
       // progress practice messages
       .addCase(postProgressPracticeMessageAPI.fulfilled, (state, action) => {
+        state.loading = false;
         state.progressPracticeMessages.messages.unshift(action.payload);
       })
 
       .addCase(fetchProgressPracticeMessagesAPI.fulfilled, (state, action) => {
-        state.progressPracticeMessages.messages = action.payload?.messages || [];
+        state.loading = false;
+        state.progressPracticeMessages.messages =
+          action.payload?.messages || [];
       })
 
       .addCase(updateProgressPracticeMessageAPI.fulfilled, (state, action) => {
-        state.progressPracticeMessages.messages = state.progressPracticeMessages.messages.map((message) => {
-          if (message.id === action.payload.id)
-            return { id: action.payload.id, ...action.payload };
-          return message;
-        });
+        state.loading = false;
+        state.progressPracticeMessages.messages =
+          state.progressPracticeMessages.messages.map((message) => {
+            if (message.id === action.payload.id)
+              return { id: action.payload.id, ...action.payload };
+            return message;
+          });
       })
 
       .addCase(deleteProgressPracticeMessageAPI.fulfilled, (state, action) => {
-        state.progressPracticeMessages.messages = state.progressPracticeMessages.messages.filter(
-          (m) => m.id !== action.payload.id
-        );
+        state.loading = false;
+        state.progressPracticeMessages.messages =
+          state.progressPracticeMessages.messages.filter(
+            (m) => m.id !== action.payload.id,
+          );
       })
-
 
       // ✅ Global matchers
       .addMatcher(

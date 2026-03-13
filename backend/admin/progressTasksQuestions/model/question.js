@@ -31,13 +31,19 @@ import {
   PRACTICE_MESSAGE_UPDATED_SUCCESS,
   PRACTICE_MESSAGE_DELETED_FAILED,
   PRACTICE_MESSAGE_DELETED_SUCCESS,
+  ALL_MESSAGE_LIST,
 } from "../messages/question.js";
 
 import {
+  deleteProgressPracticeMessageService,
   deleteProgressTasksQuestionService,
+  getAllProgressPracticeMessagesService,
   getAllProgressTasksQuestionsService,
+  getProgressPracticeMessageService,
   getProgressTasksQuestionService,
+  postProgressPracticeMessageService,
   postProgressTasksQuestionService,
+  updateProgressPracticeMessageService,
   updateProgressTasksQuestionService,
 } from "../services/question.js";
 
@@ -331,10 +337,13 @@ export const getProgressPracticeMessageModel = async (req, res) => {
 
 export const getAllProgressPracticeMessagesModel = async (req, res) => {
   try {
-    const courseId = Number(req.params.courseId);
-    const weekNo = Number(req.params.weekNo);
+    const courseId = Number(req.query.courseId);
+    const weekNo = Number(req.query.weekNo);
 
-    const response = await getProgressPracticeMessageService(courseId, weekNo);
+    const response = await getAllProgressPracticeMessagesService(
+      courseId,
+      weekNo,
+    );
 
     if (!response) {
       return error(
@@ -350,7 +359,7 @@ export const getAllProgressPracticeMessagesModel = async (req, res) => {
       res,
       HTTP_OK,
       APP_RESPONSE_CODE_SUCCESS,
-      MESSAGE_FOUND,
+      ALL_MESSAGE_LIST,
       response,
     );
   } catch (err) {
@@ -372,7 +381,14 @@ export const postProgressPracticeMessageModel = async (req, res) => {
 
     const results = await Promise.all(
       practiceMessages.map(
-        ({ week_no, themes, weekly_target, outcomes, completed_messages }) =>
+        ({
+          week_no,
+          themes,
+          weekly_target,
+          outcomes,
+          completed_messages,
+          outcome_order = 1,
+        }) =>
           postProgressPracticeMessageService(
             week_no,
             Number(courseId),
@@ -380,6 +396,7 @@ export const postProgressPracticeMessageModel = async (req, res) => {
             weekly_target,
             outcomes,
             completed_messages,
+            outcome_order,
           ),
       ),
     );
@@ -418,12 +435,16 @@ export const updateProgressPracticeMessageModel = async (req, res) => {
   try {
     const { courseId, weekNo } = req.params;
 
-    const { week_no, themes, weekly_target, outcomes, completed_messages } =
-      req.body;
+    const {
+      week_no,
+      themes,
+      weekly_target,
+      outcomes,
+      completed_messages,
+      outcome_order = 1,
+    } = req.body;
 
-    // ----------------------------------------------
     // Check if practice message exists
-    // ----------------------------------------------
     const existingPracticeMessage = await getProgressPracticeMessageService(
       Number(courseId),
       Number(weekNo),
@@ -440,12 +461,14 @@ export const updateProgressPracticeMessageModel = async (req, res) => {
     }
 
     const result = await updateProgressPracticeMessageService(
+      existingPracticeMessage.id,
       week_no,
       Number(courseId),
       themes,
       weekly_target,
       outcomes,
       completed_messages,
+      outcome_order,
     );
 
     if (!result) {

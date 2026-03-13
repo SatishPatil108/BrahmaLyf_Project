@@ -13,6 +13,7 @@ export const PRACTICE_MESSAGE_DELETED_FAILED = "Failed to delete practice messag
 export const PRACTICE_MESSAGE_NOT_FOUND = "Practice message not found";
 
 export const ALL_QUESTION_LIST = "All Question list fetched successfully";
+export const ALL_MESSAGE_LIST = "All Message list fetched Successfully";
 export const QUESTION_NOT_FOUND = "Question not found";
 export const QUESTION_FOUND = "Question found";
 export const MESSAGE_FOUND = "Message found";

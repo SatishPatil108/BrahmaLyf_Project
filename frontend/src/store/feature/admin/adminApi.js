@@ -514,7 +514,10 @@ export const deleteProgressToolsQuestion = async (tools_question_id) => {
 };
 
 // add progress practice message
-export const postProgressPracticeMessage = async ({ courseId, messageData }) => {
+export const postProgressPracticeMessage = async ({
+  courseId,
+  messageData,
+}) => {
   return await makeRequest({
     service: `admin/progress-practice/message/${courseId}`,
     method: API_METHODS.POST,
@@ -526,9 +529,9 @@ export const postProgressPracticeMessage = async ({ courseId, messageData }) => 
 };
 
 // fetch progress practice message
-export const fetchProgressPracticeMessages = async (courseId, weekNo) => {
+export const fetchProgressPracticeMessages = async ({ courseId, weekNo }) => {
   return await makeRequest({
-    service: `admin/progress-practice/message/${courseId}?weekNo=${weekNo}`,
+    service: `admin/progress-practice/message?courseId=${courseId}&weekNo=${weekNo}`,
     method: API_METHODS.GET,
     authRequired: true,
     tokenType: "admin",

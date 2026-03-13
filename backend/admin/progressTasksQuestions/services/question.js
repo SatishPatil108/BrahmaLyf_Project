@@ -23,7 +23,7 @@ export const getProgressTasksQuestionService = (questionId) => {
 export const getAllProgressTasksQuestionsService = (
   course_id,
   week_no,
-  day_no
+  day_no,
 ) => {
   return new Promise((resolve, reject) => {
     // Validate inputs
@@ -61,7 +61,7 @@ export const getAllProgressTasksQuestionsService = (
 
         const totalQuestions = parseInt(
           countResult.rows[0].total_questions,
-          10
+          10,
         );
 
         // Data query
@@ -97,9 +97,9 @@ export const getAllProgressTasksQuestionsService = (
               total_questions: totalQuestions,
               questions: dataResult.rows || [],
             });
-          }
+          },
         );
-      }
+      },
     );
   });
 };
@@ -298,6 +298,197 @@ export const deleteProgressTasksQuestionService = (questionId) => {
             RETURNING *;
         `;
     connection.query(query, [questionId], (err, result) => {
+      if (err) return reject(err);
+      resolve(result.rows?.[0] || null);
+    });
+  });
+};
+
+// service files for messages
+
+export const getProgressPracticeMessageService = (messageId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT 
+        *
+      FROM bm.progress_practice_messages
+      WHERE id = $1
+        AND status = 1
+      LIMIT 1;
+    `;
+
+    connection.query(query, [messageId], (err, result) => {
+      if (err) {
+        console.error("Error fetching progress message:", err);
+        return reject(err);
+      }
+      resolve(result.rows?.[0] || null);
+    });
+  });
+};
+
+// Get All Progress Practice Messages
+export const getAllProgressPracticeMessagesService = (course_id, week_no) => {
+  return new Promise((resolve, reject) => {
+    course_id = parseInt(course_id, 10);
+    week_no = parseInt(week_no, 10);
+
+    if (!course_id || course_id < 1) {
+      return reject({ message: "Invalid course_id" });
+    }
+
+    if (!week_no || week_no < 1) {
+      return reject({ message: "Invalid week_no" });
+    }
+
+    const countQuery = `
+      SELECT COUNT(*) AS total_messages
+      FROM bm.progress_practice_messages
+      WHERE status = 1
+        AND course_id = $1
+        AND week_no = $2
+    `;
+
+    connection.query(countQuery, [course_id, week_no], (err, countResult) => {
+      if (err) return reject(err);
+
+      const totalMessages = parseInt(countResult.rows[0].total_messages, 10);
+
+      const dataQuery = `
+        SELECT
+          q.id AS message_id,
+          q.week_no,
+          q.course_id,
+          q.themes,
+          q.weekly_target,
+          q.outcomes,
+          q.completed_messages,
+          q.outcome_order
+        FROM bm.progress_practice_messages q
+        WHERE q.status = 1
+          AND q.course_id = $1
+          AND q.week_no = $2
+        ORDER BY q.outcome_order ASC, q.id ASC
+      `;
+
+      connection.query(dataQuery, [course_id, week_no], (err, dataResult) => {
+        if (err) return reject(err);
+
+        resolve({
+          course_id,
+          week_no,
+          total_messages: totalMessages,
+          messages: dataResult.rows || [],
+        });
+      });
+    });
+  });
+};
+
+// Create Progress Practice Message
+export const postProgressPracticeMessageService = (
+  week_no,
+  course_id,
+  themes,
+  weekly_target,
+  outcomes,
+  completed_messages,
+  outcome_order = 1,
+) => {
+  return new Promise((resolve, reject) => {
+    const messageQuery = `
+      INSERT INTO bm.progress_practice_messages (
+        week_no,
+        course_id,
+        themes,
+        weekly_target,
+        outcomes,
+        completed_messages,
+        outcome_order,
+        created_on,
+        updated_on,
+        status
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), 1)
+      RETURNING *;
+    `;
+
+    connection.query(
+      messageQuery,
+      [
+        week_no,
+        course_id,
+        themes,
+        weekly_target,
+        outcomes,
+        completed_messages,
+        outcome_order,
+      ],
+      (err, result) => {
+        if (err) return reject(err);
+        resolve(result.rows?.[0] || null);
+      },
+    );
+  });
+};
+
+// Update Progress Practice Message
+export const updateProgressPracticeMessageService = (
+  message_id,
+  week_no,
+  course_id,
+  themes,
+  weekly_target,
+  outcomes,
+  completed_messages,
+  outcome_order = 1,
+) => {
+  return new Promise((resolve, reject) => {
+    const messageQuery = `
+      UPDATE bm.progress_practice_messages
+      SET
+        week_no = $2,
+        course_id = $3,
+        themes = $4,
+        weekly_target = $5,
+        outcomes = $6,
+        completed_messages = $7,
+        outcome_order = $8,
+        updated_on = NOW()
+      WHERE id = $1
+      RETURNING *;
+    `;
+
+    connection.query(
+      messageQuery,
+      [
+        message_id,
+        week_no,
+        course_id,
+        themes,
+        weekly_target,
+        outcomes,
+        completed_messages,
+        outcome_order,
+      ],
+      (err, result) => {
+        if (err) return reject(err);
+        resolve(result.rows?.[0] || null);
+      },
+    );
+  });
+};
+export const deleteProgressPracticeMessageService = (messageId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+            UPDATE bm.progress_practice_messages
+            SET 
+                status = 0,
+                updated_on = NOW()
+            WHERE id = $1
+            RETURNING *;
+        `;
+    connection.query(query, [messageId], (err, result) => {
       if (err) return reject(err);
       resolve(result.rows?.[0] || null);
     });

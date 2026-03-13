@@ -36,6 +36,7 @@ import ProgressTasksQuestionDetails from "../ProgressTasksTracking/ProgressTasks
 import ProgressToolsQuestionDetails from "../ProgressToolsQuestion/ProgressToolsQuestionDetails";
 import CustomDrawer from "@/components/CustomDrawer";
 import { stripHtml } from "@/components/RichTextEditor/stripHtml";
+import ProgressMessageDetails from "../ProgressMessage/ProgressMessageDetails";
 
 // Enhanced color configuration
 const COLORS = {
@@ -127,6 +128,9 @@ const CourseDetails = () => {
 
   const [isTasksDrawerOpen, setIsTasksDrawerOpen] = useState(false);
   const [isToolsDrawerOpen, setIsToolsDrawerOpen] = useState(false);
+
+  const [MessagesDrawerOpen, setMessagesDrawerOpen] = useState(false);
+
   const [drawerItem, setDrawerItem] = useState(null);
   const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
   const [activeProgressTab, setActiveProgressTab] = useState("tasks");
@@ -136,6 +140,9 @@ const CourseDetails = () => {
   const closeTasksDrawer = () => setIsTasksDrawerOpen(false);
   const openToolsDrawer = () => setIsToolsDrawerOpen(true);
   const closeToolsDrawer = () => setIsToolsDrawerOpen(false);
+
+  const openMessagesDrawer = () => setMessagesDrawerOpen(true);
+  const closeMessagesDrawer = () => setMessagesDrawerOpen(false);
 
   const handleViewDetails = (item) => {
     setDrawerItem(item);
@@ -794,7 +801,7 @@ const CourseDetails = () => {
                 >
                   <span className="flex items-center justify-center gap-2">
                     <ListChecks className="w-4 h-4" />
-                    Progress Tasks
+                    Progress Practice
                   </span>
                 </button>
                 <button
@@ -817,18 +824,28 @@ const CourseDetails = () => {
                   <div className="text-center py-8">
                     <ListChecks className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
                     <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Progress Tasks Manager
+                      Progress Practice Manager
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                      Manage tasks for progress tracking across weeks and days
+                      Manage Practice for progress tracking across weeks and
+                      days
                     </p>
                     <CustomButton
                       onClick={openTasksDrawer}
                       variant="primary"
+                      className="mx-auto mb-4"
+                    >
+                      <List className="w-4 h-4 mr-2" />
+                      Open Practice Manager
+                    </CustomButton>
+
+                    <CustomButton
+                      onClick={openMessagesDrawer}
+                      variant="primary"
                       className="mx-auto"
                     >
                       <List className="w-4 h-4 mr-2" />
-                      Open Tasks Manager
+                      Open Message Manager
                     </CustomButton>
                   </div>
                 </div>
@@ -886,6 +903,14 @@ const CourseDetails = () => {
           <ProgressTasksQuestionDetails
             isOpen={isTasksDrawerOpen}
             onClose={closeTasksDrawer}
+            drawerOnly={true}
+          />
+        )}
+
+        {MessagesDrawerOpen && (
+          <ProgressMessageDetails
+            isOpen={MessagesDrawerOpen}
+            onClose={closeMessagesDrawer}
             drawerOnly={true}
           />
         )}
