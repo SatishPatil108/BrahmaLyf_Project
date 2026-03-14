@@ -85,6 +85,7 @@ const StatCard = ({ title, value, icon: Icon, color, trend, subtitle, onClick })
 
 
 function AdminDashboard() {
+
   const { user, handleLogout, dashboardData, loading, error } = useAdminDashboard();
   const navigate = useNavigate();
 

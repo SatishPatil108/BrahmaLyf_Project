@@ -6,6 +6,7 @@ import videosRoutes from "./coaches/videos/routes/videos.js";
 import courseRoutes from "./coaches/course/routes/course.js";
 import faqRoutes from "./faq/routes/faq.js";
 import musicRoutes from "./music/routes/music.js";
+import shortVideoRoutes from "./shortvideos/routes/video.js";
 import contactUs from "./contactUs/routes/contactUs.js";
 
 export default (app) => {
@@ -21,5 +22,6 @@ export default (app) => {
 	videosRoutes(app);
 	faqRoutes(app);
 	musicRoutes(app);
+	shortVideoRoutes(app);
 	contactUs(app);
 };

@@ -19,6 +19,7 @@ import {
   fetchMusicListAPI,
   searchAPI,
   fetchModuleDetailsAPI,
+  fetchShortVideoListAPI,
 } from "./userThunk";
 
 const initialState = {
@@ -44,6 +45,7 @@ const initialState = {
   enrolledCourseDetails: null,
   FAQsDetails: { faqs: [] },
   musicsDetails: {},
+  shortVideosDetails: {},
   searchDetails: {},
   allCoursesFeedback: [],
   courses: [],
@@ -126,9 +128,11 @@ const userSlice = createSlice({
       })
 
       .addCase(fetchMusicListAPI.fulfilled, (state, action) => {
-        const domainId = action.meta.arg?.domainId;
-        const cacheKey = domainId ?? "all";
-        state.musicsDetails[cacheKey] = action.payload;
+         state.musicsDetails = action.payload;
+      })
+
+      .addCase(fetchShortVideoListAPI.fulfilled, (state, action) => {
+         state.shortVideosDetails = action.payload;
       })
 
       .addCase(fetchAllCoursesFeedbackAPI.fulfilled, (state, action) => {

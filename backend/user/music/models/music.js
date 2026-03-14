@@ -23,12 +23,8 @@ import {
 export const getMusicsModel = async (req, res) => {
     try {
         const { pageNo, pageSize } = req.params;
-        const { domain_id } = req.query;  
+        const domain_id = req.query.domain_id ? parseInt(req.query.domain_id) : null;
 
-
-        console.log("params:", req.params);
-        console.log("query:", req.query);
-        console.log("domain_id:", domain_id);
         
         const result = await getMusicsService(pageNo, pageSize, domain_id);
 

@@ -210,15 +210,28 @@ export const postCourseFeedbackAPI = createAsyncThunk(
 
 // fetch all musics
 export const fetchMusicListAPI = createAsyncThunk("user/fetchMusicList",
-  async ({ pageNo = 1, pageSize = 10, domainId } = {}, thunkAPI) => {
+  async ({ pageNo = 1, pageSize = 10 } = {}, thunkAPI) => {
     try {
-      const response = await userAPI.fetchMusicList(pageNo, pageSize, domainId);
+      const response = await userAPI.fetchMusicList(pageNo, pageSize);
       return response?.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
   }
 );
+
+// fetch all short videos
+export const fetchShortVideoListAPI = createAsyncThunk("user/fetchShortVideoList",
+  async ({ pageNo = 1, pageSize = 10} = {}, thunkAPI) => {
+    try {
+      const response = await userAPI.fetchShortVideoList(pageNo, pageSize);
+      return response?.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 
 // search
 export const searchAPI = createAsyncThunk('user/search',

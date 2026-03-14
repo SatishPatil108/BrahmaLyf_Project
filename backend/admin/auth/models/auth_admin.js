@@ -74,8 +74,9 @@ export const loginModel = async (req, res) => {
 			JWT_SECRET, { expiresIn: "7d" }
 		);
 
+		
 		const { password: pwd, ...safeAdmin } = admin;
-
+		
 		return success(res, HTTP_OK, APP_RESPONSE_CODE_SUCCESS, LOGIN_SUCCESS, {
 			...safeAdmin,
 			token: "Bearer " + token,

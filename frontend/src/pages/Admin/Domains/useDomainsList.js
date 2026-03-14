@@ -1,4 +1,4 @@
-import { addNewDomain, deleteDomainAPI, getAllDomains, updateDomainAPI } from "@/store/feature/admin";
+import { addNewDomain, deleteDomainAPI,   updateDomainAPI } from "@/store/feature/admin";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -13,13 +13,13 @@ const useDomainsList = (pageNo, pageSize) => {
     setActionMessage(null);
   }, []);
 
-  useEffect(() => {
-    dispatch(getAllDomains({ pageNo, pageSize }));
-  }, [dispatch, pageNo, pageSize]);
+  // useEffect(() => {
+  //   dispatch(getAllDomains({ pageNo, pageSize }));
+  // }, [dispatch, pageNo, pageSize]);
 
-  const refetch = useCallback(() => {
-    dispatch(getAllDomains({ pageNo, pageSize }));
-  }, [dispatch, pageNo, pageSize]);
+  // const refetch = useCallback(() => {
+  //   dispatch(getAllDomains({ pageNo, pageSize }));
+  // }, [dispatch, pageNo, pageSize]);
 
   const addDomain = async (domainData) => {
     setIsSubmitting(true);

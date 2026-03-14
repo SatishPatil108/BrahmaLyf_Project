@@ -6,6 +6,8 @@ import mindimage from '../assets/mindimage.jpg'
 import coach1 from '../assets/coach1.png'
 import loginbanner from '../assets/loginbannerimage.png'
 import music_thumbnail from '../assets/music_thumbnail.png'
+import logo from '../assets/logo.png'
+
 
 export const assets = {
   bannerimage1,
@@ -15,5 +17,6 @@ export const assets = {
   mindimage,
   coach1,
   loginbanner,
-  music_thumbnail
+  music_thumbnail,
+  logo,
 };

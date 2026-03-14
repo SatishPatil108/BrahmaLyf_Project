@@ -3,6 +3,7 @@ import AdminLoginPage from "@/pages/Admin/AdminLogin";
 import CoachesList from "@/pages/Admin/CoachList";
 import CourseList from "@/pages/Admin/CourseList";
 import CourseDetails from "@/pages/Admin/CourseList/CourseDetails";
+import ShortsList from "@/pages/Admin/DailyShorts/ShortsList";
 import AdminDashboard from "@/pages/Admin/Dashboard/AdminDashboard";
 import DomainsList from "@/pages/Admin/Domains";
 import FrequentlyAskQue from "@/pages/Admin/FrequentlyAskQue";
@@ -23,6 +24,7 @@ const AdminRoutes = () => {
         <Route path="domains/:domainId/subdomains" element={<SubDomainsList />} />
         <Route path="coaches" element={<CoachesList />} />
         <Route path="musics" element={<MusicList />} />
+        <Route path="short-video" element={<ShortsList />} />
         <Route path="courses" element={<CourseList />} />
         <Route path="courses/:courseId" element={<CourseDetails />} />
         <Route path="frequently-asked-questions" element={<FrequentlyAskQue />} />

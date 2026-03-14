@@ -10,6 +10,7 @@ import courseNamesAndCoachNamesRoutes from "./courseNamesAndCoachNames/routes/co
 import musicRoutes from "./music/routes/music.js";
 import searchCourseRoutes from "./searchCourse/routes/searchCourse.js";
 import contactUsRoutes from "./contactUs/routes/contactUs.js";
+import shortVideosRoutes from "./videos/routes/video.js";
 
 export default (app) => {
 	app.get("/apis/", (req, res) => {
@@ -25,6 +26,7 @@ export default (app) => {
 	dashboardCourseRoutes(app);
 	courseNamesAndCoachNamesRoutes(app);
 	musicRoutes(app);
+	shortVideosRoutes(app);
 	searchCourseRoutes(app);
 	contactUsRoutes(app);
 };

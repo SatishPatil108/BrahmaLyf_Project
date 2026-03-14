@@ -19,6 +19,7 @@ import { clearUserError } from "@/store/feature/user/userSlice";
 import { useDispatch } from "react-redux";
 import introVideo from "@/assets/intro.mp4";
 import Feedbacks from "./components/Feedbacks/Feedbacks";
+import DailyShorts from "./components/getAllDailyshorts/DailyShorts";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL_IMG;
 
@@ -283,6 +284,9 @@ function Homepage() {
           </div>
         </section>
       )}
+
+      {/* Daily Shorts Video Section */}
+      <DailyShorts />
 
       {/* 🎵 CATEGORIES & MUSIC SECTIONS */}
       <div className="space-y-16 px-4 sm:px-6 lg:px-25">

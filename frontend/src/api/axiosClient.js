@@ -17,6 +17,7 @@ const axiosClient = axios.create({
 // ======================================================
 axiosClient.interceptors.request.use(
   (config) => {
+    console.log("Request config before interceptor:", config);
     let token = null;
 
     // Decide token source by tokenType
@@ -52,8 +53,12 @@ axiosClient.interceptors.response.use(
   (error) => {
     const status = error?.response?.status;
     const tokenType = error?.config?.tokenType;
-
+    console.log("token:", tokenType, error?.response, error);
+    console.log("error:", error);
+    console.log("status:", status);
+    console.log("error response:", response);
     if (status === 401) {
+
       if (tokenType === "admin") {
         localStorage.removeItem("admin_token");
         navigateTo("/admin/login");
@@ -81,21 +86,26 @@ export const makeRequest = async ({
   pageSize,
 }) => {
   let finalUrl = service;
+  try {
 
-  // Pagination support
-  if (pageNo != null && pageSize != null) {
-    finalUrl = `${service}/${pageNo}/${pageSize}`;
+    // Pagination support
+    if (pageNo != null && pageSize != null) {
+      finalUrl = `${service}/${pageNo}/${pageSize}`;
+    }
+
+    const response = await axiosClient({
+      url: finalUrl,
+      method,
+      data,
+      params,
+      tokenType, // custom config key
+    });
+    console.log("Response from API:", response);
+    return response.data;
+  } catch (error) {
+    console.log("Error making request:", error);
+    // throw error;
   }
-
-  const response = await axiosClient({
-    url: finalUrl,
-    method,
-    data,
-    params,
-    tokenType, // custom config key
-  });
-
-  return response.data;
 };
 
 // ======================================================

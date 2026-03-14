@@ -1,4 +1,4 @@
-import { Home, BookOpen, Mail, Command, UserCircle2Icon, Menu, BookOpenText,  } from "lucide-react";
+import { Home, BookOpen, Mail, Command, UserCircle2Icon, Menu, BookOpenText, NotebookTabs,  } from "lucide-react";
 import { useSelector } from "react-redux";
 
 export function useHeader() {
@@ -13,10 +13,12 @@ export function useHeader() {
   ];
 
   if (!user) {
-    // links.push({ to: "/my-courses", label: "My Courses" }),
     links.push({ to: "/login", label: "Login", icon: Menu });
   } else {
-    links.splice(2, 0, { to: "/my-courses", label: "My Courses", icon: BookOpenText });
+    links.splice(2, 0, { to: "/my-courses", label: "Courses", icon: BookOpenText });
+    // links.splice(2, 0, { to: "/notes", label: "Notes", icon: NotebookTabs });
+    links.push({ to: "/notes", label: "Notes", icon: NotebookTabs });
+
   }
   return { links, user };
 

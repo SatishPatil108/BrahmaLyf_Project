@@ -15,7 +15,7 @@ export const fetchSubcategories = async (pageNo, pageSize, domainId) => {
   return await makeRequest({
     service: `user/subdomains/${pageNo}/${pageSize}/${domainId}`,
     method: API_METHODS.GET,
-    authRequired: true,
+    authRequired: false,
   });
 };
 
@@ -30,7 +30,7 @@ export const fetchCoachesVideos = async (
   return await makeRequest({
     service: `user/coaches/videos/${pageNo}/${pageSize}/${subdomainId}/${coachId}`,
     method: API_METHODS.GET,
-    authRequired: true,
+    authRequired: false,
   });
 };
 
@@ -40,7 +40,7 @@ export const fetchCoachDetails = async (videoId) => {
   return await makeRequest({
     service: `user/coaches/video/${videoId}`,
     method: API_METHODS.GET,
-    authRequired: true,
+    authRequired: false,
   });
 };
 
@@ -49,7 +49,7 @@ export const fetchCoachProfile = async (coachId) => {
   return await makeRequest({
     service: `user/courses/coach/${coachId}`,
     method: API_METHODS.GET,
-    authRequired: true,
+    authRequired: false,
   });
 };
 
@@ -58,7 +58,7 @@ export const fetchCourseDetailsAPI = async (courseId) => {
   return await makeRequest({
     service: `user/courses/course/${courseId}`,
     method: API_METHODS.GET,
-    authRequired: true,
+    authRequired: false,
   });
 };
 
@@ -125,14 +125,32 @@ export const fetchFAQList = async (pageNo = 1, pageSize = 10) => {
 };
 
 //getall music list with pagination
-export const fetchMusicList = async (pageNo = 1, pageSize = 10, domainId) => {
+export const fetchMusicList = async (pageNo = 1, pageSize = 10) => {
   return await makeRequest({
     service: `user/musics/${pageNo}/${pageSize}`,
     method: API_METHODS.GET,
     authRequired: false,
-    params: domainId ? { domain_id: domainId } : {},
   });
 };
+
+//getall video list with pagination
+export const fetchShortVideoList = async (pageNo = 1, pageSize = 10) => {
+   
+  return await makeRequest({
+    service: `user/short-videos/${pageNo}/${pageSize}`,
+    method: API_METHODS.GET,
+    authRequired: false,
+  });
+};
+
+// get short video by id
+export const fetchShortVideoDetails = async () => {
+  return await makeRequest({
+    service: `user/short-video/${shortId}`,
+    method: API_METHODS.GET,
+    authRequired: false,
+  })
+}
 
 //get all courses feedback with pagination
 export const fetchAllCourseFeedback = async (pageNo = 1, pageSize = 10) => {
@@ -152,7 +170,7 @@ export const fetchCourseFeedback = async (
   return await makeRequest({
     service: `user/courses/course/course-feedbacks/${pageNo}/${pageSize}/${courseId}`,
     method: API_METHODS.GET,
-    authRequired: true,
+    authRequired: false,
   });
 };
 
@@ -189,7 +207,7 @@ export const subscribeToNewsletter = async (email) => {
   return await makeRequest({
     service: `user/subscribeToNewsletter`,
     method: API_METHODS.POST,
-    data: {email},
-    authRequired: true,
+    data: { email },
+    authRequired: false,
   });
 };

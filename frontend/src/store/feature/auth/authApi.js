@@ -84,5 +84,6 @@ export const adminLogin = async (credentials) => {
     method: API_METHODS.POST,
     data: credentials,
     authRequired: false,
+    tokenType: "admin",
   });
 };
