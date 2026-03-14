@@ -19,7 +19,7 @@ const useProgressToolsDetails = (courseId, weekNo, dayNo) => {
   const [isToolDrawerOpen, setIsToolDrawerOpen] = useState(false);
   const [isToolEditing, setIsToolEditing] = useState(false);
 
-  const { progressToolsQuestions, coursesDetails, ptqLoading, ptqError } =
+  const { progressToolsQuestions, coursesDetails, loading, error } =
     useSelector((state) => state.admin);
 
   const tools = progressToolsQuestions?.tools ?? [];
@@ -154,8 +154,8 @@ const useProgressToolsDetails = (courseId, weekNo, dayNo) => {
     // Data
     progressToolsQuestions,
     coursesDetails,
-    ptqLoading,
-    ptqError,
+    loading,
+    error,
 
     // Status
     isSubmitting,

@@ -27,7 +27,7 @@ import { stripHtml } from "@/components/RichTextEditor/stripHtml";
 
 const FrequentlyAskQue = () => {
   const dispatch = useDispatch();
-  const { pageNo, pageSize, setPageNo, setPageSize } = usePagination(1, 5);
+  const { pageNo, pageSize, setPageNo } = usePagination(1, 10);
   const { faqsDetails, loading, error } = useFrequentlyAskQue(pageNo, pageSize);
   const faqList = faqsDetails?.faqs || [];
 
@@ -192,13 +192,13 @@ const FrequentlyAskQue = () => {
   }, [actionMessage]);
 
   return (
-    <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="flex justify-between items-center gap-4 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg">
-              <HelpCircle className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg">
+              <HelpCircle className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -213,7 +213,7 @@ const FrequentlyAskQue = () => {
           <CustomButton
             onClick={handleAddFAQ}
             variant="primary"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 px-6 py-2.5"
           >
             <Plus className="w-4 h-4" />
             Add New FAQ
@@ -230,9 +230,9 @@ const FrequentlyAskQue = () => {
             }`}
           >
             {actionMessage.type === "success" ? (
-              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
             ) : (
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
             )}
             <div className="flex-1">
               <p
@@ -260,13 +260,14 @@ const FrequentlyAskQue = () => {
         )}
 
         {/* Loading / Error States */}
+
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="relative mb-4">
-              <div className="w-12 h-12 rounded-full border-4 border-gray-200 dark:border-gray-800"></div>
-              <div className="absolute top-0 left-0 w-12 h-12 rounded-full border-4 border-indigo-600 dark:border-indigo-500 border-t-transparent animate-spin"></div>
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="relative mb-6">
+              <div className="w-16 h-16 rounded-full border-4 border-gray-200 dark:border-gray-700" />
+              <div className="absolute top-0 left-0 w-16 h-16 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
             </div>
-            <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
+            <p className="text-xl font-medium text-gray-600 dark:text-gray-400">
               Loading FAQs...
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
@@ -303,7 +304,7 @@ const FrequentlyAskQue = () => {
             <CustomButton
               onClick={handleAddFAQ}
               variant="primary"
-              className="mx-auto"
+              className="mx-auto px-6 py-2.5"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add First FAQ
@@ -382,7 +383,7 @@ const FrequentlyAskQue = () => {
                         </div>
                         <div className="flex-1">
                           <div
-                            className="prose prose-sm sm:prose-base dark:prose-invert max-w-none"
+                            className="prose prose-sm max-w-none dark:prose-invert"
                             dangerouslySetInnerHTML={{ __html: faq.answer }}
                           />
                         </div>
@@ -460,24 +461,15 @@ const FrequentlyAskQue = () => {
               )}
             </div>
 
-            {/* Form submission errors */}
-            {errors.submit && (
-              <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                <p className="text-red-600 dark:text-red-400 flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                  {errors.submit}
-                </p>
-              </div>
-            )}
-
             {/* Save Button */}
-            <div className="sticky bottom-0 pt-6 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 -mx-4 px-4">
+            <div className="pt-6 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
               <div className="flex justify-end gap-3">
                 <CustomButton
                   type="button"
                   variant="outline"
                   onClick={resetForm}
                   disabled={isSubmitting}
+                  className="px-6 py-2.5"
                 >
                   Cancel
                 </CustomButton>
@@ -485,7 +477,7 @@ const FrequentlyAskQue = () => {
                   variant="primary"
                   type="submit"
                   disabled={isSubmitting}
-                  className="min-w-[120px]"
+                  className="min-w-[140px] px-6 py-2.5"
                 >
                   {isSubmitting ? (
                     <>

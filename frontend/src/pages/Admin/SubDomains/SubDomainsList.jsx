@@ -26,7 +26,7 @@ const SubDomainsList = () => {
   const domainName = location.state?.domainName || "Unknown Domain";
   const { domainId } = useParams();
 
-  const { pageNo, pageSize, setPageNo } = usePagination(1, 5);
+  const { pageNo, pageSize, setPageNo } = usePagination(1, 10);
   const {
     subdomainsDetails,
     loading,
@@ -160,11 +160,11 @@ const SubDomainsList = () => {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-950 min-h-screen p-4 sm:p-6 lg:p-8 transition-colors duration-300">
+    <div className="bg-gray-50 dark:bg-gray-950 min-h-screen p-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
@@ -173,8 +173,8 @@ const SubDomainsList = () => {
               <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg">
-                <FolderTree className="w-5 h-5 text-white" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg">
+                <FolderTree className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Subdomains</h1>
@@ -184,7 +184,7 @@ const SubDomainsList = () => {
               </div>
             </div>
           </div>
-          <CustomButton onClick={openAddDrawer} variant="primary" className="flex items-center gap-2">
+          <CustomButton onClick={openAddDrawer} variant="primary" className="flex items-center gap-2 px-6 py-2.5">
             <Plus className="w-4 h-4" />
             Add Subdomain
           </CustomButton>
@@ -277,7 +277,7 @@ const SubDomainsList = () => {
             <p className="text-gray-500 dark:text-gray-400 mb-6">
               Get started by adding learning categories for {domainName}
             </p>
-            <CustomButton onClick={openAddDrawer} variant="primary" className="mx-auto">
+            <CustomButton onClick={openAddDrawer} variant="primary" className="mx-auto px-6 py-2.5">
               <Plus className="w-4 h-4 mr-2" />
               Add First Subdomain
             </CustomButton>
@@ -296,7 +296,7 @@ const SubDomainsList = () => {
         <div className="flex flex-col h-full">
 
           {/* Scrollable fields */}
-          <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
 
             {/* Subdomain Name */}
             <div>
@@ -406,7 +406,7 @@ const SubDomainsList = () => {
           </div>
 
           {/* Pinned footer — always visible, never scrolls away */}
-          <div className="flex-shrink-0 px-4 py-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+          <div className="flex-shrink-0 px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
             <form onSubmit={handleSaveSubdomain}>
               <div className="flex justify-end gap-3">
                 <CustomButton
@@ -414,6 +414,7 @@ const SubDomainsList = () => {
                   variant="outline"
                   onClick={resetForm}
                   disabled={isSubmitting}
+                  className="px-6 py-2.5"
                 >
                   Cancel
                 </CustomButton>
@@ -421,7 +422,7 @@ const SubDomainsList = () => {
                   variant="primary"
                   type="submit"
                   disabled={isSubmitting}
-                  className="min-w-[120px]"
+                  className="min-w-[140px] px-6 py-2.5"
                 >
                   {isSubmitting ? (
                     <>

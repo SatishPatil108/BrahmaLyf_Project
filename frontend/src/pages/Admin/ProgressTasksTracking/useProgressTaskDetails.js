@@ -19,7 +19,7 @@ const useProgressTaskDetails = (courseId, weekNo, dayNo) => {
   const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
   const [isTaskEditing, setIsTaskEditing] = useState(false);
 
-  const { progressTasksQuestions, coursesDetails, ptqLoading, ptqError } =
+  const { progressTasksQuestions, coursesDetails, loading, error } =
     useSelector((state) => state.admin);
 
   const questions = progressTasksQuestions?.questions ?? [];
@@ -169,8 +169,8 @@ const useProgressTaskDetails = (courseId, weekNo, dayNo) => {
     questions,
     coursesDetails,
     courses,
-    ptqLoading,
-    ptqError,
+    loading,
+    error,
 
     // Status
     isSubmitting,

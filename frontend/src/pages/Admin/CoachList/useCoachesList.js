@@ -64,7 +64,7 @@ const useCoachesList = (pageNo, pageSize) => {
   // const deleteCoach
   const deleteCoach = (coachId) => {
     if (window.confirm("Are you sure you want to delete this coach?")) {
-      const toastId = toast.loading('Deleting a coache...');
+      const toastId = toast.loading('Deleting a coaches...');
       dispatch(deleteCoachAPI(coachId)).then(() => {
         toast.update(toastId, {
           render: "Coach is Deleted Successfully 🎉",
