@@ -1,16 +1,16 @@
 import { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {   fetchAllSubDomainsAPI, getAllDomains } from "@/store/feature/admin";
+import { fetchAllSubDomainsAPI, getAllDomains } from "@/store/feature/admin";
 
- const useDomainData = () => {
+const useDomainData = () => {
   const dispatch = useDispatch();
   const { loading, error, domainsDetails, subdomainsDetails } = useSelector(
-    (state) => state.admin
+    (state) => state.admin,
   );
 
   // Fetch all domains on mount
   useEffect(() => {
-    dispatch(getAllDomains({ pageNo:1, pageSize:"*" }));
+    dispatch(getAllDomains({ pageNo: 1, pageSize: 10 }));
   }, [dispatch]);
 
   // Fetch subdomains based on selected domain
@@ -23,7 +23,7 @@ import {   fetchAllSubDomainsAPI, getAllDomains } from "@/store/feature/admin";
         console.error("Failed to fetch subdomains:", err);
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
   return { loading, error, domainsDetails, subdomainsDetails, fetchSubdomains };
