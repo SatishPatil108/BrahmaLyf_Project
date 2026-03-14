@@ -44,8 +44,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
 
   const [curriculums, setCurriculums] = useState([
     {
-      header_type: "",
-      sequence_no: "1",
+      week_no: 1,
       title: "",
       description: "",
       video_url: "",
@@ -65,7 +64,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       errors.subdomain = "Subdomain is required";
     }
 
-    if (!courseData.coachId?.trim()) {
+    if (!courseData.coachId) {
       errors.coachId = "Coach is required";
     }
 
@@ -135,14 +134,12 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
     curriculums.forEach((curriculum, index) => {
       const curriculumErrors = {};
 
-      if (!curriculum.header_type?.trim()) {
-        curriculumErrors.header_type = "Header type is required";
-      }
-
-      if (!curriculum.sequence_no?.toString().trim()) {
-        curriculumErrors.sequence_no = "Sequence number is required";
-      } else if (isNaN(curriculum.sequence_no) || curriculum.sequence_no < 1) {
-        curriculumErrors.sequence_no = "Sequence must be a positive number";
+      if (
+        isNaN(curriculum.week_no) ||
+        curriculum.week_no < 1 ||
+        curriculum.week_no > 52
+      ) {
+        curriculumErrors.week_no = "Week number must be between 1 and 52";
       }
 
       if (!curriculum.title?.trim()) {
@@ -223,7 +220,9 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
         // Add course data
         Object.entries(courseData).forEach(([key, value]) => {
           if (value !== null && value !== undefined) {
-            formData.append(key, value);
+            const finalValue = typeof value === "string" ? value.trim() : value;
+
+            formData.append(key, finalValue);
           }
         });
 
@@ -231,7 +230,10 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
         curriculums.forEach((item, i) => {
           Object.entries(item).forEach(([key, value]) => {
             if (value !== null && value !== undefined) {
-              formData.append(`curriculums[${i}][${key}]`, value);
+              const finalValue =
+                typeof value === "string" ? value.trim() : value;
+
+              formData.append(`curriculums[${i}][${key}]`, finalValue);
             }
           });
         });
@@ -240,7 +242,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
         onClose();
       } catch (err) {
         setApiError(
-          err.message || "Failed to create course. Please try again.",
+          err?.message || err?.data?.message || "Failed to create course",
         );
 
         // Scroll to error

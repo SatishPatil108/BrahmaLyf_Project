@@ -15,6 +15,7 @@ import {
   INVALID_QUESTION_ID,
   QUESTION_ADDED_FAILED,
   QUESTION_ADDED_SUCCESS,
+  QUESTION_UPDATED_FAILED,
   QUESTION_DELETED_SUCCESS,
   QUESTION_FOUND,
   QUESTION_NOT_FOUND,
@@ -109,30 +110,21 @@ export const getAllProgressTasksQuestionsModel = async (req, res) => {
 export const postProgressTasksQuestionModel = async (req, res) => {
   try {
     const questions = req.body;
+    const { courseId } = req.params;
 
     const results = await Promise.all(
       questions.map(
-        ({ question_text, option_type, week_no, day_no, course_id, options }) =>
+        ({ question_text, option_type, week_no, day_no, options }) =>
           postProgressTasksQuestionService(
             question_text,
             option_type,
             week_no,
             day_no,
-            course_id,
+            Number(courseId),
             options || [],
           ),
       ),
     );
-
-    if (!results || results.length === 0) {
-      return error(
-        res,
-        HTTP_BAD_REQUEST,
-        APP_RESPONSE_CODE_ERROR,
-        QUESTION_ADDED_FAILED,
-        null,
-      );
-    }
 
     if (!results || results.length === 0) {
       return error(
@@ -153,6 +145,7 @@ export const postProgressTasksQuestionModel = async (req, res) => {
     );
   } catch (err) {
     console.error("Progress Tracking Question Error:", err);
+
     return error(
       res,
       HTTP_INTERNAL_SERVER_ERROR,
@@ -165,44 +158,26 @@ export const postProgressTasksQuestionModel = async (req, res) => {
 
 export const updateProgressTasksQuestionModel = async (req, res) => {
   try {
-    const { question_id } = req.params;
-    const { question_text, option_type, week_no, day_no, course_id, options } =
-      req.body;
+    const { courseId, questionId } = req.params;
 
-    // ----------------------------------------------
-    // Check if question exists
-    // ----------------------------------------------
-    const existingQuestion = await getProgressTasksQuestionService(question_id);
+    const { question_text, option_type, week_no, day_no, options } = req.body;
 
-    if (!existingQuestion) {
-      return error(
-        res,
-        HTTP_NOT_FOUND,
-        APP_RESPONSE_CODE_ERROR,
-        QUESTION_NOT_FOUND,
-        null,
-      );
-    }
-
-    // ----------------------------------------------
-    // Update DB record
-    // ----------------------------------------------
-    const response = await updateProgressTasksQuestionService(
-      question_id,
+    const result = await updateProgressTasksQuestionService(
+      Number(questionId),
       question_text,
       option_type,
       week_no,
       day_no,
-      course_id,
+      Number(courseId),
       options || [],
     );
 
-    if (!response) {
+    if (!result) {
       return error(
         res,
         HTTP_BAD_REQUEST,
         APP_RESPONSE_CODE_ERROR,
-        SOMETHING_WENT_WRONG,
+        QUESTION_UPDATED_FAILED,
         null,
       );
     }
@@ -212,10 +187,11 @@ export const updateProgressTasksQuestionModel = async (req, res) => {
       HTTP_OK,
       APP_RESPONSE_CODE_SUCCESS,
       QUESTION_UPDATED_SUCCESS,
-      response,
+      result,
     );
   } catch (err) {
-    console.error("Progress Tracking Update Question Error:", err);
+    console.error("Update Progress Question Error:", err);
+
     return error(
       res,
       HTTP_INTERNAL_SERVER_ERROR,

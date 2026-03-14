@@ -12,7 +12,6 @@ export const postProgressTasksQuestionValidator = (req, res, next) => {
     option_type: joi.number().integer().valid(1, 2, 3, 4, 5, 6).required(),
     week_no: joi.number().integer().min(1).max(52).required(),
     day_no: joi.number().integer().min(1).max(7).required(),
-    course_id: joi.number().integer().positive().required(),
     options: joi.when("option_type", {
       is: joi.valid(2, 3, 4),
       then: joi.array().items(joi.string()).min(1).required(),
@@ -40,7 +39,8 @@ export const postProgressTasksQuestionValidator = (req, res, next) => {
 
 export const updateProgressTasksQuestionValidator = (req, res, next) => {
   const paramsSchema = joi.object({
-    question_id: joi.number().integer().positive().required(),
+    courseId: joi.number().integer().required(),
+    questionId: joi.number().integer().required(),
   });
 
   const bodySchema = joi.object({
@@ -48,7 +48,6 @@ export const updateProgressTasksQuestionValidator = (req, res, next) => {
     option_type: joi.number().integer().valid(1, 2, 3, 4, 5, 6).required(),
     week_no: joi.number().integer().min(1).max(52).required(),
     day_no: joi.number().integer().min(1).max(7).required(),
-    course_id: joi.number().integer().positive().required(),
     options: joi.when("option_type", {
       is: joi.valid(2, 3, 4),
       then: joi.array().items(joi.string()).min(1).required(),
@@ -56,14 +55,13 @@ export const updateProgressTasksQuestionValidator = (req, res, next) => {
     }),
   });
 
-
-  // ✅ convert: true — coerces "35" string to 35 number
   const { error: paramsError } = paramsSchema.validate(req.params, {
     convert: true,
   });
 
   if (paramsError) {
     console.error("Params error:", paramsError.message);
+
     return _error(
       res,
       HTTP_BAD_REQUEST,
@@ -73,12 +71,15 @@ export const updateProgressTasksQuestionValidator = (req, res, next) => {
     );
   }
 
-  // ✅ Unwrap array if frontend sends [{...}]
   const body = Array.isArray(req.body) ? req.body[0] : req.body;
 
-  const { error: bodyError } = bodySchema.validate(body, { convert: true });
+  const { error: bodyError } = bodySchema.validate(body, {
+    convert: true,
+  });
+
   if (bodyError) {
     console.error("Body error:", bodyError.message);
+
     return _error(
       res,
       HTTP_BAD_REQUEST,
@@ -89,5 +90,6 @@ export const updateProgressTasksQuestionValidator = (req, res, next) => {
   }
 
   req.body = body;
+
   next();
 };

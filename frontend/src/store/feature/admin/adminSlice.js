@@ -107,7 +107,7 @@ const adminSlice = createSlice({
 
       // Subdomains
       .addCase(fetchAllSubDomainsAPI.fulfilled, (state, action) => {
-        state.subdomainsDetails = action.payload?.subdomains || [];
+        state.subdomainsDetails.subdomains = action.payload?.subdomains || [];
       })
       .addCase(addNewSubDomain.fulfilled, (state, action) => {
         state.subdomainsDetails.subdomains.push(action.payload);
@@ -129,35 +129,45 @@ const adminSlice = createSlice({
 
       // Coaches
       .addCase(fetchAllCoachesAPI.fulfilled, (state, action) => {
-        state.coachesDetails = action.payload?.coaches || [];
+        state.coachesDetails.coaches = action.payload?.coaches || [];
       })
+
       .addCase(addNewCoachAPI.fulfilled, (state, action) => {
         state.coachesDetails.coaches.push({
           coach_id: action.payload.id,
           ...action.payload,
         });
       })
+
       .addCase(updateCoachAPI.fulfilled, (state, action) => {
         const index = state.coachesDetails.coaches.findIndex(
           (c) => c.coach_id === action.payload.id,
         );
-        if (index !== -1)
+
+        if (index !== -1) {
           state.coachesDetails.coaches[index] = {
             coach_id: action.payload.id,
             ...action.payload,
           };
+        }
       })
+
       .addCase(deleteCoachAPI.fulfilled, (state, action) => {
         state.coachesDetails.coaches = state.coachesDetails.coaches.filter(
           (c) => c.coach_id !== action.payload,
         );
       })
+
       .addCase(fetchCoachDetailsAPI.fulfilled, (state, action) => {
         const index = state.coachesDetails.coaches.findIndex(
           (c) => c.id === action.payload.id,
         );
-        if (index !== -1) state.coachesDetails.coaches[index] = action.payload;
-        else state.coachesDetails.coaches.push(action.payload);
+
+        if (index !== -1) {
+          state.coachesDetails.coaches[index] = action.payload;
+        } else {
+          state.coachesDetails.coaches.push(action.payload);
+        }
       })
 
       // Courses
@@ -190,7 +200,7 @@ const adminSlice = createSlice({
 
       // FAQs
       .addCase(fetchFAQsAPI.fulfilled, (state, action) => {
-        state.faqsDetails = action.payload?.faqs || [];
+        state.faqsDetails.faqs = action.payload?.faqs || [];
       })
       .addCase(addNewFAQAPI.fulfilled, (state, action) => {
         state.faqsDetails.faqs.push(action.payload);
@@ -239,13 +249,20 @@ const adminSlice = createSlice({
       .addCase(postMusicAPI.fulfilled, (state, action) => {
         state.audiosDetails.audios.unshift(action.payload);
       })
+
       .addCase(fetchAllMusicsAPI.fulfilled, (state, action) => {
-        state.audiosDetails = action.payload?.audios || [];
+        state.audiosDetails.audios = action.payload?.audios || [];
       })
+
       .addCase(updateMusicAPI.fulfilled, (state, action) => {
         state.audiosDetails.audios = state.audiosDetails.audios.map((music) => {
-          if (music.id == action.payload.music_id)
-            music = { id: action.payload.music_id, ...action.payload };
+          if (music.id == action.payload.music_id) {
+            return {
+              id: action.payload.music_id,
+              ...action.payload,
+            };
+          }
+
           return music;
         });
       })
@@ -259,7 +276,7 @@ const adminSlice = createSlice({
       // Inquiries
 
       .addCase(getInquiriesAPI.fulfilled, (state, action) => {
-        state.inquiriesDetails = action.payload?.inquiries || [];
+        state.inquiriesDetails.inquiries = action.payload?.inquiries || [];
       })
 
       // Daily Short Videos
@@ -268,7 +285,7 @@ const adminSlice = createSlice({
       })
 
       .addCase(fetchAllShortVideosAPI.fulfilled, (state, action) => {
-        state.shortVideosDetails = action.payload?.videos || [];
+        state.shortVideosDetails.videos = action.payload?.videos || [];
       })
 
       .addCase(updateShortVideoAPI.fulfilled, (state, action) => {
@@ -296,7 +313,8 @@ const adminSlice = createSlice({
 
       .addCase(fetchProgressTasksQuestionsAPI.fulfilled, (state, action) => {
         state.ptqLoading = false;
-        state.progressTasksQuestions = action.payload?.questions || [];
+        state.progressTasksQuestions.questions =
+          action.payload?.questions || [];
       })
 
       .addCase(updateProgressTasksQuestionAPI.fulfilled, (state, action) => {
@@ -324,7 +342,7 @@ const adminSlice = createSlice({
       })
 
       .addCase(fetchProgressToolsQuestionsAPI.fulfilled, (state, action) => {
-        state.progressToolsQuestions = action.payload?.tools || [];
+        state.progressToolsQuestions.tools = action.payload?.tools || [];
       })
 
       .addCase(updateProgressToolsQuestionAPI.fulfilled, (state, action) => {

@@ -23,6 +23,7 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     useSelector((state) => state.admin);
 
   const questions = progressTasksQuestions?.questions ?? [];
+  const courses = coursesDetails?.courses || [];
 
   const clearMessage = useCallback(() => setActionMessage(null), []);
 
@@ -44,13 +45,28 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     }
   }, [dispatch, weekNo, dayNo]);
 
+  useEffect(() => {
+    if (!actionMessage) return;
+
+    const timer = setTimeout(() => {
+      setActionMessage(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [actionMessage]);
+
   // ✅ Add
-  const addQuestion = async (questionData) => {
+  const addQuestion = async (courseId, questionData) => {
     setIsSubmitting(true);
     clearMessage();
 
     try {
-      await dispatch(postProgressTasksQuestionAPI(questionData)).unwrap();
+      await dispatch(
+        postProgressTasksQuestionAPI({
+          courseId,
+          questionData,
+        }),
+      ).unwrap();
 
       setActionMessage({
         type: "success",
@@ -71,13 +87,17 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
   };
 
   // ✅ Update
-  const updateQuestion = async (questionId, questionData) => {
+  const updateQuestion = async (questionId, courseId, questionData) => {
     setIsSubmitting(true);
     clearMessage();
 
     try {
       await dispatch(
-        updateProgressTasksQuestionAPI({ questionId, questionData }),
+        updateProgressTasksQuestionAPI({
+          questionId,
+          courseId,
+          questionData,
+        }),
       ).unwrap();
 
       setActionMessage({
@@ -86,7 +106,6 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
       });
 
       setIsTaskDrawerOpen(false);
-      setIsTaskEditing(false);
       refetch();
     } catch (err) {
       setActionMessage({

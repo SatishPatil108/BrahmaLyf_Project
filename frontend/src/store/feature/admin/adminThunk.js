@@ -46,7 +46,7 @@ import {
   fetchProgressToolsQuestions,
   updateProgressToolsQuestion,
   deleteProgressToolsQuestion,
-  postProgressToolsQuestion,    
+  postProgressToolsQuestion,
 } from "./adminApi";
 
 export const getAdminDashboardData = createAsyncThunk(
@@ -606,8 +606,7 @@ export const fetchProgressTasksQuestionsAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.message ||
-          "Failed to fetch progress tasks questions",
+        error.response?.message || "Failed to fetch progress tasks questions",
       );
     }
   },
@@ -632,18 +631,20 @@ export const postProgressTasksQuestionAPI = createAsyncThunk(
 // update progress tools question
 export const updateProgressTasksQuestionAPI = createAsyncThunk(
   "admin/updateProgressTasksQuestion",
-  async ({ questionId, questionData }, thunkAPI) => {
+  async ({ questionId, courseId, questionData }, thunkAPI) => {
     try {
-      const response = await updateProgressTasksQuestion(
+      const response = await updateProgressTasksQuestion({
         questionId,
+        courseId,
         questionData,
-      );
+      });
+
       return response.data;
     } catch (error) {
       console.error(error);
+
       return thunkAPI.rejectWithValue(
-        error.response?.message ||
-          "Failed to update progress tasks question",
+        error.response?.message || "Failed to update progress tasks question",
       );
     }
   },
@@ -691,8 +692,7 @@ export const fetchProgressToolsQuestionsAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.message ||
-          "Failed to fetch progress tools questions",
+        error.response?.message || "Failed to fetch progress tools questions",
       );
     }
   },
@@ -703,7 +703,10 @@ export const updateProgressToolsQuestionAPI = createAsyncThunk(
   "admin/updateProgressToolsQuestion",
   async ({ tools_question_id, questionData }, thunkAPI) => {
     try {
-      const response = await updateProgressToolsQuestion(tools_question_id, questionData);
+      const response = await updateProgressToolsQuestion(
+        tools_question_id,
+        questionData,
+      );
       return response.data;
     } catch (error) {
       console.error(error);
@@ -729,5 +732,3 @@ export const deleteProgressToolsQuestionAPI = createAsyncThunk(
     }
   },
 );
-
- 

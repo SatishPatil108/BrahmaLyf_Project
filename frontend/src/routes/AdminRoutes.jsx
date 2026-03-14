@@ -8,6 +8,7 @@ import AdminDashboard from "@/pages/Admin/Dashboard/AdminDashboard";
 import DomainsList from "@/pages/Admin/Domains";
 import FrequentlyAskQue from "@/pages/Admin/FrequentlyAskQue";
 import Inquiries from "@/pages/Admin/Inquiries/Inquiries";
+import ProgressTasksQuestionDetails from "@/pages/Admin/ProgressTasksTracking/ProgressTasksQuestionDetails";
 import ProgressToolsQuestionDetails from "@/pages/Admin/ProgressTasksTracking/ProgressTasksQuestionDetails";
 import MusicList from "@/pages/Admin/SoundList/MusicList";
 import SubDomainsList from "@/pages/Admin/SubDomains";
@@ -37,6 +38,10 @@ const AdminRoutes = () => {
           element={<FrequentlyAskQue />}
         />
         <Route path="inquiries" element={<Inquiries />} />
+        <Route
+          path="/progress-tools/questions/:courseId"
+          element={<ProgressTasksQuestionDetails />}
+        />
       </Routes>
     </>
   );

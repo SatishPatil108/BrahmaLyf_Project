@@ -14,14 +14,14 @@ import {
 
 export default (app) => {
   app.post(
-    "/apis/admin/progress-tasks/questions",
+    "/apis/admin/progress-tasks/questions/:courseId",
     verifyAdminToken,
     postProgressTasksQuestionValidator,
     postProgressTasksQuestionController,
   );
 
   app.put(
-    "/apis/admin/progress-tasks/questions/:question_id",
+    "/apis/admin/progress-tasks/questions/:courseId/:questionId",
     verifyAdminToken,
     updateProgressTasksQuestionValidator,
     updateProgressTasksQuestionController,

@@ -1,7 +1,9 @@
 export const QUESTION_ADDED_SUCCESS = "Question added successfully";
 export const QUESTION_ADDED_FAILED = "Failed to add question";
 export const QUESTION_UPDATED_SUCCESS = "Question updated successfully";
+export const QUESTION_UPDATED_FAILED = "Question updated failed";
 export const QUESTION_DELETED_SUCCESS = "Question deleted successfully";
+export const QUESTION_DELETED_FAILED = "Question deleted failed";
 export const ALL_QUESTION_LIST = "All Question list fetched successfully";
 export const QUESTION_NOT_FOUND = "Question not found";
 export const QUESTION_FOUND = "Question found";

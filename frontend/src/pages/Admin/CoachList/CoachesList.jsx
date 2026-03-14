@@ -28,9 +28,9 @@ const CoachesList = () => {
     deleteCoach,
   } = useCoachesList(pageNo, pageSize);
 
-  const coaches = coachesDetails.coaches || [];
-  const domains = domainsDetails.domains || [];
-  const subdomains = subdomainsDetails.subdomains || [];
+  const coaches = coachesDetails?.coaches || [];
+  const domains = domainsDetails?.domains || [];
+  const subdomains = subdomainsDetails?.subdomains || [];
 
   // drawer and other state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

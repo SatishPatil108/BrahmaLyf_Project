@@ -38,8 +38,6 @@ const useDomainsList = (pageNo, pageSize) => {
     return () => clearTimeout(timer);
   }, [actionMessage]);
 
-  
-
   const addDomain = async (domainData) => {
     setIsSubmitting(true);
     clearMessage();

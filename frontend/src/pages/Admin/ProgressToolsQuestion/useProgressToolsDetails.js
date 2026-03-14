@@ -23,7 +23,6 @@ const useProgressToolsDetails = (weekNo, dayNo) => {
     useSelector((state) => state.admin);
 
   const tools = progressToolsQuestions?.tools ?? [];
-  console.log("Tools : ", tools);
 
   const clearMessage = useCallback(() => setActionMessage(null), []);
 
@@ -44,6 +43,16 @@ const useProgressToolsDetails = (weekNo, dayNo) => {
       dispatch(fetchProgressToolsQuestionsAPI({ weekNo, dayNo }));
     }
   }, [dispatch, weekNo, dayNo]);
+
+  useEffect(() => {
+    if (!actionMessage) return;
+
+    const timer = setTimeout(() => {
+      setActionMessage(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [actionMessage]);
 
   // ✅ Add Tool
   const addTool = async (toolData) => {

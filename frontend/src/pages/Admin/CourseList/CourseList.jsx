@@ -18,29 +18,25 @@ import {
   AlertCircle,
   Calendar,
   ChevronRight,
-  Eye
+  Eye,
 } from "lucide-react";
 
 const CourseList = () => {
   const location = useLocation();
-  const {
-    pageNo,
-    pageSize,
-    setPageNo,
-    setPageSize
-  } = usePagination(1, 6);
+  const { pageNo, pageSize, setPageNo, setPageSize } = usePagination(1, 6);
 
   const { coursesDetails, loading, error } = useCourseList(pageNo, pageSize);
-  const courses = coursesDetails.courses || [];
+  const courses = coursesDetails || [];
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { coachesList = [], coachesLoading = false } = useSelector(
-    (state) => state.admin || {}
+    (state) => state.admin || {},
   );
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   useEffect(() => {
-    if (location.state && location.state.mode === 'create') {
+    if (location.state && location.state.mode === "create") {
       handleAddCourse();
     }
   }, [location.state]);
@@ -54,10 +50,10 @@ const CourseList = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
@@ -79,7 +75,8 @@ const CourseList = () => {
             <div className="text-sm text-gray-500 dark:text-gray-400">
               <span className="font-semibold text-gray-900 dark:text-gray-100">
                 {coursesDetails.total_courses || 0}
-              </span> courses total
+              </span>{" "}
+              courses total
             </div>
             <CustomButton
               onClick={handleAddCourse}
@@ -96,7 +93,9 @@ const CourseList = () => {
         {loading && (
           <div className="flex flex-col items-center justify-center py-16">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-500 mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Loading courses...</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              Loading courses...
+            </p>
             <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
               Fetching course data from the server
             </p>
@@ -147,7 +146,7 @@ const CourseList = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-xs font-medium px-2 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400">
-                            {course.domain_name || 'Course'}
+                            {course.domain_name || "Course"}
                           </span>
                           {course.subdomain_name && (
                             <span className="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
@@ -214,12 +213,14 @@ const CourseList = () => {
                       <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-4">
                           <span className="text-gray-600 dark:text-gray-400">
-                            Modules: <span className="font-semibold text-gray-900 dark:text-gray-100">
+                            Modules:{" "}
+                            <span className="font-semibold text-gray-900 dark:text-gray-100">
                               {course.module_count || 0}
                             </span>
                           </span>
                           <span className="text-gray-600 dark:text-gray-400">
-                            Videos: <span className="font-semibold text-gray-900 dark:text-gray-100">
+                            Videos:{" "}
+                            <span className="font-semibold text-gray-900 dark:text-gray-100">
                               {course.video_count || 0}
                             </span>
                           </span>
@@ -242,7 +243,7 @@ const CourseList = () => {
                 onPageChange={setPageNo}
                 currentPageSize={pageSize} // Optional: current page size
                 onPageSizeChange={setPageSize} // Optional: function to change page size
-                pageSizeOptions={[5,10, 20, 50, 100]} // Options for page size
+                pageSizeOptions={[5, 10, 20, 50, 100]} // Options for page size
                 showPageNumbers={true}
                 showInfo={true}
                 showPageSize={true} // Control visibility of page size selector
@@ -252,11 +253,13 @@ const CourseList = () => {
 
             {/* Results Info */}
             <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-              Showing {courses.length} of {coursesDetails.total_records || 0} courses
+              Showing {courses.length} of {coursesDetails.total_records || 0}{" "}
+              courses
             </div>
           </>
         ) : (
-          !loading && !error && (
+          !loading &&
+          !error && (
             <div className="text-center py-16 bg-white dark:bg-gray-900 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-800">
               <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
                 <BookOpen className="w-10 h-10 text-gray-400 dark:text-gray-600" />
@@ -265,7 +268,8 @@ const CourseList = () => {
                 No Courses Found
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                Get started by creating your first course. Add content, videos, and curriculum to help users learn.
+                Get started by creating your first course. Add content, videos,
+                and curriculum to help users learn.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <CustomButton
@@ -278,7 +282,7 @@ const CourseList = () => {
                 </CustomButton>
                 <CustomButton
                   variant="outline"
-                  onClick={() => navigate('/admin/coaches')}
+                  onClick={() => navigate("/admin/coaches")}
                 >
                   <Users className="w-4 h-4 mr-2" />
                   Add Coaches First
@@ -287,49 +291,6 @@ const CourseList = () => {
             </div>
           )
         )}
-
-        {/* Quick Stats */}
-        {/* {!loading && !error && courses.length > 0 && (
-          <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Course Catalog Overview
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-800">
-                <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-1">
-                  {coursesDetails.total_courses || 0}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Total Courses
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-800">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
-                  {courses.reduce((sum, course) => sum + (course.module_count || 0), 0)}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Total Modules
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-800">
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
-                  {courses.reduce((sum, course) => sum + (course.video_count || 0), 0)}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Total Videos
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-800">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
-                  {new Set(courses.map(course => course.coach_name).filter(Boolean)).size}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Active Coaches
-                </div>
-              </div>
-            </div>
-          </div>
-        )} */}
       </div>
 
       {/* Drawer for Add Course */}

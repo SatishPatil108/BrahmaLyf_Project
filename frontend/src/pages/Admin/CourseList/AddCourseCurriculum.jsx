@@ -3,7 +3,10 @@ import FileUploaderWithPreview from "@/components/FileUploaderWithPreview/FileUp
 import YouTubeUrlInput from "@/components/videoUrlValidator/YouTubeUrlInput";
 import { Plus, Trash2, AlertCircle, FileVideo, Image } from "lucide-react";
 
-const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => {
+const AddCourseCurriculum = ({
+  curriculums = [],
+  setCurriculum = () => {},
+}) => {
   const [localCurriculums, setLocalCurriculums] = useState(curriculums);
   const [formErrors, setFormErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -25,37 +28,37 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
   // Validate a single curriculum
   const validateCurriculum = (curriculum, index) => {
     const errors = {};
-    
-    if (!curriculum.header_type?.trim()) {
-      errors.header_type = "Header type is required";
+
+    if (!curriculum.week_no?.toString().trim()) {
+      errors.week_no = "Week number is required";
+    } else if (
+      isNaN(curriculum.week_no) ||
+      curriculum.week_no < 1 ||
+      curriculum.week_no > 52
+    ) {
+      errors.week_no = "Week number must be between 1 and 52";
     }
-    
-    if (!curriculum.sequence_no?.toString().trim()) {
-      errors.sequence_no = "Sequence number is required";
-    } else if (isNaN(curriculum.sequence_no) || curriculum.sequence_no < 1) {
-      errors.sequence_no = "Sequence must be a positive number";
-    }
-    
+
     if (!curriculum.title?.trim()) {
       errors.title = "Title is required";
     } else if (curriculum.title.trim().length < 3) {
       errors.title = "Title must be at least 3 characters";
     }
-    
+
     if (!curriculum.description?.trim()) {
       errors.description = "Description is required";
     } else if (curriculum.description.trim().length < 10) {
       errors.description = "Description must be at least 10 characters";
     }
-    
+
     if (!curriculum.video_url?.trim()) {
       errors.video_url = "Video URL is required";
     }
-    
+
     if (!curriculum.thumbnail_file) {
       errors.thumbnail_file = "Thumbnail is required";
     }
-    
+
     return errors;
   };
 
@@ -63,7 +66,7 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
   const validateAllCurriculums = () => {
     const allErrors = {};
     let hasErrors = false;
-    
+
     localCurriculums.forEach((curriculum, index) => {
       const errors = validateCurriculum(curriculum, index);
       if (Object.keys(errors).length > 0) {
@@ -71,7 +74,7 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
         hasErrors = true;
       }
     });
-    
+
     setFormErrors(allErrors);
     return !hasErrors;
   };
@@ -83,12 +86,12 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
     updated[index][name] = value;
     setLocalCurriculums(updated);
     setCurriculum(updated);
-    
+
     // Clear error when user starts typing
     if (formErrors[index]?.[name]) {
-      setFormErrors(prev => ({
+      setFormErrors((prev) => ({
         ...prev,
-        [index]: { ...prev[index], [name]: '' }
+        [index]: { ...prev[index], [name]: "" },
       }));
     }
   };
@@ -100,12 +103,12 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
     updated[index].video_url = value;
     setLocalCurriculums(updated);
     setCurriculum(updated);
-    
+
     // Clear error when user starts typing
     if (formErrors[index]?.video_url) {
-      setFormErrors(prev => ({
+      setFormErrors((prev) => ({
         ...prev,
-        [index]: { ...prev[index], video_url: '' }
+        [index]: { ...prev[index], video_url: "" },
       }));
     }
   };
@@ -116,28 +119,28 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
     updated[index].thumbnail_file = file;
     setLocalCurriculums(updated);
     setCurriculum(updated);
-    
+
     // Clear error when thumbnail is uploaded
     if (formErrors[index]?.thumbnail_file) {
-      setFormErrors(prev => ({
+      setFormErrors((prev) => ({
         ...prev,
-        [index]: { ...prev[index], thumbnail_file: '' }
+        [index]: { ...prev[index], thumbnail_file: "" },
       }));
     }
   };
 
   // Handle blur
   const handleBlur = (index, field) => {
-    setTouched(prev => ({
+    setTouched((prev) => ({
       ...prev,
-      [index]: { ...prev[index], [field]: true }
+      [index]: { ...prev[index], [field]: true },
     }));
-    
+
     const errors = validateCurriculum(localCurriculums[index], index);
     if (errors[field]) {
-      setFormErrors(prev => ({
+      setFormErrors((prev) => ({
         ...prev,
-        [index]: { ...prev[index], [field]: errors[field] }
+        [index]: { ...prev[index], [field]: errors[field] },
       }));
     }
   };
@@ -148,8 +151,7 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
     const newTouched = { ...touched };
     localCurriculums.forEach((_, index) => {
       newTouched[index] = {
-        header_type: true,
-        sequence_no: true,
+        week_no: true,
         title: true,
         description: true,
         video_url: true,
@@ -157,15 +159,20 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
       };
     });
     setTouched(newTouched);
-    
+
     if (!validateAllCurriculums()) {
       // Find first error and scroll to it
       for (let i = 0; i < localCurriculums.length; i++) {
         if (Object.keys(formErrors[i] || {}).length > 0) {
           const firstErrorField = Object.keys(formErrors[i])[0];
-          const errorElement = document.querySelector(`[data-curriculum="${i}"][name="${firstErrorField}"]`);
+          const errorElement = document.querySelector(
+            `[data-curriculum="${i}"][name="${firstErrorField}"]`,
+          );
           if (errorElement) {
-            errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            errorElement.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
             errorElement.focus();
           }
           break;
@@ -175,8 +182,7 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
     }
 
     const newCurriculum = {
-      header_type: "",
-      sequence_no: localCurriculums.length + 1,
+      week_no: localCurriculums.length + 1,
       title: "",
       description: "",
       video_url: "",
@@ -186,10 +192,10 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
     const updated = [...localCurriculums, newCurriculum];
     setLocalCurriculums(updated);
     setCurriculum(updated);
-    
+
     // Initialize touched and errors for new curriculum
-    setTouched(prev => ({ ...prev, [localCurriculums.length]: {} }));
-    setFormErrors(prev => ({ ...prev, [localCurriculums.length]: {} }));
+    setTouched((prev) => ({ ...prev, [localCurriculums.length]: {} }));
+    setFormErrors((prev) => ({ ...prev, [localCurriculums.length]: {} }));
   };
 
   // Remove a curriculum
@@ -197,25 +203,27 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
     if (localCurriculums.length <= 1) {
       return;
     }
-    
+
     const updated = localCurriculums.filter((_, i) => i !== index);
     setLocalCurriculums(updated);
     setCurriculum(updated);
-    
+
     // Remove errors and touched for removed index
     const newErrors = { ...formErrors };
     const newTouched = { ...touched };
     delete newErrors[index];
     delete newTouched[index];
-    
+
     // Re-index remaining errors and touched
     const reindexedErrors = {};
     const reindexedTouched = {};
     updated.forEach((_, newIndex) => {
-      reindexedErrors[newIndex] = newErrors[newIndex + (newIndex >= index ? 1 : 0)] || {};
-      reindexedTouched[newIndex] = newTouched[newIndex + (newIndex >= index ? 1 : 0)] || {};
+      reindexedErrors[newIndex] =
+        newErrors[newIndex + (newIndex >= index ? 1 : 0)] || {};
+      reindexedTouched[newIndex] =
+        newTouched[newIndex + (newIndex >= index ? 1 : 0)] || {};
     });
-    
+
     setFormErrors(reindexedErrors);
     setTouched(reindexedTouched);
   };
@@ -233,7 +241,8 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
           </p>
         </div>
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          {localCurriculums.length} item{localCurriculums.length !== 1 ? 's' : ''}
+          {localCurriculums.length} item
+          {localCurriculums.length !== 1 ? "s" : ""}
         </div>
       </div>
 
@@ -257,7 +266,7 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
                   Curriculum Item #{index + 1}
                 </h3>
               </div>
-              
+
               {/* Remove Button */}
               {localCurriculums.length > 1 && (
                 <button
@@ -281,11 +290,13 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
                       Please fix the following errors:
                     </p>
                     <ul className="text-sm text-red-600 dark:text-red-500 mt-1 list-disc list-inside">
-                      {Object.entries(formErrors[index] || {}).map(([field, error]) => (
-                        <li key={field}>
-                          {field.replace('_', ' ')}: {error}
-                        </li>
-                      ))}
+                      {Object.entries(formErrors[index] || {}).map(
+                        ([field, error]) => (
+                          <li key={field}>
+                            {field.replace("_", " ")}: {error}
+                          </li>
+                        ),
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -294,69 +305,42 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
 
             {/* Form Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              {/* Header Type */}
-              <div>
+              {/* Week Number */}
+              <div className="lg:col-span-2">
                 <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                  Header Type
+                  Week Number
                   <span className="text-red-500 ml-1">*</span>
                 </label>
+
                 <select
                   data-curriculum={index}
-                  name="header_type"
-                  value={curriculum.header_type}
+                  name="week_no"
+                  value={curriculum.week_no}
                   onChange={(e) => handleChange(index, e)}
-                  onBlur={() => handleBlur(index, 'header_type')}
+                  onBlur={() => handleBlur(index, "week_no")}
                   className={`
                     w-full px-4 py-2.5 rounded-lg border text-sm
                     focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors[index]?.header_type && touched[index]?.header_type
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+                    ${
+                      formErrors[index]?.week_no && touched[index]?.week_no
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
                     }
-                    text-gray-900 dark:text-gray-100
+                    text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
                   `}
                 >
-                  <option value="">Select Header Type</option>
-                  <option value="Chapter">Chapter</option>
-                  <option value="Section">Section</option>
-                  <option value="Lesson">Lesson</option>
-                </select>
-                {formErrors[index]?.header_type && touched[index]?.header_type && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {formErrors[index].header_type}
-                  </p>
-                )}
-              </div>
+                  <option value="">Select Week</option>
 
-              {/* Sequence Number */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                  Sequence Number
-                  <span className="text-red-500 ml-1">*</span>
-                </label>
-                <input
-                  data-curriculum={index}
-                  type="number"
-                  name="sequence_no"
-                  value={curriculum.sequence_no}
-                  onChange={(e) => handleChange(index, e)}
-                  onBlur={() => handleBlur(index, 'sequence_no')}
-                  onWheel={(e) => e.target.blur()}
-                  min="1"
-                  className={`
-                    w-full px-4 py-2.5 rounded-lg border text-sm
-                    focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors[index]?.sequence_no && touched[index]?.sequence_no
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
-                    }
-                    text-gray-900 dark:text-gray-100
-                  `}
-                  placeholder="e.g., 1"
-                />
-                {formErrors[index]?.sequence_no && touched[index]?.sequence_no && (
+                  {[...Array(52)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      Week {i + 1}
+                    </option>
+                  ))}
+                </select>
+
+                {formErrors[index]?.week_no && touched[index]?.week_no && (
                   <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {formErrors[index].sequence_no}
+                    {formErrors[index].week_no}
                   </p>
                 )}
               </div>
@@ -373,13 +357,14 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
                   name="title"
                   value={curriculum.title}
                   onChange={(e) => handleChange(index, e)}
-                  onBlur={() => handleBlur(index, 'title')}
+                  onBlur={() => handleBlur(index, "title")}
                   className={`
                     w-full px-4 py-2.5 rounded-lg border text-sm
                     focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors[index]?.title && touched[index]?.title
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+                    ${
+                      formErrors[index]?.title && touched[index]?.title
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
                     }
                     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
                   `}
@@ -403,26 +388,30 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
                   name="description"
                   value={curriculum.description}
                   onChange={(e) => handleChange(index, e)}
-                  onBlur={() => handleBlur(index, 'description')}
+                  onBlur={() => handleBlur(index, "description")}
                   rows={3}
                   className={`
                     w-full px-4 py-2.5 rounded-lg border text-sm resize-none
                     focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${formErrors[index]?.description && touched[index]?.description
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+                    ${
+                      formErrors[index]?.description &&
+                      touched[index]?.description
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
                     }
                     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
                   `}
                   placeholder="Describe what will be covered in this curriculum item..."
                 />
-                {formErrors[index]?.description && touched[index]?.description && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {formErrors[index].description}
-                  </p>
-                )}
+                {formErrors[index]?.description &&
+                  touched[index]?.description && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                      {formErrors[index].description}
+                    </p>
+                  )}
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Minimum 10 characters. Current: {curriculum.description?.length || 0}
+                  Minimum 10 characters. Current:{" "}
+                  {curriculum.description?.length || 0}
                 </p>
               </div>
 
@@ -462,14 +451,15 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
                   imageFile={curriculum.thumbnail_file}
                   setImageFile={(file) => handleThumbnailChange(index, file)}
                   name="thumbnail_file"
-                  label={`Upload thumbnail for "${curriculum.title || 'this item'}"`}
+                  label={`Upload thumbnail for "${curriculum.title || "this item"}"`}
                   required={true}
                 />
-                {formErrors[index]?.thumbnail_file && touched[index]?.thumbnail_file && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {formErrors[index].thumbnail_file}
-                  </p>
-                )}
+                {formErrors[index]?.thumbnail_file &&
+                  touched[index]?.thumbnail_file && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                      {formErrors[index].thumbnail_file}
+                    </p>
+                  )}
               </div>
             </div>
           </div>
@@ -499,29 +489,12 @@ const AddCourseCurriculum = ({ curriculums = [], setCurriculum = () => {} }) => 
         <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
           Curriculum Summary
         </h4>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-          <div>
-            <p className="text-gray-600 dark:text-gray-400">Total Items</p>
-            <p className="font-semibold text-gray-900 dark:text-gray-100">{localCurriculums.length}</p>
-          </div>
-          <div>
-            <p className="text-gray-600 dark:text-gray-400">Chapters</p>
-            <p className="font-semibold text-gray-900 dark:text-gray-100">
-              {localCurriculums.filter(c => c.header_type === 'Chapter').length}
-            </p>
-          </div>
-          <div>
-            <p className="text-gray-600 dark:text-gray-400">Sections</p>
-            <p className="font-semibold text-gray-900 dark:text-gray-100">
-              {localCurriculums.filter(c => c.header_type === 'Section').length}
-            </p>
-          </div>
-          <div>
-            <p className="text-gray-600 dark:text-gray-400">Lessons</p>
-            <p className="font-semibold text-gray-900 dark:text-gray-100">
-              {localCurriculums.filter(c => c.header_type === 'Lesson').length}
-            </p>
-          </div>
+        <div>
+          <p className="text-gray-600 dark:text-gray-400">Total Weeks</p>
+
+          <p className="font-semibold text-gray-900 dark:text-gray-100">
+            {localCurriculums.length}
+          </p>
         </div>
       </div>
     </div>

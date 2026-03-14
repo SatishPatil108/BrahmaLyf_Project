@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, Plus, SquarePen, Trash2, AlertCircle, CheckCircle, HelpCircle, Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  SquarePen,
+  Trash2,
+  AlertCircle,
+  CheckCircle,
+  HelpCircle,
+  Loader2,
+} from "lucide-react";
 import useFrequentlyAskQue from "./useFrequentlyAskQue";
 import CustomButton from "@/components/CustomButton";
 import CustomDrawer from "@/components/CustomDrawer";
@@ -12,16 +22,20 @@ import {
 } from "@/store/feature/admin";
 import usePagination from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination/Pagination";
- 
+
 const FrequentlyAskQue = () => {
   const dispatch = useDispatch();
   const { pageNo, pageSize, setPageNo, setPageSize } = usePagination(1, 5);
   const { faqsDetails, loading, error } = useFrequentlyAskQue(pageNo, pageSize);
-  const faqList = faqsDetails.faqs;
-  
+  const faqList = faqsDetails?.faqs || [];
+
   const [openIndex, setOpenIndex] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [formData, setFormData] = useState({ id: null, question: "", answer: "" });
+  const [formData, setFormData] = useState({
+    id: null,
+    question: "",
+    answer: "",
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,16 +73,16 @@ const FrequentlyAskQue = () => {
       try {
         await dispatch(deleteFAQAPI(id)).unwrap();
         setActionMessage({
-          type: 'success',
-          text: 'FAQ deleted successfully',
-          details: `"${question}" has been removed`
+          type: "success",
+          text: "FAQ deleted successfully",
+          details: `"${question}" has been removed`,
         });
         dispatch(fetchFAQsAPI({ pageNo, pageSize }));
       } catch (error) {
         setActionMessage({
-          type: 'error',
-          text: 'Failed to delete FAQ',
-          details: error.message || 'Please try again'
+          type: "error",
+          text: "Failed to delete FAQ",
+          details: error.message || "Please try again",
         });
       } finally {
         setIsSubmitting(false);
@@ -79,14 +93,14 @@ const FrequentlyAskQue = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     if (errors[e.target.name]) {
-      setErrors(prev => ({ ...prev, [e.target.name]: null }));
+      setErrors((prev) => ({ ...prev, [e.target.name]: null }));
     }
   };
 
   const validateForm = () => {
     let isValid = true;
     const newErrors = {};
-    
+
     if (!formData.question.trim()) {
       newErrors.question = "Question is required";
       isValid = false;
@@ -102,7 +116,7 @@ const FrequentlyAskQue = () => {
       newErrors.answer = "Answer should be at least 20 characters";
       isValid = false;
     }
-    
+
     setErrors(newErrors);
     return isValid;
   };
@@ -110,7 +124,7 @@ const FrequentlyAskQue = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     clearMessage();
-    
+
     if (!validateForm()) return;
 
     setIsSubmitting(true);
@@ -120,32 +134,32 @@ const FrequentlyAskQue = () => {
           updateFAQAPI({
             faqId: formData.id,
             faqData: { question: formData.question, answer: formData.answer },
-          })
+          }),
         ).unwrap();
-        
+
         setActionMessage({
-          type: 'success',
-          text: 'FAQ updated successfully',
-          details: 'Your changes have been saved'
+          type: "success",
+          text: "FAQ updated successfully",
+          details: "Your changes have been saved",
         });
       } else {
         await dispatch(addNewFAQAPI(formData)).unwrap();
-        
+
         setActionMessage({
-          type: 'success',
-          text: 'FAQ added successfully',
-          details: 'New FAQ has been created'
+          type: "success",
+          text: "FAQ added successfully",
+          details: "New FAQ has been created",
         });
       }
-      
+
       setFormData({ id: null, question: "", answer: "" });
       dispatch(fetchFAQsAPI({ pageNo, pageSize }));
       setIsDrawerOpen(false);
     } catch (error) {
       setActionMessage({
-        type: 'error',
-        text: isEditing ? 'Failed to update FAQ' : 'Failed to add FAQ',
-        details: error.message || 'Please try again'
+        type: "error",
+        text: isEditing ? "Failed to update FAQ" : "Failed to add FAQ",
+        details: error.message || "Please try again",
       });
     } finally {
       setIsSubmitting(false);
@@ -155,6 +169,16 @@ const FrequentlyAskQue = () => {
   useEffect(() => {
     dispatch(fetchFAQsAPI({ pageNo, pageSize }));
   }, [dispatch, pageNo, pageSize]);
+
+  useEffect(() => {
+    if (!actionMessage) return;
+
+    const timer = setTimeout(() => {
+      setActionMessage(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [actionMessage]);
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen p-4 sm:p-6 lg:p-8 transition-colors duration-300">
@@ -174,7 +198,7 @@ const FrequentlyAskQue = () => {
               </p>
             </div>
           </div>
-          
+
           <CustomButton
             onClick={handleAddFAQ}
             variant="primary"
@@ -187,22 +211,26 @@ const FrequentlyAskQue = () => {
 
         {/* Action Message */}
         {actionMessage && (
-          <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-            actionMessage.type === 'success' 
-              ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' 
-              : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
-          }`}>
-            {actionMessage.type === 'success' ? (
+          <div
+            className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
+              actionMessage.type === "success"
+                ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
+                : "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
+            }`}
+          >
+            {actionMessage.type === "success" ? (
               <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
             ) : (
               <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
             )}
             <div className="flex-1">
-              <p className={`font-medium ${
-                actionMessage.type === 'success' 
-                  ? 'text-green-700 dark:text-green-400' 
-                  : 'text-red-700 dark:text-red-400'
-              }`}>
+              <p
+                className={`font-medium ${
+                  actionMessage.type === "success"
+                    ? "text-green-700 dark:text-green-400"
+                    : "text-red-700 dark:text-red-400"
+                }`}
+              >
                 {actionMessage.text}
               </p>
               {actionMessage.details && (
@@ -245,8 +273,8 @@ const FrequentlyAskQue = () => {
             <p className="text-gray-600 dark:text-gray-400 text-center max-w-md mb-4">
               {error.message || "An error occurred while loading FAQs"}
             </p>
-            <CustomButton 
-              variant="outline" 
+            <CustomButton
+              variant="outline"
               onClick={() => window.location.reload()}
             >
               Retry
@@ -312,7 +340,7 @@ const FrequentlyAskQue = () => {
                         </div>
                       </div>
                     </button>
-                    
+
                     <div className="flex items-center gap-2 ml-4">
                       <button
                         onClick={() => handleEditFAQ(faq)}
@@ -331,7 +359,7 @@ const FrequentlyAskQue = () => {
                       </button>
                     </div>
                   </div>
-                  
+
                   {openIndex === index && (
                     <div className="px-5 pb-5 pt-2 border-t border-gray-100 dark:border-gray-800">
                       <div className="flex items-start gap-3">
@@ -353,7 +381,7 @@ const FrequentlyAskQue = () => {
             </div>
 
             {/* Pagination */}
-            {faqsDetails.total_pages > 1 && (
+            {faqsDetails?.total_pages > 1 && (
               <div className="mt-8">
                 <Pagination
                   currentPage={pageNo}
@@ -370,7 +398,11 @@ const FrequentlyAskQue = () => {
           isOpen={isDrawerOpen}
           onClose={resetForm}
           title={isEditing ? "Edit FAQ" : "Add New FAQ"}
-          subtitle={isEditing ? "Update question and answer below" : "Create a new frequently asked question"}
+          subtitle={
+            isEditing
+              ? "Update question and answer below"
+              : "Create a new frequently asked question"
+          }
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Question Field */}
@@ -385,9 +417,10 @@ const FrequentlyAskQue = () => {
                 rows={3}
                 className={`w-full px-4 py-3 rounded-lg border shadow-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800
                   placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-200
-                  ${errors.question
-                    ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
-                    : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
+                  ${
+                    errors.question
+                      ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
+                      : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
                   }`}
                 placeholder="Enter the question (e.g., How do I reset my password?)"
               />
@@ -411,9 +444,10 @@ const FrequentlyAskQue = () => {
                 onChange={handleChange}
                 className={`w-full px-4 py-3 rounded-lg border shadow-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800
                   placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-200
-                  ${errors.answer
-                    ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
-                    : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
+                  ${
+                    errors.answer
+                      ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
+                      : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
                   }`}
                 placeholder="Enter the detailed answer..."
               />
@@ -455,12 +489,12 @@ const FrequentlyAskQue = () => {
                   {isSubmitting ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                      {isEditing ? 'Updating...' : 'Creating...'}
+                      {isEditing ? "Updating..." : "Creating..."}
                     </>
                   ) : (
                     <>
                       <CheckCircle className="w-4 h-4 mr-2" />
-                      {isEditing ? 'Update FAQ' : 'Create FAQ'}
+                      {isEditing ? "Update FAQ" : "Create FAQ"}
                     </>
                   )}
                 </CustomButton>

@@ -423,9 +423,9 @@ export const fetchProgressTasksQuestions = async ({ weekNo, dayNo }) => {
 };
 
 // post progress tasks questions
-export const postProgressTasksQuestion = async (questionData) => {
+export const postProgressTasksQuestion = async ({ courseId, questionData }) => {
   return await makeRequest({
-    service: `admin/progress-tasks/questions`,
+    service: `admin/progress-tasks/questions/${courseId}`,
     method: API_METHODS.POST,
     data: questionData,
     authRequired: true,
@@ -435,13 +435,18 @@ export const postProgressTasksQuestion = async (questionData) => {
 };
 
 // update progress tasks question details
-export const updateProgressTasksQuestion = async (questionId, data) => {
+export const updateProgressTasksQuestion = async ({
+  questionId,
+  courseId,
+  questionData,
+}) => {
   return await makeRequest({
-    service: `admin/progress-tasks/questions/${questionId}`,
+    service: `admin/progress-tasks/questions/${courseId}/${questionId}`,
     method: API_METHODS.PUT,
-    data: data,
+    data: questionData,
     authRequired: true,
     tokenType: "admin",
+    contentType: "application/json",
   });
 };
 

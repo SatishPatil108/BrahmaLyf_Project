@@ -44,9 +44,17 @@ const EditCourseCurriculum = ({
         video_url: curriculumDetails.video_url || "",
         thumbnail_file: curriculumDetails.thumbnail_url || null,
       });
+    } else {
+      setCurriculumData({
+        week_no: "",
+        title: "",
+        description: "",
+        video_id: "",
+        video_url: "",
+        thumbnail_file: null,
+      });
     }
 
-    // Reset errors and touched states
     setFormErrors({});
     setTouched({});
     setApiError(null);
@@ -310,7 +318,7 @@ const EditCourseCurriculum = ({
             <option value="" disabled>
               Select a week
             </option>
-            {[...Array(53)].map((_, i) => (
+            {[...Array(52)].map((_, i) => (
               <option key={i + 1} value={i + 1}>
                 Week {i + 1}
               </option>

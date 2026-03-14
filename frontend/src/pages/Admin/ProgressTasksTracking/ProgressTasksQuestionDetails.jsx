@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   Plus,
   SquarePen,
@@ -441,11 +442,11 @@ const ProgressTasksQuestionDetails = ({
     clearMessage,
     addQuestion,
     updateQuestion,
-    deleteQuestion,
+    handleDeleteQuestion,
   } = useProgressTaskDetails(weekNo, dayNo);
 
   const questions = progressTasksQuestions?.questions || [];
-  const courses = coursesDetails?.courses || [];
+  const { courseId } = useParams();
 
   // UI State
   const [isListDrawerOpen, setIsListDrawerOpen] = useState(false);
@@ -459,7 +460,6 @@ const ProgressTasksQuestionDetails = ({
     option_type: "",
     week_no: weekNo,
     day_no: dayNo,
-    course_id: "",
     options: ["", ""],
   });
 
@@ -514,7 +514,7 @@ const ProgressTasksQuestionDetails = ({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: ["option_type", "course_id", "week_no", "day_no"].includes(name)
+      [name]: ["option_type", "week_no", "day_no"].includes(name)
         ? value === ""
           ? ""
           : Number(value)
@@ -538,7 +538,6 @@ const ProgressTasksQuestionDetails = ({
       option_type: "",
       week_no: weekNo,
       day_no: dayNo,
-      course_id: "",
       options: ["", ""],
     });
     setErrors({});
@@ -555,7 +554,6 @@ const ProgressTasksQuestionDetails = ({
       option_type: question.option_type,
       week_no: question.week_no,
       day_no: question.day_no,
-      course_id: question.course_id ?? "",
       options: question.options?.length > 0 ? question.options : ["", ""],
     });
     clearMessage();
@@ -565,8 +563,6 @@ const ProgressTasksQuestionDetails = ({
   // Validation
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.course_id) newErrors.course_id = "Must select a course";
 
     if (!formData.question_text.trim()) {
       newErrors.question_text = "Question is required";
@@ -607,12 +603,17 @@ const ProgressTasksQuestionDetails = ({
   // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validateForm()) return;
+
+    if (!courseId) {
+      console.error("courseId not found in params");
+      return;
+    }
 
     const payload = {
       question_text: formData.question_text.trim(),
       option_type: Number(formData.option_type),
-      course_id: Number(formData.course_id),
       week_no: Number(formData.week_no),
       day_no: Number(formData.day_no),
       options: OPTION_TYPES_WITH_OPTIONS.includes(Number(formData.option_type))
@@ -622,13 +623,14 @@ const ProgressTasksQuestionDetails = ({
 
     try {
       if (isEditing) {
-        await updateQuestion(formData.id, payload);
+        await updateQuestion(formData.id, courseId, payload);
       } else {
-        await addQuestion([payload]);
+        await addQuestion(courseId, [payload]);
       }
+
       resetForm();
-    } catch {
-      // actionMessage already set inside the hook
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -636,7 +638,7 @@ const ProgressTasksQuestionDetails = ({
   const handleDelete = async (questionId) => {
     if (!window.confirm("Are you sure you want to delete this question?"))
       return;
-    await deleteQuestion(questionId);
+    await handleDeleteQuestion(questionId);
   };
 
   // If in drawerOnly mode, only render the QuestionListDrawer
@@ -683,38 +685,6 @@ const ProgressTasksQuestionDetails = ({
           }
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Course */}
-            <div>
-              <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
-                Course <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="course_id"
-                value={formData.course_id}
-                onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-xl border shadow-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800
-                  focus:outline-none focus:ring-2 transition-all duration-200 cursor-pointer
-                  ${
-                    errors.course_id
-                      ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
-                      : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
-                  }`}
-              >
-                <option value="">Select course</option>
-                {courses.map((course) => (
-                  <option key={course.course_id} value={course.course_id}>
-                    {course.course_name}
-                  </option>
-                ))}
-              </select>
-              {errors.course_id && (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  {errors.course_id}
-                </p>
-              )}
-            </div>
-
             {/* Question */}
             <div>
               <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
@@ -1112,38 +1082,6 @@ const ProgressTasksQuestionDetails = ({
         >
           {/* Same form content as above */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Course */}
-            <div>
-              <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
-                Course <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="course_id"
-                value={formData.course_id}
-                onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-xl border shadow-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800
-                  focus:outline-none focus:ring-2 transition-all duration-200 cursor-pointer
-                  ${
-                    errors.course_id
-                      ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
-                      : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
-                  }`}
-              >
-                <option value="">Select course</option>
-                {courses.map((course) => (
-                  <option key={course.course_id} value={course.course_id}>
-                    {course.course_name}
-                  </option>
-                ))}
-              </select>
-              {errors.course_id && (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  {errors.course_id}
-                </p>
-              )}
-            </div>
-
             {/* Question */}
             <div>
               <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
