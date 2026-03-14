@@ -3,7 +3,8 @@ import {
     resetPasswordModel,
     updateProfileModel,
     sendOtpModel,
-    verifyOtpModel
+    verifyOtpModel,
+    updateLanguageModel
 } from "../models/auth_user.js";
 
 export const loginController = loginModel;
@@ -11,3 +12,4 @@ export const resetPasswordController = resetPasswordModel;
 export const updateProfileController = updateProfileModel;
 export const sendOtpController = sendOtpModel;
 export const verifyOtpController = verifyOtpModel;
+export const updateLanguageController = updateLanguageModel;

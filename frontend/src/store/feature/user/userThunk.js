@@ -392,3 +392,19 @@ export const fetchUserResponseAPI = createAsyncThunk(
     }
   },
 );
+
+//update user language
+export const updateUserLanguageAPI = createAsyncThunk(
+  "user/updateUserLanguage",
+  async (language, thunkAPI) => {
+    try {
+      const response = await userAPI.updateUserLanguage(language);
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to update user Language",
+      );
+    }
+  },
+);

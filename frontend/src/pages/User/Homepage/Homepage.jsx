@@ -21,6 +21,7 @@ import { useDispatch } from "react-redux";
 import introVideo from "@/assets/intro.mp4";
 import Feedbacks from "./components/Feedbacks/Feedbacks";
 import DailyShorts from "./components/getAllDailyshorts/DailyShorts";
+import { useTranslation } from "react-i18next";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL_IMG;
 
@@ -32,6 +33,8 @@ function Homepage() {
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
+
+  const { t } = useTranslation();
 
   // Detect screen size
   useEffect(() => {
@@ -51,7 +54,7 @@ function Homepage() {
     >
       {/* 🌅 HERO SECTION */}
       <section className="relative flex items-center justify-center min-h-[85vh] sm:min-h-[90vh] lg:min-h-[95vh] overflow-hidden px-4 sm:px-6 lg:px-8">
-        {/* Background linears */}
+        {/* Background linear */}
         <div className="absolute inset-0 overflow-hidden">
           <div
             className={`absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse ${
@@ -120,20 +123,21 @@ function Homepage() {
             </Link>
           </div>
 
-          {/* <div className="flex items-center border pl-3 gap-2 bg-white border-gray-500/30 h-[46px] rounded-full overflow-hidden w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto">
+          {/* Search bar */}
+          <div className="flex items-center border pl-2 gap-2 mt-8 bg-white border-gray-500/30 h-[46px] rounded-full overflow-hidden w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto">
             <Search className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500 shrink-0" />
             <input
               type="text"
-              placeholder="Search..."
-              className="w-full h-full outline-none text-xs sm:text-sm text-gray-500"
+              placeholder={t("search.placeholder")}
+              className="w-full h-full outline-none text-xs sm:text-sm text-gray-800"
             />
             <button
               type="submit"
-              className="bg-indigo-500 w-20 sm:w-24 md:w-32 h-8 sm:h-9 rounded-full text-xs sm:text-sm text-white mr-[5px] shrink-0"
+              className="bg-indigo-500 w-20 sm:w-34 md:w-26 h-8 sm:h-9 rounded-full text-xs sm:text-sm text-white mr-[5px] shrink-0"
             >
-              Search
+             {t("buttons.submit")}
             </button>
-          </div> */}
+          </div>
         </div>
 
         {/* Scroll Indicator */}

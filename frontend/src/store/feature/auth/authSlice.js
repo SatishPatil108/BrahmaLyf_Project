@@ -3,7 +3,7 @@ import {
   loginUserAPI,
   registerUserAPI,
   adminLoginAPI,
-  updateProfileAPI
+  updateProfileAPI,
 } from "./authThunk";
 
 //
@@ -12,12 +12,10 @@ import {
 
 // Read user_info from localStorage OR sessionStorage
 const storedUserInfo =
-  localStorage.getItem("user_info") ||
-  sessionStorage.getItem("user_info");
+  localStorage.getItem("user_info") || sessionStorage.getItem("user_info");
 
 const storedUserToken =
-  localStorage.getItem("user_token") ||
-  sessionStorage.getItem("user_token");
+  localStorage.getItem("user_token") || sessionStorage.getItem("user_token");
 
 const storedUserAuthFlag =
   localStorage.getItem("isUserAuthenticated") === "true" ||
@@ -30,7 +28,8 @@ const parsedUserInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
 //
 const storedAdminInfo = localStorage.getItem("admin_info");
 const storedAdminToken = localStorage.getItem("admin_token");
-const storedAdminAuthFlag = localStorage.getItem("isAdminAuthenticated") === "true";
+const storedAdminAuthFlag =
+  localStorage.getItem("isAdminAuthenticated") === "true";
 
 const parsedAdminInfo = storedAdminInfo ? JSON.parse(storedAdminInfo) : null;
 
@@ -112,6 +111,11 @@ const authSlice = createSlice({
           state.userLoginSuccess = true;
           state.user = data;
           state.userToken = data.token;
+
+          if (data?.language) {
+            i18n.changeLanguage(data.language);
+            localStorage.setItem("lang", data.language);
+          }
 
           // ------------------ STORAGE LOGIC ------------------
           if (rememberMe) {
@@ -208,13 +212,13 @@ const authSlice = createSlice({
         (state) => {
           state.isLoading = true;
           state.error = null;
-        }
+        },
       )
       .addMatcher(
         (action) => action.type.endsWith("/fulfilled"),
         (state) => {
           state.isLoading = false;
-        }
+        },
       )
       .addMatcher(
         (action) => action.type.endsWith("/rejected"),
@@ -224,16 +228,12 @@ const authSlice = createSlice({
             action.payload === "Network Error"
               ? "Please check internet connection"
               : action.payload || action.error.message;
-        }
+        },
       );
   },
 });
 
-export const {
-  clearError,
-  resetFlags,
-  logoutUser,
-  logoutAdmin
-} = authSlice.actions;
+export const { clearError, resetFlags, logoutUser, logoutAdmin } =
+  authSlice.actions;
 
 export default authSlice.reducer;

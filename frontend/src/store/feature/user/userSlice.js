@@ -27,9 +27,11 @@ import {
   fetchUserProgressQuestionsAndOptionsAPI,
   postUserProgressAPI,
   fetchUserResponseAPI,
+  updateUserLanguageAPI,
 } from "./userThunk";
 
 const initialState = {
+  language: "en",
   isLoading: false,
   isSpin: false,
   error: {
@@ -109,6 +111,15 @@ const userSlice = createSlice({
         completedDays: {},
         userResponse: null,
       };
+    },
+
+    resetUserLanguage: (state) => {
+      state.language = "en";
+    },
+
+    // set the language
+    setLanguage: (state, action) => {
+      state.language = action.payload || "en";
     },
 
     // ✅ Mark a single question as submitted
@@ -212,6 +223,11 @@ const userSlice = createSlice({
             ...(state.allCoursesFeedback || []),
           ];
         }
+      })
+
+      // update user language
+      .addCase(updateUserLanguageAPI.fulfilled, (state, action) => {
+        state.language = action.payload?.language;
       })
 
       .addCase(searchAPI.pending, (state) => {

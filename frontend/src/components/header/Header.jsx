@@ -2,11 +2,21 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useHeader } from "./useHeader";
 import UserMenu from "./UserMenu";
-import { Sun, Moon, Home, BookOpen, BookMarked, Info, Mail, User2Icon, NotebookTabs } from "lucide-react";
+import {
+  Sun,
+  Moon,
+  Home,
+  BookOpen,
+  BookMarked,
+  Info,
+  Mail,
+  User2Icon,
+  NotebookTabs,
+} from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { assets } from "@/assets/assets";
-
-
+import { useSelector } from "react-redux";
+import LanguageSelector from "@/pages/User/Language/LanguageSelector";
 
 function Header() {
   const { links, user } = useHeader();
@@ -14,9 +24,10 @@ function Header() {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
 
+   
   useEffect(() => {
     // Only apply the scroll effect on the homepage ('/')
-    if (location.pathname === '/') {
+    if (location.pathname === "/") {
       const handleScroll = () => {
         if (window.scrollY > 50) {
           setIsScrolled(true);
@@ -33,9 +44,10 @@ function Header() {
 
   const navLinkStyle = ({ isActive }) => `
     inline-flex items-center px-4 py-2.5 rounded-lg whitespace-nowrap font-medium text-sm transition-all duration-200
-    ${isActive
-      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/20"
-      : "text-gray-300 hover:bg-gray-800/50 hover:text-gray-100 backdrop-blur-sm"
+    ${
+      isActive
+        ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/20"
+        : "text-gray-300 hover:bg-gray-800/50 hover:text-gray-100 backdrop-blur-sm"
     }
   `;
 
@@ -45,18 +57,23 @@ function Header() {
       onClick={toggleTheme}
       className={`
         flex items-center justify-center rounded-full transition-all duration-300 group
-        ${isMobile
-          ? "w-10 h-10 bg-gray-800/50 backdrop-blur-sm hover:bg-gray-700/50"
-          : "w-9 h-9 bg-gray-800/50 backdrop-blur-sm hover:bg-gray-700/50"
+        ${
+          isMobile
+            ? "w-10 h-10 bg-gray-800/50 backdrop-blur-sm hover:bg-gray-700/50"
+            : "w-9 h-9 bg-gray-800/50 backdrop-blur-sm hover:bg-gray-700/50"
         }
       `}
-      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-      title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+      title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
     >
-      {theme === 'light' ? (
-        <Moon className={`${isMobile ? "w-5 h-5" : "w-4 h-4"} text-gray-300 group-hover:scale-110 transition-transform`} />
+      {theme === "light" ? (
+        <Moon
+          className={`${isMobile ? "w-5 h-5" : "w-4 h-4"} text-gray-300 group-hover:scale-110 transition-transform`}
+        />
       ) : (
-        <Sun className={`${isMobile ? "w-5 h-5" : "w-4 h-4"} text-gray-300 group-hover:scale-110 transition-transform`} />
+        <Sun
+          className={`${isMobile ? "w-5 h-5" : "w-4 h-4"} text-gray-300 group-hover:scale-110 transition-transform`}
+        />
       )}
     </button>
   );
@@ -70,8 +87,16 @@ function Header() {
   if (!user) {
     bottomNavItems.push({ to: "/login", label: "Login", icon: User2Icon });
   } else {
-    bottomNavItems.splice(2, 0, { to: "/my-courses", label: "Courses", icon: BookMarked });
-    bottomNavItems.splice(2, 0, { to: "/notes", label: "Notes", icon: NotebookTabs });
+    bottomNavItems.splice(2, 0, {
+      to: "/my-courses",
+      label: "Courses",
+      icon: BookMarked,
+    });
+    bottomNavItems.splice(2, 0, {
+      to: "/notes",
+      label: "Notes",
+      icon: NotebookTabs,
+    });
   }
 
   // Dark theme styles for navbar
@@ -80,8 +105,9 @@ function Header() {
     bottomNav: "bg-gray-900/95 backdrop-blur-md border-t border-gray-800",
     text: "text-gray-300",
     hoverText: "hover:text-gray-100",
-    logoGradient: "bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent",
-    inactiveIconBg: "bg-gray-800/50 hover:bg-gray-700/50"
+    logoGradient:
+      "bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent",
+    inactiveIconBg: "bg-gray-800/50 hover:bg-gray-700/50",
   };
 
   return (
@@ -89,10 +115,9 @@ function Header() {
       {/* Desktop Header - NOT fixed, regular flow */}
       <div className="hidden lg:block">
         <header
-          className={`w-full transition-all duration-500 ${isScrolled
-            ? `${darkNavStyles.header} shadow-lg`
-            : "bg-gray-900"
-            }`}
+          className={`w-full transition-all duration-500 ${
+            isScrolled ? `${darkNavStyles.header} shadow-lg` : "bg-gray-900"
+          }`}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-20">
@@ -108,7 +133,10 @@ function Header() {
               </NavLink>
 
               {/* Navigation */}
-              <nav aria-label="Main navigation" className="flex items-center gap-4">
+              <nav
+                aria-label="Main navigation"
+                className="flex items-center gap-4"
+              >
                 <ul className="flex items-center gap-1">
                   {links.map((link) => (
                     <li key={link.to}>
@@ -122,6 +150,11 @@ function Header() {
                     </li>
                   ))}
                 </ul>
+
+                {/* Language Selector - Desktop */}
+                <div className="ml-2">
+                  <LanguageSelector />
+                </div>
 
                 {/* Theme Toggle - Desktop */}
                 <div className="ml-2">
@@ -140,9 +173,11 @@ function Header() {
         </header>
       </div>
 
-      {/* Mobile Header - Fixed at top with UserMenu and Theme toggle */}
+      {/* Mobile Header - Fixed at top with LanguageSelector, Theme toggle and UserMenu */}
       <div className="lg:hidden">
-        <header className={`sticky top-0 left-0 w-full z-50 ${darkNavStyles.header}`}>
+        <header
+          className={`sticky top-0 left-0 w-full z-50 ${darkNavStyles.header}`}
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex items-center justify-between h-16">
               {/* Logo - Mobile */}
@@ -154,19 +189,16 @@ function Header() {
                 />
               </NavLink>
 
-              {/* Right side - Theme toggle and User Menu */}
-              <div className="flex items-center gap-2">
+              {/* Right side - Language selector, Theme toggle and User Menu */}
+              <div className="flex items-center gap-1.5">
+                {/* Language Selector - Mobile */}
+                <LanguageSelector />
+
                 {/* Theme Toggle - Mobile */}
-                <div className="mr-1">
-                  <ThemeToggleButton isMobile={true} />
-                </div>
+                <ThemeToggleButton isMobile={true} />
 
                 {/* User Menu - Mobile */}
-                {user && (
-                  <div className="ml-1">
-                    <UserMenu />
-                  </div>
-                )}
+                {user && <UserMenu />}
               </div>
             </div>
           </div>
@@ -187,20 +219,25 @@ function Header() {
                   onClick={() => window.scrollTo(0, 0)}
                   className={({ isActive }) => `
                     flex flex-col items-center justify-center py-3 transition-all duration-200 group
-                    ${isActive
-                      ? "text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text"
-                      : `${darkNavStyles.text} ${darkNavStyles.hoverText}`
+                    ${
+                      isActive
+                        ? "text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text"
+                        : `${darkNavStyles.text} ${darkNavStyles.hoverText}`
                     }
                   `}
                 >
                   {({ isActive }) => (
                     <>
-                      <div className={`p-2 rounded-lg mb-1 transition-all ${isActive
-                        ? "bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/20"
-                        : `${darkNavStyles.inactiveIconBg}`
+                      <div
+                        className={`p-2 rounded-lg mb-1 transition-all ${
+                          isActive
+                            ? "bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/20"
+                            : `${darkNavStyles.inactiveIconBg}`
                         }`}
                       >
-                        <item.icon className={`w-4 h-4 ${isActive ? "text-white" : darkNavStyles.text} group-hover:scale-110 transition-transform`} />
+                        <item.icon
+                          className={`w-4 h-4 ${isActive ? "text-white" : darkNavStyles.text} group-hover:scale-110 transition-transform`}
+                        />
                       </div>
                       <span className="text-xs font-medium">{item.label}</span>
                     </>

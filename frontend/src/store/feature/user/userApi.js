@@ -274,3 +274,15 @@ export const fetchUserResponse = async (courseId) => {
     tokenType: "user",
   });
 };
+
+// update the user languages
+export const updateUserLanguage = async (language) => {
+  return await makeRequest({
+    service: `user/updateUserLanguage`,
+    method: API_METHODS.PUT,
+    data: language,
+    authRequired: true,
+    tokenType: "user",
+    contentType: "application/json",
+  });
+};

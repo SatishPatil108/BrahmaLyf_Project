@@ -1,8 +1,8 @@
 import connection from "../../../database/database.js";
 
 export const getUserDetailsService = (email, client = null) => {
-	return new Promise((resolve, reject) => {
-		const query = `
+  return new Promise((resolve, reject) => {
+    const query = `
 			SELECT
 				u.id AS user_id,
 				u.name,
@@ -19,19 +19,19 @@ export const getUserDetailsService = (email, client = null) => {
 			WHERE u.email = $1
 		`;
 
-		const db = client || connection;
+    const db = client || connection;
 
-		db.query(query, [email], (err, result) => {
-			if (err) return reject(err);
-			if (result.rows.length === 0) return resolve(null);
-			resolve(result.rows[0]);
-		});
-	});
+    db.query(query, [email], (err, result) => {
+      if (err) return reject(err);
+      if (result.rows.length === 0) return resolve(null);
+      resolve(result.rows[0]);
+    });
+  });
 };
 
 export const getUserByIdService = (userId, client = null) => {
-	return new Promise((resolve, reject) => {
-		const query = `
+  return new Promise((resolve, reject) => {
+    const query = `
 			SELECT
 				u.id AS user_id,
 				u.email,
@@ -43,36 +43,39 @@ export const getUserByIdService = (userId, client = null) => {
 			AND u.status = 1
 		`;
 
-		const db = client || connection;
+    const db = client || connection;
 
-		db.query(query, [userId], (err, result) => {
-			if (err) return reject(err);
-			if (result.rows.length === 0) return resolve(null);
-			resolve(result.rows[0]);
-		});
-	});
+    db.query(query, [userId], (err, result) => {
+      if (err) return reject(err);
+      if (result.rows.length === 0) return resolve(null);
+      resolve(result.rows[0]);
+    });
+  });
 };
 
 export const updatePasswordService = (userId, newPassword, client = null) => {
-	return new Promise((resolve, reject) => {
-		const query = `
+  return new Promise((resolve, reject) => {
+    const query = `
 			UPDATE bm.user_passwords
 			SET password = $2
 			WHERE user_id = $1
 		`;
 
-		const db = client || connection;
+    const db = client || connection;
 
-		db.query(query, [userId, newPassword], (err) => {
-			if (err) return reject(err);
-			resolve(true);
-		});
-	});
+    db.query(query, [userId, newPassword], (err) => {
+      if (err) return reject(err);
+      resolve(true);
+    });
+  });
 };
 
-export const getUserDetailsByIdService = async (userId, client = connection) => {
-	try {
-		const query = `
+export const getUserDetailsByIdService = async (
+  userId,
+  client = connection,
+) => {
+  try {
+    const query = `
 		SELECT
 				u.id AS user_id,
 				u.name,
@@ -85,31 +88,30 @@ export const getUserDetailsByIdService = async (userId, client = connection) => 
 			WHERE u.id = $1
 		`;
 
-		const db = client;
-		const result = await db.query(query, [userId]);
+    const db = client;
+    const result = await db.query(query, [userId]);
 
-		if (result.rows.length === 0) return null;
+    if (result.rows.length === 0) return null;
 
-		return result.rows[0];
-
-	} catch (err) {
-		console.error("DB Error:", err);
-		return -1; // consistent with your reject(-1)
-	}
+    return result.rows[0];
+  } catch (err) {
+    console.error("DB Error:", err);
+    return -1; // consistent with your reject(-1)
+  }
 };
 
 export const updateProfileService = async (
-	userId,
-	name,
-	contact_number,
-	dob,
-	gender,
-	email,
-	profilePictureUrl,
-	client = connection
+  userId,
+  name,
+  contact_number,
+  dob,
+  gender,
+  email,
+  profilePictureUrl,
+  client = connection,
 ) => {
-	try {
-		const query = `
+  try {
+    const query = `
 			UPDATE bm.users
 			SET 
 				name = $1,
@@ -122,36 +124,35 @@ export const updateProfileService = async (
 			WHERE id = $7
 		`;
 
-		const db = client;
-		const result = await db.query(query, [
-			name,
-			contact_number,
-			dob,
-			gender,
-			email,
-			profilePictureUrl,
-			userId
-		]);
+    const db = client;
+    const result = await db.query(query, [
+      name,
+      contact_number,
+      dob,
+      gender,
+      email,
+      profilePictureUrl,
+      userId,
+    ]);
 
-		// result.rowCount = number of rows updated
-		if (result.rowCount === 1) return true;
-		return false;
-
-	} catch (err) {
-		console.error("DB Error:", err);
-		return -1; // your style
-	}
+    // result.rowCount = number of rows updated
+    if (result.rowCount === 1) return true;
+    return false;
+  } catch (err) {
+    console.error("DB Error:", err);
+    return -1; // your style
+  }
 };
 
 export const saveUserOtpService = async (
-	userId,
-	otp,
-	expiresAt,
-	email,
-	client = connection
+  userId,
+  otp,
+  expiresAt,
+  email,
+  client = connection,
 ) => {
-	try {
-		const query = `
+  try {
+    const query = `
             INSERT INTO bm.user_otps (user_id, email, otp, expires_at)
             VALUES ($1, $2, $3, $4)
             ON CONFLICT (user_id) 
@@ -162,20 +163,18 @@ export const saveUserOtpService = async (
                 updated_at = NOW()
         `;
 
-		await client.query(query, [userId, email, otp, expiresAt]);
+    await client.query(query, [userId, email, otp, expiresAt]);
 
-		return true;
-
-	} catch (err) {
-		console.error("saveUserOtpService Error:", err);
-		return -1;
-	}
+    return true;
+  } catch (err) {
+    console.error("saveUserOtpService Error:", err);
+    return -1;
+  }
 };
 
-
 export const getOtpByUserIdService = async (userId, client = connection) => {
-	try {
-		const query = `
+  try {
+    const query = `
             SELECT 
                 otp,
                 expires_at,
@@ -185,31 +184,53 @@ export const getOtpByUserIdService = async (userId, client = connection) => {
             LIMIT 1
         `;
 
-		const result = await client.query(query, [userId]);
+    const result = await client.query(query, [userId]);
 
-		if (result.rows.length === 0) return null;
+    if (result.rows.length === 0) return null;
 
-		return result.rows[0]; // { otp, expires_at, email }
-
-	} catch (err) {
-		console.error("getOtpByUserIdService Error:", err);
-		return -1;
-	}
+    return result.rows[0]; // { otp, expires_at, email }
+  } catch (err) {
+    console.error("getOtpByUserIdService Error:", err);
+    return -1;
+  }
 };
 
 export const clearOtpService = async (userId, client = connection) => {
-	try {
-		const query = `
+  try {
+    const query = `
             DELETE FROM bm.user_otps
             WHERE user_id = $1
         `;
 
-		await client.query(query, [userId]);
+    await client.query(query, [userId]);
 
-		return true;
+    return true;
+  } catch (err) {
+    console.error("clearOtpService Error:", err);
+    return -1;
+  }
+};
 
-	} catch (err) {
-		console.error("clearOtpService Error:", err);
-		return -1;
-	}
+// update Language Service
+export const updateLanguageService = (
+  userId,
+  language,
+  client = connection,
+) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      UPDATE bm.users
+      SET language = $1
+      WHERE id = $2
+      RETURNING *;
+    `;
+
+    const db = client || connection;
+
+    db.query(query, [language, userId], (err, result) => {
+      if (err) return reject(err);
+
+      resolve(result.rows[0]);
+    });
+  });
 };
