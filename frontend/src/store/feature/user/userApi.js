@@ -125,14 +125,32 @@ export const fetchFAQList = async (pageNo = 1, pageSize = 10) => {
 };
 
 //getall music list with pagination
-export const fetchMusicList = async (pageNo = 1, pageSize = 10, domainId) => {
+export const fetchMusicList = async (pageNo = 1, pageSize = 10) => {
   return await makeRequest({
     service: `user/musics/${pageNo}/${pageSize}`,
     method: API_METHODS.GET,
     authRequired: false,
-    params: domainId ? { domain_id: domainId } : {},
   });
 };
+
+//getall video list with pagination
+export const fetchShortVideoList = async (pageNo = 1, pageSize = 10) => {
+   
+  return await makeRequest({
+    service: `user/short-videos/${pageNo}/${pageSize}`,
+    method: API_METHODS.GET,
+    authRequired: false,
+  });
+};
+
+// get short video by id
+export const fetchShortVideoDetails = async () => {
+  return await makeRequest({
+    service: `user/short-video/${shortId}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+  })
+}
 
 //get all courses feedback with pagination
 export const fetchAllCourseFeedback = async (pageNo = 1, pageSize = 10) => {
@@ -189,7 +207,7 @@ export const subscribeToNewsletter = async (email) => {
   return await makeRequest({
     service: `user/subscribeToNewsletter`,
     method: API_METHODS.POST,
-    data: {email},
+    data: { email },
     authRequired: true,
   });
 };

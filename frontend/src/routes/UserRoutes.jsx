@@ -32,6 +32,9 @@ import { ArrowLeft } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import ViewProfile from "@/pages/User/viewProfile/ViewProfile";
 import EditProfile from "@/pages/User/editProfile/EditProfile";
+import DailyShorts from "@/pages/User/Homepage/components/getAllDailyshorts/DailyShorts";
+import ShortVideoPlayer from "@/pages/User/Video/ShortVideoPlayer";
+
 
 const UserRoutes = () => {
   const { theme } = useTheme();
@@ -84,6 +87,10 @@ const UserRoutes = () => {
           />
           <Route path="/musics" element={<MusicList />} />
           <Route path="/music/:musicId" element={<MusicPlayer />} />
+          
+          <Route path="/short-video" element={<DailyShorts />} />
+          <Route path="/short-video/:shortVideoId" element={<ShortVideoPlayer />} />
+          
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/logout" element={<UserLoggedOut />} />

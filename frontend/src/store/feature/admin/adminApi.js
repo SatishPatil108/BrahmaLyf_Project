@@ -167,7 +167,6 @@ export const fetchCourseDetails = async (courseId) => {
 
 //add a new course
 export const addNewCourse = async (courseData) => {
-
   return await makeRequest({
     service: "admin/coaches/course",
     method: API_METHODS.POST,
@@ -176,6 +175,7 @@ export const addNewCourse = async (courseData) => {
     tokenType: "admin",
   });
 }
+
 //get all coaches
 export const fetchCoaches = async () => {
   return await makeRequest({
@@ -359,6 +359,7 @@ export const fetchInquiries = async (pageNo, pageSize) => {
     tokenType: "admin",
   });
 };
+
 // Send Reply to an Inquiry
 export const sendReply = async (inquiry_id, formData) => {
   return await makeRequest({
@@ -369,3 +370,47 @@ export const sendReply = async (inquiry_id, formData) => {
     tokenType: "admin",
   });
 };
+
+// Daily shorts
+
+// add new daily short
+export const postShortVideo = async (shortData) => {
+  return await makeRequest({
+    service: `admin/short-video`,
+    method: API_METHODS.POST,
+    data: shortData,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// fetch all daily shorts videos
+export const fetchShortVideos = async (pageNo, pageSize) => {
+  return await makeRequest({
+    service: `admin/short-video/${pageNo}/${pageSize}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// update daily short videos details
+export const updateShortVideo = async (id, data) => {
+  return await makeRequest({
+    service: `admin/short-video/${id}`,
+    method: API_METHODS.PUT,
+    data: data,
+    authRequired: true,
+    tokenType: "admin",
+  });
+}
+
+// delete daily short video
+export const deleteShortVideo = async (shortId) => {
+  return await makeRequest({
+    service:`admin/short-video/${shortId}`,
+    method: API_METHODS.DELETE,
+    authRequired: true,
+    tokenType: "admin",
+  })
+}

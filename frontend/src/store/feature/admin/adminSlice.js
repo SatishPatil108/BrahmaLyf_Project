@@ -32,6 +32,10 @@ import {
   updateMusicAPI,
   deleteMusicAPI,
   getInquiriesAPI,
+  addNewShortVideoAPI,
+  fetchAllShortVideosAPI,
+  updateShortVideoAPI,
+  deleteShortVideoAPI,
 } from "./adminThunk";
 
 const adminSlice = createSlice({
@@ -44,6 +48,7 @@ const adminSlice = createSlice({
     coursesDetails: { courses: [] },
     faqsDetails: { faqs: [] },
     audiosDetails: { audios: [] },
+    shortVideosDetails: { videos: [] },
     inquiriesDetails: { inquiries: [] },
     coachesList: [],
     courseDetails: null,
@@ -208,9 +213,37 @@ const adminSlice = createSlice({
       .addCase(deleteMusicAPI.fulfilled, (state, action) => {
         state.audiosDetails.audios = state.audiosDetails.audios.filter((m) => m.id !== action.payload.id);
       })
+
+      // Inquiries
+
       .addCase(getInquiriesAPI.fulfilled, (state, action) => {
         state.inquiriesDetails = action.payload || [];
       })
+
+
+
+      // Daily Short Videos
+      .addCase(addNewShortVideoAPI.fulfilled, (state, action) => {
+        state.shortVideosDetails.videos.unshift(action.payload);
+      })
+
+      .addCase(fetchAllShortVideosAPI.fulfilled, (state, action) => {
+        state.shortVideosDetails = action.payload || [];
+      })
+
+      .addCase(updateShortVideoAPI.fulfilled, (state, action) => {
+        state.shortVideosDetails.videos = state.shortVideosDetails.videos.map((video) => {
+          if (video.id == action.payload.id)
+            video = { id: action.payload.id, ...action.payload }
+          return video
+        })
+      })
+
+      .addCase(deleteShortVideoAPI.fulfilled, (state, action) => {
+        state.shortVideosDetails.videos = state.shortVideosDetails.videos.filter((m) => m.id !== action.payload.id);
+      })
+
+
       // ✅ Global matchers
       .addMatcher(
         (action) => action.type.endsWith("/pending"),

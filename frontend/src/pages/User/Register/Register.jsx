@@ -229,8 +229,8 @@ const RegisterPage = () => {
                     ))}
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    {passwordRequirements.map((req, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
+                    {passwordRequirements.map((req) => (
+                      <div key={req.text} className="flex items-center gap-2">
                         {req.met ? (
                           <LucideCheck className="w-3 h-3 text-green-500 flex-shrink-0" />
                         ) : (

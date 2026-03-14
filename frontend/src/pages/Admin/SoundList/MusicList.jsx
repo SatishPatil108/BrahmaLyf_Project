@@ -35,15 +35,16 @@ const MusicList = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editingSongId, setEditingSongId] = useState(null);
+    const [errors, setErrors] = useState({});
+
+    
     const [songName, setSongName] = useState('');
     const [songInfo, setSongInfo] = useState('');
-    const [songCategory, setSongCategory] = useState('');
-   
+    const [songCategory, setSongCategory] = useState('');   
     const [songThumbnailFile, setSongThumbnailFile] = useState(null);
     const [songThumbnailUrl, setSongThumbnailUrl] = useState(null);
     const [songFile, setSongFile] = useState(null);
     const [songDuration, setSongDuration] = useState('');
-    const [errors, setErrors] = useState({});
 
     // Audio playback
     const [currentAudio, setCurrentAudio] = useState(null);

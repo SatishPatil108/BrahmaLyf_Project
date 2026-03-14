@@ -35,6 +35,10 @@ import {
   deleteMusic,
   fetchInquiries,
   sendReply,
+  postShortVideo,
+  fetchShortVideos,
+  updateShortVideo,
+  deleteShortVideo,
 }
   from "./adminApi";
 
@@ -517,6 +521,7 @@ export const getInquiriesAPI = createAsyncThunk(
     }
   }
 );
+
 export const sendReplyAPI = createAsyncThunk(
   "admin/sendReply",
   async ({ inquiry_id, formData }, thunkAPI) => {
@@ -530,3 +535,64 @@ export const sendReplyAPI = createAsyncThunk(
     }
   }
 ); 
+
+// add New short video
+export const addNewShortVideoAPI = createAsyncThunk(
+  "admin/addNewShortVideo",
+  async (shortVideoData, thunkAPI) => {
+    try {
+      const response = await postShortVideo(shortVideoData);
+      return response.data;
+    } catch (error) {
+      console.error(error)
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to add short video"
+      );
+    }
+  }
+);
+
+// fetch All Short Videos list
+export const fetchAllShortVideosAPI = createAsyncThunk(
+  "admin/get/short-videos",
+  async ({ pageNo, pageSize }, thunkAPI) => {
+    try {
+      const response = await fetchShortVideos(pageNo, pageSize);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to fetch Short Videos"
+      );
+    }
+  }
+);
+
+// update short video details
+export const updateShortVideoAPI = createAsyncThunk(
+  "admin/update/short-video",
+  async ({ shortVideoId, shortVideoData }, thunkAPI) => {
+    try {
+      const response = await updateShortVideo(shortVideoId, shortVideoData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to update short video"
+      );
+    }
+  }
+);
+
+// delete short video 
+export const deleteShortVideoAPI = createAsyncThunk(
+  "admin/delete/short-video",
+  async (shortVideoId, thunkAPI) => {
+    try {
+      await deleteShortVideo(shortVideoId);
+      return shortVideoId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to delete Short Video"
+      );
+    }
+  }
+);
