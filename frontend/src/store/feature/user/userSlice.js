@@ -20,12 +20,20 @@ import {
   searchAPI,
   fetchModuleDetailsAPI,
   fetchShortVideoListAPI,
+  fetchUserNotesAPI,
+  postUserNotesAPI,
+  updateUserNotesAPI,
+  deleteUserNotesAPI,
 } from "./userThunk";
 
 const initialState = {
   isLoading: false,
   isSpin: false,
-  error: null,
+  error: {
+    dailyShort: null,
+    message: null,
+    details: null,
+  },
   domainsDetails: { domains: [] },
   subdomainsDetails: {},
   videosDetails: { videos: [] },
@@ -48,6 +56,7 @@ const initialState = {
   shortVideosDetails: {},
   searchDetails: {},
   allCoursesFeedback: [],
+  userNotesDetails: { notes: [] },
   courses: [],
   moduleDetails: null,
 };
@@ -128,11 +137,11 @@ const userSlice = createSlice({
       })
 
       .addCase(fetchMusicListAPI.fulfilled, (state, action) => {
-         state.musicsDetails = action.payload;
+        state.musicsDetails = action.payload;
       })
 
       .addCase(fetchShortVideoListAPI.fulfilled, (state, action) => {
-         state.shortVideosDetails = action.payload;
+        state.shortVideosDetails = action.payload;
       })
 
       .addCase(fetchAllCoursesFeedbackAPI.fulfilled, (state, action) => {
@@ -164,6 +173,25 @@ const userSlice = createSlice({
       })
       .addCase(searchAPI.rejected, (state, action) => {
         state.isSpin = false;
+      })
+
+
+      // user Notes
+      .addCase(fetchUserNotesAPI.fulfilled, (state, action) => {
+        state.userNotesDetails = action.payload || [];
+      })
+
+      .addCase(postUserNotesAPI.fulfilled, (state, action) => {
+        state.userNotesDetails.notes.push(action.payload);
+      })
+
+      .addCase(updateUserNotesAPI.fulfilled, (state, action) => {
+        const index = state.userNotesDetails.notes.findIndex((f) => f.id === action.payload.id);
+        if (index !== -1) state.userNotesDetails.notes[index] = action.payload;
+      })
+
+      .addCase(deleteUserNotesAPI.fulfilled, (state, action) => {
+        state.userNotesDetails.notes = state.userNotesDetails.notes.filter((f) => f.id !== action.payload.id);
       })
 
       // 🔥 Universal loaders

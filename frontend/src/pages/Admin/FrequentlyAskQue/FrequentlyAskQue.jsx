@@ -289,6 +289,7 @@ const FrequentlyAskQue = () => {
             <CustomButton
               onClick={handleAddFAQ}
               variant="primary"
+              className="mx-auto"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add First FAQ

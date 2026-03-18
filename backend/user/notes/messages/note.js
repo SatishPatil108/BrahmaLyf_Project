@@ -1,0 +1,12 @@
+export const NOTE_ADDED_SUCCESS = "Note added successfully";
+export const NOTE_ADDED_FAILED = "Failed to add Note";
+export const NOTE_UPDATED_SUCCESS = "Note updated successfully";
+export const NOTE_UPDATED_FAILED = "Note updated failed";
+export const NOTE_DELETED_FAILED = "Note deleted failed";
+export const NOTE_DELETED_SUCCESS = "Note deleted successfully";
+export const ALL_NOTE_LIST = "All Note list fetched successfully";
+export const NOTE_NOT_FOUND = "Note not found";
+export const NOTE_FOUND = "Note Found";
+export const INVALID_REQUEST = "Invalid request";
+export const SOMETHING_WENT_WRONG = "Something went wrong";
+export const INVALID_NOTE_ID = "Invalid note ID";

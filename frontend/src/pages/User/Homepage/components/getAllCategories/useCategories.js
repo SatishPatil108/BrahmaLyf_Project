@@ -12,7 +12,7 @@ const useCategories = () => {
   useEffect(() => {
     dispatch(fetchCoursesCategoriesAPI({ pageNo: 1, pageSize: 10 }));
   }, [dispatch]);
-
+// console.log("Domains Details in error:", error);
   return { 
     loading: isLoading, 
     error: error || null, 

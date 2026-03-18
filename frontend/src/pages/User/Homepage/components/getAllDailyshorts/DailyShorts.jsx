@@ -17,7 +17,7 @@ const toDateStr = (isoString) => isoString?.slice(0, 10); // "2026-03-05"
 
 const getTargetDateStr = () => {
   const d = new Date();
-  d.setDate(d.getDate() - 9);
+  d.setDate(d.getDate() - 6);
   return d.toISOString().slice(0, 10);
 };
 

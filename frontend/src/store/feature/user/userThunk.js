@@ -267,6 +267,65 @@ export const subscribeToNewsletterAPI = createAsyncThunk('user/subscribeToNewsle
   }
 )
 
+// fetch user notes thunk
+export const fetchUserNotesAPI = createAsyncThunk(
+  "user/fetchNotes",
+  async ({ pageNo, pageSize }, thunkAPI) => {
+    try {
+      const response = await userAPI.fetchUserNotes(pageNo, pageSize);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch User Notes"
+      );
+    }
+  }
+);
+// add new user notes
+export const postUserNotesAPI = createAsyncThunk(
+  "user/addUserNotes",
+  async (notesData, thunkAPI) => {
+    try {
+      const response = await userAPI.postUserNotes(notesData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to add new User notes"
+      );
+    }
+  }
+);
+
+//update user notes
+export const updateUserNotesAPI = createAsyncThunk(
+  "user/updateUserNotes",
+  async ({ noteId, notesData }, thunkAPI) => {
+    try {
+      const response = await userAPI.updateUserNotes(noteId, notesData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to update user notes"
+      );
+    }
+  }
+);
+
+//delete a user notes
+export const deleteUserNotesAPI = createAsyncThunk(
+  "user/deleteUserNotes",
+  async (noteId, thunkAPI) => {
+    try {
+      await userAPI.deleteUserNotes(noteId);
+      return noteId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to delete user notes"
+      );
+    }
+  }
+);
+
 
 
 

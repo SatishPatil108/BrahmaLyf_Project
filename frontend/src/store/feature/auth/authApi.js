@@ -2,11 +2,15 @@
 import { makeRequest, API_METHODS } from "../../../api/axiosClient";
 
 export const loginUser = async (credentials) => {
+  // ✅ Clear any stale admin session before logging in as user
+  localStorage.removeItem("admin_token");
+
   return await makeRequest({
     service: "user/auth/login",
     method: API_METHODS.POST,
     data: credentials,
     authRequired: false,
+    skipAuthRedirect: true,
   });
 };
 
@@ -79,11 +83,16 @@ export const changePasswordForForgotPassword = async (data) => {
 
 //admin login api
 export const adminLogin = async (credentials) => {
+  // ✅ Clear any stale user session before logging in as admin
+  localStorage.removeItem("user_token");
+  sessionStorage.removeItem("user_token");
+
   return await makeRequest({
     service: "admin/auth/login",
     method: API_METHODS.POST,
     data: credentials,
     authRequired: false,
     tokenType: "admin",
+    skipAuthRedirect: true,
   });
 };

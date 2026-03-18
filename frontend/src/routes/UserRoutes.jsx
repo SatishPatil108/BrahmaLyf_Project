@@ -34,6 +34,7 @@ import ViewProfile from "@/pages/User/viewProfile/ViewProfile";
 import EditProfile from "@/pages/User/editProfile/EditProfile";
 import DailyShorts from "@/pages/User/Homepage/components/getAllDailyshorts/DailyShorts";
 import ShortVideoPlayer from "@/pages/User/Video/ShortVideoPlayer";
+import PersonalNotes from "@/pages/User/Notes/PersonalNotes";
 
 
 const UserRoutes = () => {
@@ -114,6 +115,7 @@ const UserRoutes = () => {
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/faqs" element={<FAQPage />} />
+          <Route path="/notes" element={<PersonalNotes />} />
         </Routes>
 
         {/* Spacer for mobile bottom navigation */}

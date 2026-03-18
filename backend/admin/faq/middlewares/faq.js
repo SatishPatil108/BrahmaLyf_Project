@@ -24,7 +24,6 @@ export const postFaqValidator = (req, res, next) => {
 			null
 		);
 	}
-
 	next();
 };
 export const updateFaqValidator = (req, res, next) => {

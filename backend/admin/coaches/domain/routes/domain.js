@@ -40,7 +40,6 @@ export default (app) => {
 	// get all domains
 	app.get(
 		"/apis/admin/domains/:pageNo/:pageSize",
-		verifyAdminToken,
 		getAllDomainsController
 	);
 

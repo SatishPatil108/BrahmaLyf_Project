@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   addNewDomain,
   getAdminDashboardData,
-  // getAllDomains,
+  getAllDomains,
   updateDomainAPI,
   deleteDomainAPI,
   fetchAllSubDomainsAPI,
@@ -69,9 +69,9 @@ const adminSlice = createSlice({
       })
 
       // // Domains
-      // .addCase(getAllDomains.fulfilled, (state, action) => {
-      //   state.domainsDetails = action.payload || [];
-      // })
+      .addCase(getAllDomains.fulfilled, (state, action) => {
+        state.domainsDetails = action.payload || [];
+      })
       .addCase(addNewDomain.fulfilled, (state, action) => {
         state.domainsDetails.domains.push(action.payload);
       })

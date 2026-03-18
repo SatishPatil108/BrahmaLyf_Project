@@ -143,15 +143,6 @@ export const fetchShortVideoList = async (pageNo = 1, pageSize = 10) => {
   });
 };
 
-// get short video by id
-export const fetchShortVideoDetails = async () => {
-  return await makeRequest({
-    service: `user/short-video/${shortId}`,
-    method: API_METHODS.GET,
-    authRequired: false,
-  })
-}
-
 //get all courses feedback with pagination
 export const fetchAllCourseFeedback = async (pageNo = 1, pageSize = 10) => {
   return await makeRequest({
@@ -207,7 +198,47 @@ export const subscribeToNewsletter = async (email) => {
   return await makeRequest({
     service: `user/subscribeToNewsletter`,
     method: API_METHODS.POST,
-    data: { email },
-    authRequired: false,
+    data: {email},
+    authRequired: true,
+  });
+};
+
+//add new user notes
+export const postUserNotes = async (notesData) => {
+  return await makeRequest({
+    service: `user/notes`,
+    method: API_METHODS.POST,
+    authRequired: true,
+    data: notesData,
+  });
+};
+
+// update the user notes
+export const updateUserNotes = async (id, notesData) => {
+  return await makeRequest({
+    service: `user/notes/${id}`,
+    method: API_METHODS.PUT,
+    data: notesData,
+    authRequired: true,
+    tokenType: "user",
+  });
+};
+
+// delete the user notes
+export const deleteUserNotes = async (noteId) => {
+  return await makeRequest({
+    service:`user/notes/${noteId}`,
+    method: API_METHODS.DELETE,
+    authRequired: true,
+    tokenType: "user",
+  })
+};
+
+
+export const fetchUserNotes = async (pageNo, pageSize) => {
+  return await makeRequest({
+    service: `user/fetchNotes?page=${pageNo}&page_size=${pageSize}`,
+    method: API_METHODS.GET,
+    authRequired: true,
   });
 };

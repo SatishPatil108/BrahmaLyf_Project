@@ -16,7 +16,7 @@ import {
   fetchAdminDashboardData,
   fetchAllCoaches,
   fetchAllCourses,
-  // fetchAllDomains,
+  fetchAllDomains,
   fetchCoachDetails,
   fetchCoaches,
   fetchCourseDetails,
@@ -57,19 +57,19 @@ export const getAdminDashboardData = createAsyncThunk(
 );
 
 //get all Domains List
-// export const getAllDomains = createAsyncThunk(
-//   "admin/getAllDomains",
-//   async ({ pageNo, pageSize }, thunkAPI) => {
-//     try {
-//       const response = await fetchAllDomains(pageNo, pageSize);
-//       return response.data;
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(
-//         error.response?.data?.message || "Failed to fetch domains"
-//       );
-//     }
-//   }
-// );
+export const getAllDomains = createAsyncThunk(
+  "admin/getAllDomains",
+  async ({ pageNo, pageSize }, thunkAPI) => {
+    try {
+      const response = await fetchAllDomains(pageNo, pageSize);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch domains"
+      );
+    }
+  }
+);
 
 // Add New Domain
 export const addNewDomain = createAsyncThunk(

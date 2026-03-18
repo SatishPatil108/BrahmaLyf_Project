@@ -10,15 +10,15 @@ export const fetchAdminDashboardData = async () => {
   });
 };
 
-//get all Domains List
-// export const fetchAllDomains = async (pageNo, pageSize) => {
-//   return await makeRequest({
-//     service: `admin/domains/${pageNo}/${pageSize}`,
-//     method: API_METHODS.GET,
-//     authRequired: true,
-//     tokenType: "admin",
-//   });
-// };
+// get all Domains List
+export const fetchAllDomains = async (pageNo, pageSize) => {
+  return await makeRequest({
+    service: `admin/domains/${pageNo}/${pageSize}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
 
 //add a new domain
 export const addDomain = async (domainData) => {

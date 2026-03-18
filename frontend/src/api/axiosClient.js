@@ -17,10 +17,8 @@ const axiosClient = axios.create({
 // ======================================================
 axiosClient.interceptors.request.use(
   (config) => {
-    console.log("Request config before interceptor:", config);
     let token = null;
 
-    // Decide token source by tokenType
     if (config.tokenType === "admin") {
       token = localStorage.getItem("admin_token");
     } else {
@@ -29,12 +27,12 @@ axiosClient.interceptors.request.use(
         sessionStorage.getItem("user_token");
     }
 
-    // Attach Authorization header
     if (token) {
-      config.headers.Authorization = token;
+      token = token.replace(/^Bearer\s+/i, "").trim();
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Set JSON content-type only if NOT FormData
+
     if (!(config.data instanceof FormData)) {
       config.headers["Content-Type"] = "application/json";
     }
@@ -53,19 +51,15 @@ axiosClient.interceptors.response.use(
   (error) => {
     const status = error?.response?.status;
     const tokenType = error?.config?.tokenType;
-    console.log("token:", tokenType, error?.response, error);
-    console.log("error:", error);
-    console.log("status:", status);
-    console.log("error response:", response);
-    if (status === 401) {
+    const skipAuthRedirect = error?.config?.skipAuthRedirect;
 
+    if (status === 401 && !skipAuthRedirect) {
       if (tokenType === "admin") {
         localStorage.removeItem("admin_token");
-        navigateTo("/admin/login");
+        // navigateTo("/admin/login");
       } else {
         localStorage.removeItem("user_token");
-        sessionStorage.removeItem("user_token");
-        navigateTo("/login");
+        sessionStorage.removeItem("user_token");        
       }
     }
 
@@ -84,28 +78,25 @@ export const makeRequest = async ({
   tokenType = "user",
   pageNo,
   pageSize,
+  skipAuthRedirect = false,
 }) => {
   let finalUrl = service;
-  try {
 
-    // Pagination support
-    if (pageNo != null && pageSize != null) {
-      finalUrl = `${service}/${pageNo}/${pageSize}`;
-    }
-
-    const response = await axiosClient({
-      url: finalUrl,
-      method,
-      data,
-      params,
-      tokenType, // custom config key
-    });
-    console.log("Response from API:", response);
-    return response.data;
-  } catch (error) {
-    console.log("Error making request:", error);
-    // throw error;
+  // Pagination support
+  if (pageNo != null && pageSize != null) {
+    finalUrl = `${service}/${pageNo}/${pageSize}`;
   }
+
+  const response = await axiosClient({
+    url: finalUrl,
+    method,
+    data,
+    params,
+    tokenType,
+    skipAuthRedirect,
+  });
+
+  return response.data;
 };
 
 // ======================================================

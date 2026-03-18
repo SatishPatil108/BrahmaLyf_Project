@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { addNewCoachAPI, deleteCoachAPI, fetchAllCoachesAPI, updateCoachAPI } from "@/store/feature/admin";
+import { addNewCoachAPI, deleteCoachAPI, fetchAllCoachesAPI, getAllDomains, updateCoachAPI } from "@/store/feature/admin";
 import { toast } from "react-toastify";
 
 const useCoachesList = (pageNo, pageSize) => {
@@ -15,9 +15,9 @@ const useCoachesList = (pageNo, pageSize) => {
   }, [dispatch, pageNo, pageSize]);
 
   // Fetch all domains
-  // useEffect(() => {
-  //   dispatch(getAllDomains({ pageNo: 1, pageSize: '*' }));// fetch all domains
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(getAllDomains({ pageNo: 1, pageSize: '*' }));// fetch all domains
+  }, [dispatch]);
 
   // add new coach
   const addNewCoach = (formData) => {
