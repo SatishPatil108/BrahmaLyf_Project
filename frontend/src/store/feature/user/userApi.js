@@ -25,7 +25,7 @@ export const fetchCoachesVideos = async (
   pageNo = 1,
   pageSize = 10,
   subdomainId,
-  coachId
+  coachId,
 ) => {
   return await makeRequest({
     service: `user/coaches/videos/${pageNo}/${pageSize}/${subdomainId}/${coachId}`,
@@ -135,7 +135,6 @@ export const fetchMusicList = async (pageNo = 1, pageSize = 10) => {
 
 //getall video list with pagination
 export const fetchShortVideoList = async (pageNo = 1, pageSize = 10) => {
-   
   return await makeRequest({
     service: `user/short-videos/${pageNo}/${pageSize}`,
     method: API_METHODS.GET,
@@ -156,7 +155,7 @@ export const fetchAllCourseFeedback = async (pageNo = 1, pageSize = 10) => {
 export const fetchCourseFeedback = async (
   courseId,
   pageNo = 1,
-  pageSize = 10
+  pageSize = 10,
 ) => {
   return await makeRequest({
     service: `user/courses/course/course-feedbacks/${pageNo}/${pageSize}/${courseId}`,
@@ -198,7 +197,7 @@ export const subscribeToNewsletter = async (email) => {
   return await makeRequest({
     service: `user/subscribeToNewsletter`,
     method: API_METHODS.POST,
-    data: {email},
+    data: { email },
     authRequired: true,
   });
 };
@@ -210,6 +209,7 @@ export const postUserNotes = async (notesData) => {
     method: API_METHODS.POST,
     authRequired: true,
     data: notesData,
+    tokenType: "user",
   });
 };
 
@@ -227,18 +227,55 @@ export const updateUserNotes = async (id, notesData) => {
 // delete the user notes
 export const deleteUserNotes = async (noteId) => {
   return await makeRequest({
-    service:`user/notes/${noteId}`,
+    service: `user/notes/${noteId}`,
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "user",
-  })
+  });
 };
 
-
+// fetch user notes with pagination
 export const fetchUserNotes = async (pageNo, pageSize) => {
   return await makeRequest({
     service: `user/fetchNotes?page=${pageNo}&page_size=${pageSize}`,
     method: API_METHODS.GET,
     authRequired: true,
+    tokenType: "user",
+  });
+};
+
+// fetch user progress tracking questions and options for a specific week and day
+export const fetchUserProgressQuestionsAndOptions = async (
+  weekNo,
+  dayNo,
+  courseId,
+) => {
+  return await makeRequest({
+    service: `user/fetchProgressQuestionsAndOptions?courseId=${courseId}&weekNo=${weekNo}&dayNo=${dayNo}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "user",
+  });
+};
+
+// fetch the next progress tracking question for the user based on their current progress
+export const fetchNextUserProgress = async (weekNo, dayNo, courseId) => {
+  return await makeRequest({
+    service: `user/next-progress?courseId=${courseId}&weekNo=${weekNo}&dayNo=${dayNo}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "user",
+  });
+};
+
+// POST /user/progress to submit the user's answer for a progress tracking question
+export const postUserProgress = async (progressData) => {
+  return await makeRequest({
+    service: `user/progress-tracking`,
+    method: API_METHODS.POST,
+    authRequired: true,
+    tokenType: "user",
+    data: progressData,
+    contentType: "application/json",
   });
 };

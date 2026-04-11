@@ -11,24 +11,26 @@ import musicRoutes from "./music/routes/music.js";
 import searchCourseRoutes from "./searchCourse/routes/searchCourse.js";
 import contactUsRoutes from "./contactUs/routes/contactUs.js";
 import shortVideosRoutes from "./videos/routes/video.js";
-import userNotesRoutes from "./notes/routes/note.js"
+import userNotesRoutes from "./notes/routes/note.js";
+import fetchUserProgressQuestionsAndOptionsRoutes from "./progressQuestionAndOptions/routes/progressQuestionsAndOptions.js";
 
 export default (app) => {
-	app.get("/apis/", (req, res) => {
-		res.status(200).send("user Module Ready!");
-	});
-	registrationRoutes(app);
-	authRoutes(app);
-	forgotPasswordRoutes(app);
-	domainRoutes(app);
-	coachesRoutes(app);
-	videosRoutes(app);
-	courseRoutes(app);
-	dashboardCourseRoutes(app);
-	courseNamesAndCoachNamesRoutes(app);
-	musicRoutes(app);
-	shortVideosRoutes(app);
-	searchCourseRoutes(app);
-	contactUsRoutes(app);
-	userNotesRoutes(app);
+  app.get("/apis/", (req, res) => {
+    res.status(200).send("user Module Ready!");
+  });
+  registrationRoutes(app);
+  authRoutes(app);
+  forgotPasswordRoutes(app);
+  domainRoutes(app);
+  coachesRoutes(app);
+  videosRoutes(app);
+  courseRoutes(app);
+  dashboardCourseRoutes(app);
+  courseNamesAndCoachNamesRoutes(app);
+  musicRoutes(app);
+  shortVideosRoutes(app);
+  searchCourseRoutes(app);
+  contactUsRoutes(app);
+  userNotesRoutes(app);
+  fetchUserProgressQuestionsAndOptionsRoutes(app);
 };

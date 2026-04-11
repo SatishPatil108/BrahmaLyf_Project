@@ -40,7 +40,7 @@ const useEnrolledCourseDetails = (courseId) => {
   const getCurrentModuleIndex = () => {
     if (!enrolledCourseDetails?.modules || !selectedModuleId) return -1;
     return enrolledCourseDetails.modules.findIndex(
-      (module) => module.id === selectedModuleId
+      (module) => module.id === selectedModuleId,
     );
   };
 

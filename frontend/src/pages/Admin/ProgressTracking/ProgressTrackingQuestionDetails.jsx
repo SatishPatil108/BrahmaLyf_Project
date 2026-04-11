@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import useProgressTrackingQuestionsDetails from "./useProgressTrackingQuestionsDetails";
-import useWeekDay from "@/hooks/useWeekDay";
 import {
   Plus,
   SquarePen,
@@ -10,6 +9,7 @@ import {
   BadgeQuestionMarkIcon,
   X,
   Edit,
+  PlusCircle,
 } from "lucide-react";
 
 import CustomButton from "@/components/CustomButton";
@@ -21,9 +21,29 @@ import {
 } from "@/store/feature/admin";
 import { useDispatch, useSelector } from "react-redux";
 
+const OPTION_TYPE_LABELS = {
+  1: "Text",
+  2: "Radio Buttons",
+  3: "Dropdown",
+  4: "Multiple Select",
+  5: "Rating",
+};
+
+const OPTION_TYPE_ICONS = {
+  1: "📝",
+  2: "🔘",
+  3: "📋",
+  4: "✅",
+  5: "⭐",
+};
+
+const OPTION_TYPES_WITH_OPTIONS = [2, 3, 4];
+
 const ProgressTrackingQuestionDetails = () => {
-  const { weekNo, dayNo } = useWeekDay(1, 1);
+  const [weekNo, setWeekNo] = useState(1);
+  const [dayNo, setDayNo] = useState(1);
   const dispatch = useDispatch();
+
   const {
     progressTrackingQuestionsDetails,
     loading,
@@ -33,27 +53,16 @@ const ProgressTrackingQuestionDetails = () => {
 
   const { coursesDetails } = useSelector((state) => state.admin);
 
-  const OPTION_TYPE_LABELS = {
-    1: "Text",
-    2: "Radio Buttons",
-    3: "Dropdown",
-    4: "Multiple Select",
-    5: "Rating",
-  };
-
-  const OPTION_TYPE_ICONS = {
-    1: "📝",
-    2: "🔘",
-    3: "📋",
-    4: "✅",
-    5: "⭐",
-  };
-
   const questions = progressTrackingQuestionsDetails?.questions || [];
   const courses = coursesDetails?.courses || [];
 
   const [openIndex, setOpenIndex] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [actionMessage, setActionMessage] = useState(null);
+
   const [formData, setFormData] = useState({
     id: null,
     question_text: "",
@@ -61,17 +70,49 @@ const ProgressTrackingQuestionDetails = () => {
     week_no: weekNo,
     day_no: dayNo,
     course_id: "",
+    options: ["", ""],
   });
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [actionMessage, setActionMessage] = useState(null);
-
   const clearMessage = () => setActionMessage(null);
-
   const toggleQuestion = (index) =>
     setOpenIndex((prev) => (prev === index ? null : index));
+
+  // ─── Options Handlers ────────────────────────────────────────────
+  const handleOptionChange = (index, value) => {
+    const updated = [...formData.options];
+    updated[index] = value;
+    setFormData((prev) => ({ ...prev, options: updated }));
+  };
+
+  const addOption = () => {
+    if (formData.options.length < 10) {
+      setFormData((prev) => ({ ...prev, options: [...prev.options, ""] }));
+    }
+  };
+
+  const removeOption = (index) => {
+    const updated = formData.options.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, options: updated }));
+  };
+
+  // ─── Form Handlers ────────────────────────────────────────────────
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]:
+        name === "option_type" ||
+        name === "course_id" ||
+        name === "week_no" ||
+        name === "day_no"
+          ? value === ""
+            ? ""
+            : Number(value)
+          : value,
+      // Reset options when switching answer type
+      ...(name === "option_type" ? { options: ["", ""] } : {}),
+    }));
+  };
 
   const handleAddQuestion = () => {
     setIsEditing(false);
@@ -82,57 +123,15 @@ const ProgressTrackingQuestionDetails = () => {
       week_no: weekNo,
       day_no: dayNo,
       course_id: "",
+      options: ["", ""],
     });
     setErrors({});
     setIsDrawerOpen(true);
     clearMessage();
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: name === "option_type" ? parseInt(value) : value,
-    });
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }));
-    }
-  };
-
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = {};
-
-    if (!formData.course_id) {
-      newErrors.course_id = "Must select a course";
-      isValid = false;
-    }
-
-    if (!formData.question_text.trim()) {
-      newErrors.question_text = "Question is required";
-      isValid = false;
-    } else if (formData.question_text.trim().length < 10) {
-      newErrors.question_text = "Question should be at least 10 characters";
-      isValid = false;
-    }
-
-    if (!formData.option_type) {
-      newErrors.option_type = "Option type is required";
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const resetForm = () => {
-    setIsDrawerOpen(false);
-    setIsEditing(false);
-    setErrors({});
-    clearMessage();
-  };
-
   const handleEditQuestion = (question) => {
+    console.log("question.options:", question.options);
     setIsEditing(true);
     setErrors({});
     setFormData({
@@ -142,61 +141,103 @@ const ProgressTrackingQuestionDetails = () => {
       week_no: question.week_no,
       day_no: question.day_no,
       course_id: question.course_id ?? "",
+      options: question.options?.length > 0 ? question.options : ["", ""],
     });
     setIsDrawerOpen(true);
     clearMessage();
   };
 
-  const handleDelete = async (questionId) => {
-    try {
-      setIsSubmitting(true);
-      await deleteTrackingQuestion(questionId);
-      setActionMessage({
-        type: "success",
-        text: "Question deleted successfully.",
-      });
-    } catch (err) {
-      setActionMessage({
-        type: "error",
-        text: "Failed to delete question.",
-        details: err?.message,
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+  const resetForm = () => {
+    setIsDrawerOpen(false);
+    setIsEditing(false);
+    setErrors({});
+    clearMessage();
   };
 
+  // ─── Validation ───────────────────────────────────────────────────
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.course_id) {
+      newErrors.course_id = "Must select a course";
+    }
+
+    if (!formData.question_text.trim()) {
+      newErrors.question_text = "Question is required";
+    } else if (formData.question_text.trim().length < 10) {
+      newErrors.question_text = "Question should be at least 10 characters";
+    } else if (formData.question_text.trim().length > 500) {
+      newErrors.question_text = "Question should not exceed 500 characters";
+    }
+
+    if (!formData.option_type) {
+      newErrors.option_type = "Answer type is required";
+    } else if (![1, 2, 3, 4, 5].includes(Number(formData.option_type))) {
+      newErrors.option_type = "Invalid answer type selected";
+    }
+
+    if (!formData.week_no) {
+      newErrors.week_no = "Week number is required";
+    } else if (formData.week_no < 1 || formData.week_no > 52) {
+      newErrors.week_no = "Week must be between 1 and 52";
+    }
+
+    if (!formData.day_no) {
+      newErrors.day_no = "Day number is required";
+    } else if (formData.day_no < 1 || formData.day_no > 7) {
+      newErrors.day_no = "Day must be between 1 and 7";
+    }
+
+    // Options validation for types 2, 3, 4
+    if (OPTION_TYPES_WITH_OPTIONS.includes(Number(formData.option_type))) {
+      const filledOptions = formData.options.filter((o) => o.trim() !== "");
+      if (filledOptions.length < 2) {
+        newErrors.options = "Please provide at least 2 options";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // ─── Submit ───────────────────────────────────────────────────────
   const handleSubmit = async (e) => {
-    console.log("FORM SUBMIT TRIGGERED ✅");
     e.preventDefault();
     clearMessage();
     if (!validateForm()) return;
-
     setIsSubmitting(true);
+
     try {
+      const payload = [
+        {
+          question_text: formData.question_text.trim(),
+          option_type: Number(formData.option_type),
+          course_id: Number(formData.course_id),
+          week_no: Number(formData.week_no),
+          day_no: Number(formData.day_no),
+          // Only send options for types 2, 3, 4
+          options: OPTION_TYPES_WITH_OPTIONS.includes(
+            Number(formData.option_type),
+          )
+            ? formData.options.filter((o) => o.trim() !== "")
+            : [],
+        },
+      ];
+
       if (isEditing) {
         await dispatch(
           updateProgressTrackingQuestionAPI({
             questionId: formData.id,
-            questionData: {
-              question_text: formData.question_text,
-              option_type: formData.option_type,
-              course_id: formData.course_id,
-              week_no: formData.week_no,
-              day_no: formData.day_no,
-            },
+            questionData: payload[0], // send single object for update
           }),
         ).unwrap();
-
         setActionMessage({
           type: "success",
           text: "Progress question updated successfully",
           details: "Your changes have been saved",
         });
       } else {
-        const { id, ...formData } = formData; // strip id
-        await dispatch(postProgressTrackingQuestionAPI(formData)).unwrap();
-
+        await dispatch(postProgressTrackingQuestionAPI(payload)).unwrap();
         setActionMessage({
           type: "success",
           text: "Progress question added successfully",
@@ -211,26 +252,50 @@ const ProgressTrackingQuestionDetails = () => {
         week_no: weekNo,
         day_no: dayNo,
         course_id: "",
+        options: ["", ""],
       });
+
       dispatch(fetchProgressTrackingQuestionsAPI({ weekNo, dayNo }));
       setIsDrawerOpen(false);
-    } catch (error) {
+    } catch (err) {
       setActionMessage({
         type: "error",
         text: isEditing
           ? "Failed to update Progress question"
           : "Failed to add Progress question",
-        details: error.message || "Please try again",
+        details: err.message || "Please try again",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // ─── Delete ───────────────────────────────────────────────────────
+  const handleDelete = async (questionId) => {
+    try {
+      setIsSubmitting(true);
+      await deleteTrackingQuestion(questionId);
+      setActionMessage({
+        type: "success",
+        text: "Question deleted successfully.",
+      });
+      dispatch(fetchProgressTrackingQuestionsAPI({ weekNo, dayNo }));
+    } catch (err) {
+      setActionMessage({
+        type: "error",
+        text: "Failed to delete question.",
+        details: err?.message,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // ─── Render ───────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
-        {/* Header Section */}
+        {/* Header */}
         <div className="mb-8 lg:mb-12">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div className="flex items-center gap-4">
@@ -244,12 +309,37 @@ const ProgressTrackingQuestionDetails = () => {
                 <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
                   Progress Questions
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  Week {weekNo} • Day {dayNo}
-                </p>
+                <div className="flex flex-wrap items-center gap-3 mt-3">
+                  <select
+                    value={weekNo}
+                    onChange={(e) => setWeekNo(Number(e.target.value))}
+                    className="px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800
+                      text-gray-700 dark:text-gray-300 text-sm font-medium shadow-sm
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition-all duration-200"
+                  >
+                    {[...Array(52)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        Week {i + 1}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="text-gray-300 dark:text-gray-600">•</span>
+                  <select
+                    value={dayNo}
+                    onChange={(e) => setDayNo(Number(e.target.value))}
+                    className="px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800
+                      text-gray-700 dark:text-gray-300 text-sm font-medium shadow-sm
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition-all duration-200"
+                  >
+                    {[...Array(7)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        Day {i + 1}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
-
             <CustomButton
               onClick={handleAddQuestion}
               variant="primary"
@@ -300,48 +390,38 @@ const ProgressTrackingQuestionDetails = () => {
           </div>
         )}
 
-        {/* Loading State */}
+        {/* Questions List */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="relative mb-6">
               <div className="w-16 h-16 rounded-full border-4 border-gray-200 dark:border-gray-700"></div>
-              <div className="absolute top-0 left-0 w-16 h-16 rounded-full border-4 border-indigo-600 dark:border-indigo-500 border-t-transparent animate-spin"></div>
+              <div className="absolute top-0 left-0 w-16 h-16 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
             </div>
             <p className="text-xl font-medium text-gray-600 dark:text-gray-400">
               Loading Questions...
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-              Please wait while we fetch your questions
-            </p>
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-20 h-20 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-6">
-              <AlertCircle className="w-10 h-10 text-red-600 dark:text-red-400" />
-            </div>
+            <AlertCircle className="w-10 h-10 text-red-600 mb-4" />
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
               Failed to Load Questions
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-center max-w-md mb-6">
-              {error.message || "An error occurred while loading questions"}
-            </p>
             <CustomButton
               variant="outline"
               onClick={() => window.location.reload()}
-              className="px-6 py-3"
             >
               Try Again
             </CustomButton>
           </div>
         ) : questions.length === 0 ? (
-          <div className="text-center py-20 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl bg-white dark:bg-gray-800/50 backdrop-blur-sm">
+          <div className="text-center py-20 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl bg-white dark:bg-gray-800/50">
             <BadgeQuestionMarkIcon className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
               No Questions Found
             </h3>
             <p className="text-gray-500 dark:text-gray-400 mb-6">
-              Get started by adding your first question to the progress tracking
-              system.
+              Get started by adding your first question.
             </p>
             <CustomButton
               onClick={handleAddQuestion}
@@ -354,17 +434,14 @@ const ProgressTrackingQuestionDetails = () => {
           </div>
         ) : (
           <>
-            {/* Results Count */}
             <div className="mb-4 text-sm text-gray-500 dark:text-gray-400">
               Total {questions.length} question
               {questions.length !== 1 ? "s" : ""}
             </div>
-
-            {/* Question List */}
             <div className="space-y-4">
               {questions.map((question, index) => (
                 <div
-                  key={question.question_id}
+                  key={index}
                   className="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between p-5 sm:p-6">
@@ -383,11 +460,18 @@ const ProgressTrackingQuestionDetails = () => {
                         </h3>
                         <div className="flex flex-wrap items-center gap-3 mt-2">
                           <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-400">
-                            <span>
-                              {OPTION_TYPE_ICONS[question.option_type]}
-                            </span>
+                            {OPTION_TYPE_ICONS[question.option_type]}
                             {OPTION_TYPE_LABELS[question.option_type]}
                           </span>
+                          {/* Show options count badge for types 2,3,4 */}
+                          {OPTION_TYPES_WITH_OPTIONS.includes(
+                            question.option_type,
+                          ) &&
+                            question.options?.length > 0 && (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-xs text-indigo-600 dark:text-indigo-400">
+                                {question.options.length} options
+                              </span>
+                            )}
                           <span className="text-xs text-gray-400">
                             {openIndex === index
                               ? "▼ Hide details"
@@ -406,7 +490,7 @@ const ProgressTrackingQuestionDetails = () => {
                         <SquarePen className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                       </button>
                       <button
-                        onClick={() => handleDelete(question.question_id)} // FIX 2: use wrapped handler that toggles isSubmitting
+                        onClick={() => handleDelete(question.question_id)}
                         disabled={isSubmitting}
                         className="p-2 rounded-xl bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all hover:scale-105 disabled:opacity-50"
                         title="Delete Question"
@@ -416,6 +500,7 @@ const ProgressTrackingQuestionDetails = () => {
                     </div>
                   </div>
 
+                  {/* Expanded Details */}
                   {openIndex === index && (
                     <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-3 border-t border-gray-100 dark:border-gray-700 animate-in slide-in-from-top duration-200">
                       <div className="flex items-start gap-4">
@@ -430,12 +515,35 @@ const ProgressTrackingQuestionDetails = () => {
                             {OPTION_TYPE_LABELS[question.option_type] ||
                               "Unknown"}
                           </p>
+
+                          {/* Show options list for types 2, 3, 4 */}
+                          {OPTION_TYPES_WITH_OPTIONS.includes(
+                            question.option_type,
+                          ) &&
+                            question.options?.length > 0 && (
+                              <div className="mt-3">
+                                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                                  Options:
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                  {question.options.map((opt, optIndex) => (
+                                    <span
+                                      key={optIndex}
+                                      className="px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-sm text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800"
+                                    >
+                                      {optIndex + 1}. {opt}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
                           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                             This question expects a{" "}
                             {OPTION_TYPE_LABELS[
                               question.option_type
                             ]?.toLowerCase()}{" "}
-                            response from the user.
+                            response.
                           </p>
                         </div>
                       </div>
@@ -447,7 +555,7 @@ const ProgressTrackingQuestionDetails = () => {
           </>
         )}
 
-        {/* Add/Edit Question Drawer */}
+        {/* Drawer */}
         <CustomDrawer
           isOpen={isDrawerOpen}
           onClose={resetForm}
@@ -474,7 +582,7 @@ const ProgressTrackingQuestionDetails = () => {
           }
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Course Field */}
+            {/* Course */}
             <div>
               <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
                 Course <span className="text-red-500">*</span>
@@ -506,7 +614,7 @@ const ProgressTrackingQuestionDetails = () => {
               )}
             </div>
 
-            {/* Question Field */}
+            {/* Question */}
             <div>
               <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
                 Question <span className="text-red-500">*</span>
@@ -516,6 +624,7 @@ const ProgressTrackingQuestionDetails = () => {
                 value={formData.question_text}
                 onChange={handleChange}
                 rows={4}
+                placeholder="Enter the question (e.g., How do you feel today?)"
                 className={`w-full px-4 py-3 rounded-xl border shadow-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800
                   placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-200 resize-none
                   ${
@@ -523,7 +632,6 @@ const ProgressTrackingQuestionDetails = () => {
                       ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
                       : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
                   }`}
-                placeholder="Enter the question (e.g., How do you feel today?)"
               />
               {errors.question_text && (
                 <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
@@ -532,11 +640,11 @@ const ProgressTrackingQuestionDetails = () => {
                 </p>
               )}
               <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                Tip: Make your question clear and specific for better responses
+                Tip: Make your question clear and specific (10-500 characters)
               </p>
             </div>
 
-            {/* Option Type Field */}
+            {/* Answer Type */}
             <div>
               <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
                 Answer Type <span className="text-red-500">*</span>
@@ -568,15 +676,136 @@ const ProgressTrackingQuestionDetails = () => {
               )}
             </div>
 
-            {/* Form submission errors */}
-            {errors.submit && (
-              <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                <p className="text-red-600 dark:text-red-400 flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                  {errors.submit}
+            {/* ── Dynamic Options (only for types 2, 3, 4) ── */}
+            {OPTION_TYPES_WITH_OPTIONS.includes(
+              Number(formData.option_type),
+            ) && (
+              <div>
+                <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
+                  Options <span className="text-red-500">*</span>
+                </label>
+
+                <div className="space-y-3">
+                  {formData.options.map((option, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500 dark:text-gray-400 w-6 text-right flex-shrink-0">
+                        {index + 1}.
+                      </span>
+                      <input
+                        type="text"
+                        value={option}
+                        onChange={(e) =>
+                          handleOptionChange(index, e.target.value)
+                        }
+                        placeholder={`Option ${index + 1}`}
+                        className={`flex-1 px-4 py-2.5 rounded-xl border shadow-sm text-gray-900 dark:text-gray-100
+                          bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500
+                          focus:outline-none focus:ring-2 transition-all duration-200
+                          ${
+                            errors.options
+                              ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
+                              : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
+                          }`}
+                      />
+                      {formData.options.length > 2 && (
+                        <button
+                          type="button"
+                          onClick={() => removeOption(index)}
+                          className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex-shrink-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {formData.options.length < 10 && (
+                  <button
+                    type="button"
+                    onClick={addOption}
+                    className="mt-3 flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400
+                      hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition-colors"
+                  >
+                    <PlusCircle className="w-4 h-4" />
+                    Add Option
+                  </button>
+                )}
+
+                {errors.options && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    {errors.options}
+                  </p>
+                )}
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Add between 2–10 options for the respondent to choose from.
                 </p>
               </div>
             )}
+
+            {/* Week & Day */}
+            <div>
+              <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
+                Week & Day <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <select
+                    name="week_no"
+                    value={formData.week_no}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-xl border shadow-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800
+                      focus:outline-none focus:ring-2 transition-all duration-200 cursor-pointer
+                      ${
+                        errors.week_no
+                          ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
+                          : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
+                      }`}
+                  >
+                    <option value="">Select week</option>
+                    {[...Array(52)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        Week {i + 1}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.week_no && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      {errors.week_no}
+                    </p>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <select
+                    name="day_no"
+                    value={formData.day_no}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-xl border shadow-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800
+                      focus:outline-none focus:ring-2 transition-all duration-200 cursor-pointer
+                      ${
+                        errors.day_no
+                          ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
+                          : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
+                      }`}
+                  >
+                    <option value="">Select day</option>
+                    {[...Array(7)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        Day {i + 1}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.day_no && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      {errors.day_no}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
 
             {/* Action Buttons */}
             <div className="sticky bottom-0 pt-6 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 -mx-6 px-6">

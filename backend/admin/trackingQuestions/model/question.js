@@ -77,7 +77,6 @@ export const getAllProgressTrackingQuestionsModel = async (req, res) => {
     const weekNo = Number(req.query.weekNo);
     const dayNo = Number(req.query.dayNo);
 
-
     const response = await getAllProgressTrackingQuestionsService(
       weekNo,
       dayNo,
@@ -115,14 +114,16 @@ export const postProgressTrackingQuestionModel = async (req, res) => {
     const questions = req.body;
 
     const results = await Promise.all(
-      questions.map(({ question_text, option_type, week_no, day_no, course_id }) =>
-        postProgressTrackingQuestionService(
-          question_text,
-          option_type,
-          week_no,
-          day_no,
-          course_id
-        )
+      questions.map(
+        ({ question_text, option_type, week_no, day_no, course_id, options }) =>
+          postProgressTrackingQuestionService(
+            question_text,
+            option_type,
+            week_no,
+            day_no,
+            course_id,
+            options || [],
+          ),
       ),
     );
 
@@ -168,7 +169,7 @@ export const postProgressTrackingQuestionModel = async (req, res) => {
 export const updateProgressTrackingQuestionModel = async (req, res) => {
   try {
     const { question_id } = req.params;
-    const { question_text, option_type, week_no, day_no } = req.body[0];
+    const { question_text, option_type, week_no, day_no, course_id, options } = req.body;
 
     // ----------------------------------------------
     // Check if question exists
@@ -195,6 +196,8 @@ export const updateProgressTrackingQuestionModel = async (req, res) => {
       option_type,
       week_no,
       day_no,
+      course_id,
+      options || [],
     );
 
     if (!response) {

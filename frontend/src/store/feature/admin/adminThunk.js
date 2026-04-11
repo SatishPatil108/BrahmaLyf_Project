@@ -633,9 +633,7 @@ export const postProgressTrackingQuestionAPI = createAsyncThunk(
 export const updateProgressTrackingQuestionAPI = createAsyncThunk(
   "admin/updateProgressTrackingQuestion",
   async ({ questionId, questionData }, thunkAPI) => {
-    
     try {
-      console.log("Thunk sending:", { questionId, questionData });
       const response = await updateProgressTrackingQuestion(
         questionId,
         questionData,

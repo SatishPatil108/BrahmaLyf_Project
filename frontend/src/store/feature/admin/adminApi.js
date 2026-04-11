@@ -435,9 +435,9 @@ export const postProgressTrackingQuestion = async (questionData) => {
 };
 
 // update progress tracking question details
-export const updateProgressTrackingQuestion = async (id, data) => {
+export const updateProgressTrackingQuestion = async (questionId, data) => {
   return await makeRequest({
-    service: `admin/progress-tracking/questions/${id}`,
+    service: `admin/progress-tracking/questions/${questionId}`,
     method: API_METHODS.PUT,
     data: data,
     authRequired: true,

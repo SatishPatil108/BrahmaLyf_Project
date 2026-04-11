@@ -303,6 +303,7 @@ const adminSlice = createSlice({
           if (question.question_id === action.payload.id)
             return { id: action.payload.id, ...action.payload };
           return question;
+          
         });
       })
 

@@ -18,7 +18,7 @@ import {
 	COURSE_FEEDBACKS_FETCHED_SUCCESS,
 	INVALID_REQUEST,
 	FETCH_SEARCH_COURSES_SUCCESS
-} from "../message/course.js";
+} from "../messages/course.js";
 import {
 	getCourseByIdService,
 	isUserAlreadyEnrolledService,

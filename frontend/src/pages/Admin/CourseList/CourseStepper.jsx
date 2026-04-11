@@ -1,18 +1,23 @@
 import React, { useState } from "react";
-import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronLeft,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 import { useDispatch } from "react-redux";
 import CustomButton from "@/components/CustomButton";
 import AddCourseInfo from "./AddCourseInfo";
 import AddCourseCurriculum from "./AddCourseCurriculum";
 import useDomainData from "./useDomainData";
-import { addNewCourseAPI, postProgressTrackingQuestionAPI } from "@/store/feature/admin";
-import ProgressTracking from "../ProgressTracking/ProgressTracking";
+import { addNewCourseAPI } from "@/store/feature/admin";
 
-const steps = ["Course Information", "Curriculum Setup", "Progress Tracking"];
+const steps = ["Course Information", "Curriculum Setup"];
 
 const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
   const dispatch = useDispatch();
-  const { domainsDetails, subdomainsDetails, fetchSubdomains } = useDomainData();
+  const { domainsDetails, subdomainsDetails, fetchSubdomains } =
+    useDomainData();
 
   const domains = domainsDetails.domains || [];
   const subdomains = subdomainsDetails.subdomains || [];
@@ -21,7 +26,6 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
   const [apiError, setApiError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // step 1 state variable
   const [courseData, setCourseData] = useState({
     domain: "",
     subdomain: "",
@@ -38,7 +42,6 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
     videoThumbnail: null,
   });
 
-  // step 2 state variable
   const [curriculums, setCurriculums] = useState([
     {
       header_type: "",
@@ -47,16 +50,6 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       description: "",
       video_url: "",
       thumbnail_file: null,
-    },
-  ]);
-
-  // step 3 state variable
-  const [progressTracking, setProgressTracking] = useState([
-    {
-      question_text: "",
-      option_type: "",
-      week_no: "",
-      day_no: "",
     },
   ]);
 
@@ -93,18 +86,26 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
     if (!courseData.curriculumDesc?.trim()) {
       errors.curriculumDesc = "Curriculum description is required";
     } else if (courseData.curriculumDesc.trim().length < 20) {
-      errors.curriculumDesc = "Please provide a more detailed curriculum description (minimum 20 characters)";
+      errors.curriculumDesc =
+        "Please provide a more detailed curriculum description (minimum 20 characters)";
     }
 
     if (!courseData.courseDurationHours?.toString().trim()) {
       errors.courseDurationHours = "Course duration hours are required";
-    } else if (isNaN(courseData.courseDurationHours) || parseInt(courseData.courseDurationHours) < 0) {
+    } else if (
+      isNaN(courseData.courseDurationHours) ||
+      parseInt(courseData.courseDurationHours) < 0
+    ) {
       errors.courseDurationHours = "Please enter a valid number";
     }
 
     if (!courseData.courseDurationMinutes?.toString().trim()) {
       errors.courseDurationMinutes = "Course duration minutes are required";
-    } else if (isNaN(courseData.courseDurationMinutes) || parseInt(courseData.courseDurationMinutes) < 0 || parseInt(courseData.courseDurationMinutes) > 59) {
+    } else if (
+      isNaN(courseData.courseDurationMinutes) ||
+      parseInt(courseData.courseDurationMinutes) < 0 ||
+      parseInt(courseData.courseDurationMinutes) > 59
+    ) {
       errors.courseDurationMinutes = "Please enter a valid number between 0-59";
     }
 
@@ -153,7 +154,8 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       if (!curriculum.description?.trim()) {
         curriculumErrors.description = "Description is required";
       } else if (curriculum.description.trim().length < 10) {
-        curriculumErrors.description = "Description must be at least 10 characters";
+        curriculumErrors.description =
+          "Description must be at least 10 characters";
       }
 
       if (!curriculum.video_url?.trim()) {
@@ -172,45 +174,6 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
     return errors;
   };
 
-  // Validate step 3 (progress tracking)
-  const validateStep3 = () => {
-    const errors = {};
-
-    progressTracking.forEach((question, index) => {
-      const questionErrors = {};
-
-      if (!question.question_text?.trim()) {
-        questionErrors.question_text = "Question text is required";
-      } else if (question.question_text.trim().length < 10) {
-        questionErrors.question_text = "Question text must be at least 10 characters";
-      }
-
-      if (!question.option_type) {
-        questionErrors.option_type = "Option type is required";
-      } else if (![1, 2, 3, 4, 5].includes(Number(question.option_type))) {
-        questionErrors.option_type = "Option type must be 1 (Text), 2 (Radio Buttons), 3 (Dropdown), 4 (Multiple Select), 5 (Rating Scale)";
-      }
-
-      if (!question.week_no?.toString().trim()) {
-        questionErrors.week_no = "Week number is required";
-      } else if (isNaN(question.week_no) || question.week_no < 1 || question.week_no > 52) {
-        questionErrors.week_no = "Week must be between 1 and 52";
-      }
-
-      if (!question.day_no?.toString().trim()) {
-        questionErrors.day_no = "Day number is required";
-      } else if (isNaN(question.day_no) || question.day_no < 1 || question.day_no > 7) {
-        questionErrors.day_no = "Day must be between 1 and 7";
-      }
-
-      if (Object.keys(questionErrors).length > 0) {
-        errors[index] = questionErrors;
-      }
-    });
-
-    return errors;
-  };
-
   const handleNext = async () => {
     setApiError(null);
 
@@ -221,9 +184,11 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
 
         // Scroll to first error
         const firstErrorField = Object.keys(errors)[0];
-        const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
+        const errorElement = document.querySelector(
+          `[name="${firstErrorField}"]`,
+        );
         if (errorElement) {
-          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
           errorElement.focus();
         }
         return;
@@ -240,26 +205,11 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
 
         // Scroll to first curriculum with errors
         const firstErrorIndex = Object.keys(errors)[0];
-        const errorElement = document.querySelector(`[data-curriculum-index="${firstErrorIndex}"]`);
+        const errorElement = document.querySelector(
+          `[data-curriculum-index="${firstErrorIndex}"]`,
+        );
         if (errorElement) {
-          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        return;
-      }
-      // Clear step 2 errors and proceed
-      setFormErrors({});
-    }
-
-    if (activeStep === 2) {
-      const errors = validateStep3();
-      if (Object.keys(errors).length > 0) {
-        setFormErrors({ step3: errors });
-
-        // Scroll to first curriculum with errors
-        const firstErrorIndex = Object.keys(errors)[0];
-        const errorElement = document.querySelector(`[data-curriculum-index="${firstErrorIndex}"]`);
-        if (errorElement) {
-          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
         }
         return;
       }
@@ -286,32 +236,17 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
           });
         });
 
-        const courseResult = await dispatch(addNewCourseAPI(formData)).unwrap();
-        console.log("Course created:", courseResult);
-
-
-        // Add progress tracking data, send as plain JSON array
-        const questionData = progressTracking.map(item => ({
-          question_text: item.question_text,
-          option_type: Number(item.option_type),
-          week_no: Number(item.week_no),
-          day_no: Number(item.day_no),
-        }));
-
-        console.log("Sending questionData:", questionData);
-
-        const token = localStorage.getItem("admin_token");  
-        console.log("Token before question API:", token);
-        await dispatch(postProgressTrackingQuestionAPI(questionData)).unwrap();
-
+        await dispatch(addNewCourseAPI(formData)).unwrap();
         onClose();
       } catch (err) {
-        setApiError(err.message || "Failed to create course. Please try again.");
+        setApiError(
+          err.message || "Failed to create course. Please try again.",
+        );
 
         // Scroll to error
-        const errorElement = document.getElementById('api-error-display');
+        const errorElement = document.getElementById("api-error-display");
         if (errorElement) {
-          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
         }
       } finally {
         setIsSubmitting(false);
@@ -338,10 +273,6 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
     }
     if (activeStep === 1) {
       const errors = validateStep2();
-      return Object.keys(errors).length === 0;
-    }
-    if (activeStep === 2) {
-      const errors = validateStep3();
       return Object.keys(errors).length === 0;
     }
     return false;
@@ -377,11 +308,12 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
                   className={`
                     w-10 h-10 rounded-full flex items-center justify-center relative z-10
                     transition-all duration-300
-                    ${index < activeStep
-                      ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-lg'
-                      : index === activeStep
-                        ? 'bg-white dark:bg-gray-900 border-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-lg'
-                        : 'bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                    ${
+                      index < activeStep
+                        ? "bg-indigo-600 dark:bg-indigo-500 text-white shadow-lg"
+                        : index === activeStep
+                          ? "bg-white dark:bg-gray-900 border-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-lg"
+                          : "bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
                     }
                   `}
                 >
@@ -392,13 +324,16 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
                   )}
                 </div>
                 <div className="mt-2 text-center">
-                  <p className={`
+                  <p
+                    className={`
                     text-xs font-medium
-                    ${index <= activeStep
-                      ? 'text-indigo-600 dark:text-indigo-400'
-                      : 'text-gray-500 dark:text-gray-500'
+                    ${
+                      index <= activeStep
+                        ? "text-indigo-600 dark:text-indigo-400"
+                        : "text-gray-500 dark:text-gray-500"
                     }
-                  `}>
+                  `}
+                  >
                     {label}
                   </p>
                 </div>
@@ -410,7 +345,10 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
 
       {/* API Error Display */}
       {apiError && (
-        <div id="api-error-display" className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
+        <div
+          id="api-error-display"
+          className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4"
+        >
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
             <div>
@@ -427,7 +365,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
 
       {/* Step Content */}
       <div className="space-y-6">
-        {activeStep === 0 && (
+        {activeStep === 0 ? (
           <AddCourseInfo
             courseData={courseData}
             setCourseData={setCourseData}
@@ -437,20 +375,10 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
             subdomains={subdomains}
             fetchSubdomains={fetchSubdomains}
           />
-        )}
-
-        {activeStep === 1 && (
+        ) : (
           <AddCourseCurriculum
             curriculums={curriculums}
             setCurriculum={setCurriculums}
-          />
-        )}
-
-        {activeStep === 2 && (
-          <ProgressTracking
-            progressTracking={progressTracking}
-            setProgressTracking={setProgressTracking}
-            formErrors={formErrors?.step3 || {}}
           />
         )}
       </div>
@@ -476,9 +404,10 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
             )}
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            {activeStep === 0 && `${Object.keys(validateStep1()).length} errors remaining`}
-            {activeStep === 1 && `${Object.keys(validateStep2()).length} curriculum items need attention`}
-            {activeStep === 2 && `${Object.keys(validateStep3()).length} questions need attention`}
+            {activeStep === 0 &&
+              `${Object.keys(validateStep1()).length} errors remaining`}
+            {activeStep === 1 &&
+              `${Object.keys(validateStep2()).length} curriculum items need attention`}
           </div>
         </div>
       </div>
@@ -531,17 +460,12 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       {/* Step Instructions */}
       <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4">
         <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-400 mb-1">
-          {activeStep === 0 ? "Course Information"
-            : activeStep === 1 ? "Curriculum Setup"
-              : "Progress Tracking"}
+          {activeStep === 0 ? "Course Information" : "Curriculum Setup"}
         </h4>
         <p className="text-sm text-blue-700 dark:text-blue-500">
           {activeStep === 0
             ? "Fill in all the basic course information. Make sure to provide clear descriptions and select the appropriate domain and coach."
-            : activeStep === 1
-              ? "Add modules, chapters, and lessons to structure your course. Each curriculum item should have a video and thumbnail."
-              : "Add progress tracking questions for this course. Each question can have a specific type, week, and day assigned."
-          }
+            : "Add modules, chapters, and lessons to structure your course. Each curriculum item should have a video and thumbnail."}
         </p>
       </div>
     </div>

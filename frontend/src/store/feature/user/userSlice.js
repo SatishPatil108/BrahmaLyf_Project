@@ -24,6 +24,9 @@ import {
   postUserNotesAPI,
   updateUserNotesAPI,
   deleteUserNotesAPI,
+  fetchUserProgressQuestionsAndOptionsAPI,
+  fetchNextUserProgressAPI,
+  postUserProgressAPI,
 } from "./userThunk";
 
 const initialState = {
@@ -59,6 +62,15 @@ const initialState = {
   userNotesDetails: { notes: [] },
   courses: [],
   moduleDetails: null,
+
+  userProgressDetails: {
+    lastSubmittedDate: null,
+    alreadySubmitted: false,
+    loading: false,
+    error: null,
+    dayNo: 1,
+    weekNo: 1,
+  },
 };
 
 const userSlice = createSlice({
@@ -79,6 +91,14 @@ const userSlice = createSlice({
     clearEnrolledCourseDetails: (state) => {
       state.enrolledCourseDetails = null;
       state.moduleDetails = null;
+    },
+    resetUserProgress: (state) => {
+      state.userProgressDetails.lastSubmittedDate = null;
+      state.userProgressDetails.alreadySubmitted = false;
+      state.userProgressDetails.loading = false;
+      state.userProgressDetails.error = null;
+      state.userProgressDetails.dayNo = 1;
+      state.userProgressDetails.weekNo = 1;
     },
   },
 
@@ -121,7 +141,6 @@ const userSlice = createSlice({
 
       .addCase(fetchEnrolledCourseDetailsAPI.fulfilled, (state, action) => {
         state.enrolledCourseDetails = action.payload;
-
       })
 
       .addCase(fetchModuleDetailsAPI.fulfilled, (state, action) => {
@@ -175,6 +194,67 @@ const userSlice = createSlice({
         state.isSpin = false;
       })
 
+      // fetch user progress questions
+      .addCase(fetchUserProgressQuestionsAndOptionsAPI.pending, (state) => {
+        if (!state.userProgressDetails.alreadySubmitted) {
+          state.userProgressDetails.loading = true;
+          state.userProgressDetails.error = null;
+        }
+      })
+      .addCase(
+        fetchUserProgressQuestionsAndOptionsAPI.fulfilled,
+        (state, action) => {
+          state.userProgressDetails.loading = false;
+          if (action.payload?.data?.alreadySubmitted) {
+            state.userProgressDetails.alreadySubmitted = true;
+            state.userProgressDetails.lastSubmittedDate =
+              action.payload?.timestamp || new Date().toISOString();
+          } else {
+            state.userProgressDetails.alreadySubmitted = false;
+            state.userProgressDetails.dayNo = action.payload?.dayNo || 1;
+            state.userProgressDetails.weekNo = action.payload?.weekNo || 1;
+          }
+        },
+      )
+
+      .addCase(
+        fetchUserProgressQuestionsAndOptionsAPI.rejected,
+        (state, action) => {
+          state.userProgressDetails.loading = false;
+          state.userProgressDetails.error = action.error.message;
+        },
+      )
+
+      // fetch next progress question
+      .addCase(fetchNextUserProgressAPI.pending, (state) => {
+        state.userProgressDetails.loading = true;
+        state.userProgressDetails.error = null;
+      })
+      .addCase(fetchNextUserProgressAPI.fulfilled, (state, action) => {
+        state.userProgressDetails.loading = false;
+        state.userProgressDetails.nextQuestion = action.payload || null;
+      })
+      .addCase(fetchNextUserProgressAPI.rejected, (state, action) => {
+        state.userProgressDetails.loading = false;
+        state.userProgressDetails.error = action.error.message;
+      })
+
+      // post user progress answer
+      .addCase(postUserProgressAPI.pending, (state) => {
+        state.userProgressDetails.loading = true;
+        state.userProgressDetails.error = null;
+      })
+
+      .addCase(postUserProgressAPI.fulfilled, (state, action) => {
+        console.log("✅ POST fulfilled payload:", action.payload);
+        state.userProgressDetails.alreadySubmitted = true;
+        state.userProgressDetails.lastSubmittedDate = new Date().toISOString();
+      })
+
+      .addCase(postUserProgressAPI.rejected, (state, action) => {
+        state.userProgressDetails.loading = false;
+        state.userProgressDetails.error = action.error.message;
+      })
 
       // user Notes
       .addCase(fetchUserNotesAPI.fulfilled, (state, action) => {
@@ -186,12 +266,16 @@ const userSlice = createSlice({
       })
 
       .addCase(updateUserNotesAPI.fulfilled, (state, action) => {
-        const index = state.userNotesDetails.notes.findIndex((f) => f.id === action.payload.id);
+        const index = state.userNotesDetails.notes.findIndex(
+          (f) => f.id === action.payload.id,
+        );
         if (index !== -1) state.userNotesDetails.notes[index] = action.payload;
       })
 
       .addCase(deleteUserNotesAPI.fulfilled, (state, action) => {
-        state.userNotesDetails.notes = state.userNotesDetails.notes.filter((f) => f.id !== action.payload.id);
+        state.userNotesDetails.notes = state.userNotesDetails.notes.filter(
+          (f) => f.id !== action.payload.id,
+        );
       })
 
       // 🔥 Universal loaders
@@ -200,20 +284,20 @@ const userSlice = createSlice({
         (state) => {
           state.isLoading = true;
           state.error = null;
-        }
+        },
       )
       .addMatcher(
         (action) => action.type.endsWith("/fulfilled"),
         (state) => {
           state.isLoading = false;
-        }
+        },
       )
       .addMatcher(
         (action) => action.type.endsWith("/rejected"),
         (state, action) => {
           state.isLoading = false;
           state.error = action.payload || "Something went wrong";
-        }
+        },
       );
   },
 });
@@ -223,6 +307,8 @@ export const {
   clearSubcategories,
   resetCoachesVideos,
   clearEnrolledCourseDetails,
+  resetUserProgress,
+  updateMissedDays,
 } = userSlice.actions;
 
 export default userSlice.reducer;
