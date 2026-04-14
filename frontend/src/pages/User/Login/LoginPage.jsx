@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import useLogin from "./useLogin";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   LucideMail,
   LucideLock,
@@ -29,6 +29,9 @@ const LoginPage = () => {
 
   const { theme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
+
+  const location = useLocation();
+  const sessionExpired = location.state?.reason === "session_expired";
 
   // Theme colors
   const themeColors = {
@@ -88,6 +91,24 @@ const LoginPage = () => {
         <div
           className={`w-full max-w-md p-6 sm:p-8 lg:p-10 rounded-2xl shadow-xl ${colors.cardBg}`}
         >
+          {/* ── Session Expired Banner ── */}
+          {sessionExpired && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
+                theme === "dark"
+                  ? "bg-yellow-900/20 text-yellow-300 border border-yellow-800"
+                  : "bg-yellow-50 text-yellow-700 border border-yellow-200"
+              }`}
+            >
+              <div className="w-2 h-2 rounded-full bg-yellow-500 shrink-0" />
+              <span className="text-sm font-medium">
+                Your session has expired. Please sign in again.
+              </span>
+            </motion.div>
+          )}
+
           {/* Mobile Header */}
           <div className="lg:hidden mb-8">
             <div className="flex flex-col items-center text-center mb-8">

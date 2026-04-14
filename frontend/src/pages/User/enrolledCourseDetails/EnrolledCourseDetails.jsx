@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
@@ -50,7 +50,12 @@ const EnrolledCourseDetails = () => {
     hasNextModule,
   } = useEnrolledCourseDetails(courseId);
 
-  const { submittedToday } = useUserProgressDetails(Number(courseId));
+  const {
+    weekData,
+    isLoading: progressLoading,
+    error: progressError,
+    submittedToday,
+  } = useUserProgressDetails(Number(courseId));
 
   const navigate = useNavigate();
 
@@ -59,6 +64,8 @@ const EnrolledCourseDetails = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [showUserProgress, setShowUserProgress] = useState(false);
+  const hasAutoOpenedRef = useRef(false);
+
   const [showCourseInfo, setShowCourseInfo] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
 
@@ -70,6 +77,13 @@ const EnrolledCourseDetails = () => {
       navigate("/login");
     }
   }, [error, navigate, dispatch]);
+
+  useEffect(() => {
+    if (submittedToday && !hasAutoOpenedRef.current) {
+      hasAutoOpenedRef.current = true;
+      setShowUserProgress(true);
+    }
+  }, [submittedToday]);
 
   // Helper function for consistent text colors
   const textColor = {
@@ -174,9 +188,7 @@ const EnrolledCourseDetails = () => {
     }
   };
 
-  const handleProgressSubmitSuccess = () => {
-    setShowUserProgress(false);
-  };
+  const handleProgressSubmitSuccess = () => {};
 
   // Render module item with proper indentation
   const renderModuleItem = (module, type, level = 0, hasChildren = false) => {
@@ -611,6 +623,9 @@ const EnrolledCourseDetails = () => {
             <ProgressTrackingForm
               theme={theme}
               courseId={Number(courseId)}
+              isLoading={isLoading}
+              error={progressError}
+              weekData={weekData}
               onSubmitSuccess={handleProgressSubmitSuccess}
             />
           </div>
@@ -955,6 +970,9 @@ const EnrolledCourseDetails = () => {
                     <ProgressTrackingForm
                       theme={theme}
                       courseId={Number(courseId)}
+                      isLoading={progressLoading}
+                      error={progressError}
+                      weekData={weekData}
                       onSubmitSuccess={handleProgressSubmitSuccess}
                     />
                   </div>

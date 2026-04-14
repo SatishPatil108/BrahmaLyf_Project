@@ -346,11 +346,9 @@ export const deleteUserNotesAPI = createAsyncThunk(
 // fetch user progress tracking questions and options for a specific week and day
 export const fetchUserProgressQuestionsAndOptionsAPI = createAsyncThunk(
   "user/fetchProgressQuestionsAndOptions",
-  async ({ weekNo, dayNo, courseId }, thunkAPI) => {
+  async ({ courseId }, thunkAPI) => {
     try {
       const response = await userAPI.fetchUserProgressQuestionsAndOptions(
-        weekNo,
-        dayNo,
         courseId,
       );
 
@@ -375,26 +373,6 @@ export const postUserProgressAPI = createAsyncThunk(
       return thunkAPI.rejectWithValue(
         error.response?.data?.message ||
           "Failed to post user progress tracking answers",
-      );
-    }
-  },
-);
-
-// fetch the next progress tracking question for the user based on their current progress
-export const fetchNextUserProgressAPI = createAsyncThunk(
-  "user/fetchNextUserProgress",
-  async ({ weekNo, dayNo, courseId }, thunkAPI) => {
-    try {
-      const response = await userAPI.fetchNextUserProgress(
-        weekNo,
-        dayNo,
-        courseId,
-      );
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message ||
-          "Failed to fetch next user progress tracking question",
       );
     }
   },

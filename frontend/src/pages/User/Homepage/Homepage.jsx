@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Play,
   Sparkles,
+  Search,
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import "./animation.css";
@@ -29,9 +30,9 @@ function Homepage() {
   const [showVideo, setShowVideo] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const dispatch = useDispatch();
-  
+
   const navigate = useNavigate();
-  
+
   // Detect screen size
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -39,30 +40,33 @@ function Homepage() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
- 
-   
+
   return (
     <div
-      className={`min-h-screen flex flex-col font-sans overflow-x-hidden transition-colors duration-300 ${theme === "dark"
-        ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100"
-        : "bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900"
-        }`}
+      className={`min-h-screen flex flex-col font-sans overflow-x-hidden transition-colors duration-300 ${
+        theme === "dark"
+          ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100"
+          : "bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900"
+      }`}
     >
       {/* 🌅 HERO SECTION */}
       <section className="relative flex items-center justify-center min-h-[85vh] sm:min-h-[90vh] lg:min-h-[95vh] overflow-hidden px-4 sm:px-6 lg:px-8">
         {/* Background linears */}
         <div className="absolute inset-0 overflow-hidden">
           <div
-            className={`absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse ${theme === "dark" ? "bg-purple-600" : "bg-purple-300"
-              }`}
+            className={`absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse ${
+              theme === "dark" ? "bg-purple-600" : "bg-purple-300"
+            }`}
           ></div>
           <div
-            className={`absolute bottom-0 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse delay-1000 ${theme === "dark" ? "bg-pink-600" : "bg-pink-300"
-              }`}
+            className={`absolute bottom-0 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse delay-1000 ${
+              theme === "dark" ? "bg-pink-600" : "bg-pink-300"
+            }`}
           ></div>
           <div
-            className={`absolute top-1/2 left-1/3 w-64 h-64 rounded-full blur-3xl opacity-10 animate-pulse delay-500 ${theme === "dark" ? "bg-blue-600" : "bg-blue-200"
-              }`}
+            className={`absolute top-1/2 left-1/3 w-64 h-64 rounded-full blur-3xl opacity-10 animate-pulse delay-500 ${
+              theme === "dark" ? "bg-blue-600" : "bg-blue-200"
+            }`}
           ></div>
         </div>
 
@@ -70,8 +74,9 @@ function Homepage() {
         <div className="relative z-10 text-center max-w-6xl w-full">
           <div className="flex justify-center mb-6">
             <Sparkles
-              className={`w-8 h-8 sm:w-12 sm:h-12 animate-bounce ${theme === "dark" ? "text-yellow-300" : "text-yellow-500"
-                }`}
+              className={`w-8 h-8 sm:w-12 sm:h-12 animate-bounce ${
+                theme === "dark" ? "text-yellow-300" : "text-yellow-500"
+              }`}
             />
           </div>
 
@@ -86,8 +91,9 @@ function Homepage() {
           </h1>
 
           <p
-            className={`text-lg sm:text-xl md:text-2xl max-w-3xl mx-auto mb-10 animate-slideUp font-light leading-relaxed ${theme === "dark" ? "text-gray-300" : "text-gray-600"
-              }`}
+            className={`text-lg sm:text-xl md:text-2xl max-w-3xl mx-auto mb-10 animate-slideUp font-light leading-relaxed ${
+              theme === "dark" ? "text-gray-300" : "text-gray-600"
+            }`}
           >
             Step into a world of transformation. Discover programs designed to
             awaken your mind, elevate your spirit, and master every dimension of
@@ -113,18 +119,33 @@ function Homepage() {
               </span>
             </Link>
           </div>
+
+          {/* <div className="flex items-center border pl-3 gap-2 bg-white border-gray-500/30 h-[46px] rounded-full overflow-hidden w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto">
+            <Search className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500 shrink-0" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full h-full outline-none text-xs sm:text-sm text-gray-500"
+            />
+            <button
+              type="submit"
+              className="bg-indigo-500 w-20 sm:w-24 md:w-32 h-8 sm:h-9 rounded-full text-xs sm:text-sm text-white mr-[5px] shrink-0"
+            >
+              Search
+            </button>
+          </div> */}
         </div>
 
         {/* Scroll Indicator */}
         <div
-          className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce ${theme === "dark" ? "text-gray-400" : "text-gray-500"
-            }`}
+          className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce ${
+            theme === "dark" ? "text-gray-400" : "text-gray-500"
+          }`}
         >
           <ChevronDown className="w-8 h-8" />
         </div>
       </section>
 
-       
       {/* Daily Shorts Video Section */}
       <DailyShorts />
 
@@ -148,10 +169,11 @@ function Homepage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <div
-            className={`rounded-3xl p-8 sm:p-12 relative overflow-hidden ${theme === "dark"
-              ? "bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700"
-              : "bg-gradient-to-br from-white to-gray-50 border border-gray-200"
-              }`}
+            className={`rounded-3xl p-8 sm:p-12 relative overflow-hidden ${
+              theme === "dark"
+                ? "bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700"
+                : "bg-gradient-to-br from-white to-gray-50 border border-gray-200"
+            }`}
           >
             <div className="absolute inset-0 opacity-5">
               <div className="absolute top-0 left-0 w-64 h-64 bg-purple-500 rounded-full blur-3xl"></div>
@@ -159,8 +181,9 @@ function Homepage() {
             </div>
 
             <Sparkles
-              className={`w-16 h-16 mx-auto mb-6 animate-pulse ${theme === "dark" ? "text-yellow-300" : "text-yellow-500"
-                }`}
+              className={`w-16 h-16 mx-auto mb-6 animate-pulse ${
+                theme === "dark" ? "text-yellow-300" : "text-yellow-500"
+              }`}
             />
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
@@ -170,8 +193,9 @@ function Homepage() {
             </h2>
 
             <p
-              className={`text-lg sm:text-xl max-w-2xl mx-auto mb-10 ${theme === "dark" ? "text-gray-300" : "text-gray-600"
-                }`}
+              className={`text-lg sm:text-xl max-w-2xl mx-auto mb-10 ${
+                theme === "dark" ? "text-gray-300" : "text-gray-600"
+              }`}
             >
               Your next big breakthrough is just a few clicks away. Join our
               global community and start shaping your future today.
@@ -188,10 +212,11 @@ function Homepage() {
 
               <Link
                 to="/programs"
-                className={`px-8 py-4 rounded-full font-medium transition-all duration-300 hover:scale-105 ${theme === "dark"
-                  ? "text-gray-300 hover:text-white border border-gray-600 hover:border-gray-500"
-                  : "text-gray-700 hover:text-gray-900 border border-gray-300 hover:border-gray-400"
-                  }`}
+                className={`px-8 py-4 rounded-full font-medium transition-all duration-300 hover:scale-105 ${
+                  theme === "dark"
+                    ? "text-gray-300 hover:text-white border border-gray-600 hover:border-gray-500"
+                    : "text-gray-700 hover:text-gray-900 border border-gray-300 hover:border-gray-400"
+                }`}
               >
                 Explore Free Resources
               </Link>

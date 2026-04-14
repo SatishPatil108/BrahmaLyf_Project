@@ -1,82 +1,66 @@
 import { fetchUserProgressQuestionsAndOptionsAPI } from "@/store/feature/user";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-const getDaysDifference = (submittedDate) => {
-  if (!submittedDate) return null;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const submitted = new Date(submittedDate);
-  submitted.setHours(0, 0, 0, 0);
-  return Math.floor((today - submitted) / (1000 * 60 * 60 * 24));
-};
 
 const useUserProgressDetails = (courseId) => {
   const dispatch = useDispatch();
 
-  const [questions, setQuestions] = useState([]);
+  const [weekData, setWeekData] = useState(null);
+  const [isFetching, setIsFetching] = useState(true);
 
-  const userProgressDetails = useSelector(
-    (state) => state.user.userProgressDetails,
+  const error = useSelector((state) => state.user.userProgressDetails?.error);
+
+  // ✅ Read persistent state from Redux
+  const submittedQuestions = useSelector(
+    (state) => state.user.userProgressDetails.submittedQuestions,
   );
-  const isLoading = useSelector(
-    (state) => state.user.userProgressDetails.loading,
+  const completedDays = useSelector(
+    (state) => state.user.userProgressDetails.completedDays,
   );
-  const error = useSelector((state) => state.user.userProgressDetails.error);
+  const currentDayIndex = useSelector(
+    (state) => state.user.userProgressDetails.currentDayIndex,
+  );
+  const alreadySubmitted = useSelector(
+    (state) => state.user.userProgressDetails.alreadySubmitted,
+  );
 
-  const { effectiveDay, effectiveWeek, submittedToday } = useMemo(() => {
-    const { alreadySubmitted, lastSubmittedDate, dayNo, weekNo } =
-      userProgressDetails ?? {};
+  const submittedAnswers = weekData?.submittedAnswers || {};
 
-    const diffDays = getDaysDifference(lastSubmittedDate);
-    const submittedToday = !!(alreadySubmitted && diffDays === 0);
-
-    if (alreadySubmitted && diffDays >= 1) {
-      const nextDay = (dayNo || 1) + 1;
-      const overflow = nextDay > 7;
-      return {
-        effectiveDay: overflow ? 1 : nextDay,
-        effectiveWeek: overflow ? (weekNo || 1) + 1 : weekNo || 1,
-        submittedToday,
-      };
-    }
-
-    return {
-      effectiveDay: dayNo || 1,
-      effectiveWeek: weekNo || 1,
-      submittedToday,
-    };
-  }, [userProgressDetails]);
+  console.log(submittedAnswers);
 
   useEffect(() => {
     if (!courseId) return;
 
-    const { alreadySubmitted, lastSubmittedDate } = userProgressDetails;
+    setIsFetching(true);
 
-    if (alreadySubmitted && getDaysDifference(lastSubmittedDate) === 0) return;
-
-    dispatch(
-      fetchUserProgressQuestionsAndOptionsAPI({
-        courseId,
-        weekNo: effectiveWeek,
-        dayNo: effectiveDay,
-      }),
-    )
+    dispatch(fetchUserProgressQuestionsAndOptionsAPI({ courseId }))
       .unwrap()
       .then((payload) => {
-        setQuestions(payload?.questions || []);
+        if (payload?.alreadySubmitted) {
+          setWeekData(null);
+        } else {
+          setWeekData({
+            alreadySubmitted: false,
+            week_no: payload?.week_no,
+            total_days: payload?.total_days,
+            data: payload?.data ?? [],
+            submittedAnswers: payload?.submittedAnswers || {},
+          });
+        }
       })
-      .catch(() => setQuestions([]));
+      .catch(() => setWeekData(null))
+      .finally(() => setIsFetching(false));
   }, [courseId]);
 
   return {
-    progressTrackingQuestionsDetails: userProgressDetails ?? {},
-    questions,
-    isLoading,
+    weekData,
+    isLoading: isFetching,
     error,
-    effectiveWeek,
-    effectiveDay,
-    submittedToday,
+    submittedToday: alreadySubmitted,
+    submittedQuestions,
+    submittedAnswers,
+    completedDays,
+    currentDayIndex,
   };
 };
 

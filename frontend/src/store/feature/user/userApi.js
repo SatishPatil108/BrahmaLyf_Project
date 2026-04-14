@@ -245,23 +245,9 @@ export const fetchUserNotes = async (pageNo, pageSize) => {
 };
 
 // fetch user progress tracking questions and options for a specific week and day
-export const fetchUserProgressQuestionsAndOptions = async (
-  weekNo,
-  dayNo,
-  courseId,
-) => {
+export const fetchUserProgressQuestionsAndOptions = async (courseId) => {
   return await makeRequest({
-    service: `user/fetchProgressQuestionsAndOptions?courseId=${courseId}&weekNo=${weekNo}&dayNo=${dayNo}`,
-    method: API_METHODS.GET,
-    authRequired: true,
-    tokenType: "user",
-  });
-};
-
-// fetch the next progress tracking question for the user based on their current progress
-export const fetchNextUserProgress = async (weekNo, dayNo, courseId) => {
-  return await makeRequest({
-    service: `user/next-progress?courseId=${courseId}&weekNo=${weekNo}&dayNo=${dayNo}`,
+    service: `user/fetchProgressQuestionsAndOptions?courseId=${courseId}`,
     method: API_METHODS.GET,
     authRequired: true,
     tokenType: "user",

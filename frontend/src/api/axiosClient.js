@@ -20,7 +20,6 @@ axiosClient.interceptors.request.use(
     let token = null;
     const tokenType = config.tokenType;
 
-
     if (tokenType === "admin") {
       token = localStorage.getItem("admin_token");
     } else {
@@ -34,14 +33,13 @@ axiosClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-
     if (!(config.data instanceof FormData)) {
       config.headers["Content-Type"] = "application/json";
     }
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // ======================================================
@@ -52,6 +50,7 @@ axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error?.response?.status;
+    const responseData = error?.response?.data; // ✅ This line was missing
     const tokenType = error?.config?.tokenType;
     const skipAuthRedirect = error?.config?.skipAuthRedirect;
 
@@ -62,11 +61,17 @@ axiosClient.interceptors.response.use(
       } else {
         localStorage.removeItem("user_token");
         sessionStorage.removeItem("user_token");
+
+        if (responseData?.tokenExpired) {
+          navigateTo("/login", { state: { reason: "session_expired" } });
+        } else {
+          navigateTo("/login");
+        }
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // ======================================================

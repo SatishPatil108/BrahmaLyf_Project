@@ -25,7 +25,6 @@ import {
   updateUserNotesAPI,
   deleteUserNotesAPI,
   fetchUserProgressQuestionsAndOptionsAPI,
-  fetchNextUserProgressAPI,
   postUserProgressAPI,
 } from "./userThunk";
 
@@ -68,8 +67,10 @@ const initialState = {
     alreadySubmitted: false,
     loading: false,
     error: null,
-    dayNo: 1,
     weekNo: 1,
+    currentDayIndex: 0,
+    submittedQuestions: {},
+    completedDays: {},
   },
 };
 
@@ -93,12 +94,37 @@ const userSlice = createSlice({
       state.moduleDetails = null;
     },
     resetUserProgress: (state) => {
-      state.userProgressDetails.lastSubmittedDate = null;
-      state.userProgressDetails.alreadySubmitted = false;
-      state.userProgressDetails.loading = false;
-      state.userProgressDetails.error = null;
-      state.userProgressDetails.dayNo = 1;
-      state.userProgressDetails.weekNo = 1;
+      state.userProgressDetails = {
+        lastSubmittedDate: null,
+        alreadySubmitted: false,
+        loading: false,
+        error: null,
+        weekNo: 1,
+        currentDayIndex: 0,
+        submittedQuestions: {},
+        completedDays: {},
+      };
+    },
+
+    // ✅ Mark a single question as submitted
+    markQuestionSubmitted: (state, action) => {
+      const { questionId } = action.payload;
+      state.userProgressDetails.submittedQuestions[questionId] = true;
+    },
+    // ✅ Mark a full day as completed
+    markDayCompleted: (state, action) => {
+      const { dayNo } = action.payload;
+      state.userProgressDetails.completedDays[dayNo] = true;
+    },
+
+    // ✅ Move to next day
+    setCurrentDayIndex: (state, action) => {
+      state.userProgressDetails.currentDayIndex = action.payload;
+    },
+
+    // ✅ Mark all as submitted (alreadySubmitted from API)
+    setAlreadySubmitted: (state, action) => {
+      state.userProgressDetails.alreadySubmitted = action.payload;
     },
   },
 
@@ -225,20 +251,6 @@ const userSlice = createSlice({
         },
       )
 
-      // fetch next progress question
-      .addCase(fetchNextUserProgressAPI.pending, (state) => {
-        state.userProgressDetails.loading = true;
-        state.userProgressDetails.error = null;
-      })
-      .addCase(fetchNextUserProgressAPI.fulfilled, (state, action) => {
-        state.userProgressDetails.loading = false;
-        state.userProgressDetails.nextQuestion = action.payload || null;
-      })
-      .addCase(fetchNextUserProgressAPI.rejected, (state, action) => {
-        state.userProgressDetails.loading = false;
-        state.userProgressDetails.error = action.error.message;
-      })
-
       // post user progress answer
       .addCase(postUserProgressAPI.pending, (state) => {
         state.userProgressDetails.loading = true;
@@ -246,7 +258,6 @@ const userSlice = createSlice({
       })
 
       .addCase(postUserProgressAPI.fulfilled, (state, action) => {
-        console.log("✅ POST fulfilled payload:", action.payload);
         state.userProgressDetails.alreadySubmitted = true;
         state.userProgressDetails.lastSubmittedDate = new Date().toISOString();
       })
@@ -308,7 +319,10 @@ export const {
   resetCoachesVideos,
   clearEnrolledCourseDetails,
   resetUserProgress,
-  updateMissedDays,
+  markQuestionSubmitted,
+  markDayCompleted,
+  setCurrentDayIndex,
+  setAlreadySubmitted,
 } = userSlice.actions;
 
 export default userSlice.reducer;

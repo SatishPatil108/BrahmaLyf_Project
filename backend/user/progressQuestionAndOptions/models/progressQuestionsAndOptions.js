@@ -18,7 +18,6 @@ import {
 
 import {
   checkUserAlreadySubmittedService,
-  getNextUserProgressService,
   getQuestionsWithOptionsService,
   postUserResponseService,
 } from "../services/progressQuestionsAndOptions.js";
@@ -26,17 +25,18 @@ import {
 // fetch questions with options for a given weekNo, dayNo, courseId
 export const getQuestionsWithOptionsModel = async (req, res) => {
   try {
-    let { weekNo, dayNo, courseId } = req.query;
+    let { courseId } = req.query;
     const userId = req.userId;
 
-    weekNo = parseInt(weekNo, 10);
-    dayNo = parseInt(dayNo, 10);
     courseId = parseInt(courseId, 10);
+
+    // Calculate day_no dynamically (Monday=1 ... Sunday=7)
+    const jsDay = new Date().getDay();
+    const dayNo = jsDay === 0 ? 7 : jsDay;
 
     const submissionCheck = await checkUserAlreadySubmittedService(
       userId,
       courseId,
-      weekNo,
       dayNo,
     );
 
@@ -53,7 +53,7 @@ export const getQuestionsWithOptionsModel = async (req, res) => {
       );
     }
 
-    const data = await getQuestionsWithOptionsService(weekNo, dayNo, courseId);
+    const data = await getQuestionsWithOptionsService(courseId);
 
     if (data === -1) {
       return error(
@@ -85,46 +85,6 @@ export const getQuestionsWithOptionsModel = async (req, res) => {
       null,
     );
   }
-};
-// fetch questions with options for a given weekNo, dayNo, courseId
-export const getNextUserProgressModel = async (req, res) => {
-  const { courseId, weekNo, dayNo } = req.query;
-  const userId = req.userId; // ✅ from token
-
-  if (!userId || !courseId || weekNo === undefined || dayNo === undefined) {
-    return error(
-      res,
-      HTTP_BAD_REQUEST,
-      APP_RESPONSE_CODE_ERROR,
-      "Missing required fields",
-      null,
-    );
-  }
-
-  const result = await getNextUserProgressService(
-    userId,
-    parseInt(courseId),
-    parseInt(weekNo),
-    parseInt(dayNo),
-  );
-
-  if (result === -1) {
-    return error(
-      res,
-      HTTP_BAD_REQUEST,
-      APP_RESPONSE_CODE_ERROR,
-      PROGRESS_FETCH_FAILED,
-      null,
-    );
-  }
-
-  return success(
-    res,
-    HTTP_OK,
-    APP_RESPONSE_CODE_SUCCESS,
-    PROGRESS_FETCH_SUCCESS,
-    result,
-  );
 };
 
 // submit user responses for a given weekNo, dayNo, courseId
