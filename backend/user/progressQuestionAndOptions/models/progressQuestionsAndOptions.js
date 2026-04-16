@@ -19,6 +19,7 @@ import {
 import {
   checkUserAlreadySubmittedService,
   getQuestionsWithOptionsService,
+  getUserResponseService,
   postUserResponseService,
 } from "../services/progressQuestionsAndOptions.js";
 
@@ -84,6 +85,35 @@ export const getQuestionsWithOptionsModel = async (req, res) => {
       "Internal server error",
       null,
     );
+  }
+};
+
+export const getUserResponseModel = async (req, res) => {
+  try {
+    const { courseId } = req.query;
+    const userId = req.userId;
+
+    const data = await getUserResponseService(userId, courseId);
+
+    if (!data || data.length === 0) {
+      return success(res, 200, APP_RESPONSE_CODE_SUCCESS, "No response found", {
+        alreadySubmitted: false,
+      });
+    }
+
+    return success(
+      res,
+      200,
+      APP_RESPONSE_CODE_SUCCESS,
+      "User response fetched successfully",
+      {
+        alreadySubmitted: true,
+        submission: data,
+      },
+    );
+  } catch (err) {
+    console.error("getUserResponseModel error:", err);
+    return error(res, 500, "Internal server error", null);
   }
 };
 

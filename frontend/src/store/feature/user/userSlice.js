@@ -26,6 +26,7 @@ import {
   deleteUserNotesAPI,
   fetchUserProgressQuestionsAndOptionsAPI,
   postUserProgressAPI,
+  fetchUserResponseAPI,
 } from "./userThunk";
 
 const initialState = {
@@ -70,7 +71,9 @@ const initialState = {
     weekNo: 1,
     currentDayIndex: 0,
     submittedQuestions: {},
+    submittedAnswers: {},
     completedDays: {},
+    userResponse: null,
   },
 };
 
@@ -102,7 +105,9 @@ const userSlice = createSlice({
         weekNo: 1,
         currentDayIndex: 0,
         submittedQuestions: {},
+        submittedAnswers: {},
         completedDays: {},
+        userResponse: null,
       };
     },
 
@@ -250,6 +255,43 @@ const userSlice = createSlice({
           state.userProgressDetails.error = action.error.message;
         },
       )
+
+      .addCase(fetchUserResponseAPI.fulfilled, (state, action) => {
+        const submissions = action.payload?.submission ?? [];
+
+        if (!submissions.length) return;
+
+        const normalizedAnswers = {};
+        const submittedQuestions = {};
+
+        submissions.forEach((submission) => {
+          const { day_no, answers } = submission;
+
+          if (!normalizedAnswers[day_no]) {
+            normalizedAnswers[day_no] = {};
+          }
+
+          answers.forEach(
+            ({ questionId, optionId, multipleAnswers, textAnswer }) => {
+              if (optionId !== undefined) {
+                normalizedAnswers[day_no][questionId] = optionId;
+              } else if (multipleAnswers !== undefined) {
+                normalizedAnswers[day_no][questionId] = multipleAnswers;
+              } else if (textAnswer !== undefined) {
+                normalizedAnswers[day_no][questionId] = textAnswer;
+              }
+
+              submittedQuestions[questionId] = true;
+            },
+          );
+        });
+
+        state.userProgressDetails.submittedAnswers = normalizedAnswers;
+        state.userProgressDetails.submittedQuestions = {
+          ...state.userProgressDetails.submittedQuestions,
+          ...submittedQuestions,
+        };
+      })
 
       // post user progress answer
       .addCase(postUserProgressAPI.pending, (state) => {

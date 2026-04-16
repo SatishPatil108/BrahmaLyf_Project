@@ -1,8 +1,11 @@
-import { fetchUserProgressQuestionsAndOptionsAPI } from "@/store/feature/user";
+import {
+  fetchUserProgressQuestionsAndOptionsAPI,
+  fetchUserResponseAPI,
+} from "@/store/feature/user";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const useUserProgressDetails = (courseId) => {
+const useUserProgressDetails = (courseId, userId) => {
   const dispatch = useDispatch();
 
   const [weekData, setWeekData] = useState(null);
@@ -24,7 +27,10 @@ const useUserProgressDetails = (courseId) => {
     (state) => state.user.userProgressDetails.alreadySubmitted,
   );
 
-  const submittedAnswers = weekData?.submittedAnswers || {};
+  const submittedAnswers = useSelector(
+    (state) => state.user.userProgressDetails?.submittedAnswers,
+  );
+
 
   useEffect(() => {
     if (!courseId) return;
@@ -50,6 +56,11 @@ const useUserProgressDetails = (courseId) => {
       .finally(() => setIsFetching(false));
   }, [courseId]);
 
+  useEffect(() => {
+    if (!courseId) return;
+    dispatch(fetchUserResponseAPI({ courseId }));
+  }, [courseId]);
+
   return {
     weekData,
     isLoading: isFetching,
@@ -59,6 +70,7 @@ const useUserProgressDetails = (courseId) => {
     submittedAnswers,
     completedDays,
     currentDayIndex,
+    submittedAnswers,
   };
 };
 

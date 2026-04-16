@@ -1,5 +1,11 @@
-import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   ClipboardList,
   CheckCircle,
@@ -9,7 +15,10 @@ import {
   Lock,
 } from "lucide-react";
 
-import { postUserProgressAPI } from "@/store/feature/user";
+import {
+  fetchUserResponseAPI,
+  postUserProgressAPI,
+} from "@/store/feature/user";
 
 import useUserProgressDetails from "./useUserProgressDetails";
 import {
@@ -46,51 +55,68 @@ const ProgressTrackingForm = ({
     isLoading,
     error,
     submittedToday,
-    submittedQuestions,
-    submittedAnswers,
+    submittedQuestions: reduxSubmittedQuestions,
+    submittedAnswers: reduxSubmittedAnswers,
     completedDays,
     currentDayIndex,
   } = useUserProgressDetails(courseId);
 
   const [answers, setAnswers] = useState({});
-  const [answersByDay, setAnswersByDay] = useState({});
-
   const [hoverRating, setHoverRating] = useState({});
   const [submittingQuestion, setSubmittingQuestion] = useState(null);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const weekNo = weekData?.week_no || 1;
   const totalDays = weekData?.total_days || 7;
   const allDaysData = weekData?.data || [];
 
   const currentDayData = allDaysData[currentDayIndex] || {};
-
   const questions = currentDayData?.questions || [];
   const dayNo = currentDayData?.day_no || 1;
   const hasMoreDays = currentDayIndex < allDaysData.length - 1;
 
-  // ✅ Derived from Redux — survives re-renders
-  const dayCompleted =
-    questions.length > 0 && questions.every((q) => submittedQuestions?.[q.id]);
-
-  // Reset answers only (not submitted state) when day changes
   useEffect(() => {
-    if (!submittedAnswers || Object.keys(submittedAnswers).length === 0) {
-      setAnswers(answersByDay[dayNo] || {});
+    if (courseId) {
+      dispatch(fetchUserResponseAPI({ courseId }));
     }
-  }, [currentDayIndex]);
+  }, [courseId, dispatch]);
+
+  // Check if day is completed
+  const dayCompleted = useMemo(() => {
+    if (!questions.length) return false;
+    return questions.every((q) => reduxSubmittedQuestions?.[q.id]);
+  }, [questions, reduxSubmittedQuestions]);
 
   useEffect(() => {
-    if (submittedAnswers && Object.keys(submittedAnswers).length > 0) {
-      setAnswers(submittedAnswers);
+    if (reduxSubmittedAnswers && reduxSubmittedAnswers[dayNo]) {
+      const savedAnswers = reduxSubmittedAnswers[dayNo];
+      setAnswers(savedAnswers);
+      setIsDataLoaded(true);
+    } else {
+      setAnswers({});
+      setIsDataLoaded(true);
     }
-  }, [submittedAnswers]);
+  }, [reduxSubmittedAnswers, dayNo, questions.length]);
 
+  // Also load answers when the component first mounts and when weekData changes
   useEffect(() => {
-    setAnswersByDay((prev) => ({
-      ...prev,
-      [dayNo]: answers,
-    }));
-  }, [answers]);
+    if (weekData && !isLoading && reduxSubmittedAnswers) {
+      if (reduxSubmittedAnswers[dayNo]) {
+        const savedAnswers = reduxSubmittedAnswers[dayNo];
+        setAnswers(savedAnswers);
+      }
+    }
+  }, [weekData, isLoading, reduxSubmittedAnswers, dayNo]);
+
+  const forceRefreshAnswers = useCallback(async () => {
+    if (!courseId) return;
+    try {
+      await dispatch(fetchUserResponseAPI({ courseId })).unwrap();
+    } catch (err) {
+      console.error("Failed to refresh answers:", err);
+    }
+  }, [dispatch, courseId]);
+
   const handleText = (id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
   };
@@ -106,11 +132,12 @@ const ProgressTrackingForm = ({
   const handleMultiSelect = (id, value) => {
     setAnswers((prev) => {
       const current = prev[id] || [];
+      const newValue = current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value];
       return {
         ...prev,
-        [id]: current.includes(value)
-          ? current.filter((v) => v !== value)
-          : [...current, value],
+        [id]: newValue,
       };
     });
   };
@@ -127,7 +154,7 @@ const ProgressTrackingForm = ({
         ? answer.length > 0
         : String(answer).trim() !== "");
 
-    if (!hasAnswer || submittedQuestions[questionId]) return;
+    if (!hasAnswer || reduxSubmittedQuestions[questionId]) return;
 
     setSubmittingQuestion(questionId);
     try {
@@ -140,11 +167,17 @@ const ProgressTrackingForm = ({
         }),
       ).unwrap();
 
-      // ✅ Persist to Redux
+      // Persist to Redux
       dispatch(markQuestionSubmitted({ questionId }));
 
+      // ✅ Force refresh answers from server
+      await forceRefreshAnswers();
+
       // Check if all questions in this day are now done
-      const updatedSubmitted = { ...submittedQuestions, [questionId]: true };
+      const updatedSubmitted = {
+        ...reduxSubmittedQuestions,
+        [questionId]: true,
+      };
       const allDone = questions.every((q) => updatedSubmitted[q.id]);
       if (allDone) {
         dispatch(markDayCompleted({ dayNo }));
@@ -160,7 +193,7 @@ const ProgressTrackingForm = ({
 
   const handleNextDay = () => {
     if (hasMoreDays) {
-      dispatch(setCurrentDayIndex(currentDayIndex + 1)); // ✅ Redux
+      dispatch(setCurrentDayIndex(currentDayIndex + 1));
     }
   };
 
@@ -182,17 +215,13 @@ const ProgressTrackingForm = ({
   };
 
   const totalQuestions = questions.length;
-  // count only current day's submitted questions
   const submittedCount = questions.filter(
-    (q) => submittedQuestions[q.id],
+    (q) => reduxSubmittedQuestions[q.id],
   ).length;
-
   const progressPct =
     totalQuestions > 0
       ? Math.round((submittedCount / totalQuestions) * 100)
       : 0;
-
-  // ── States ────────────────────────────────────────────────────────────────────
 
   if (isLoading) {
     return (
@@ -218,7 +247,6 @@ const ProgressTrackingForm = ({
     );
   }
 
-  // ── All days complete ─────────────────────────────────────────────────────────
   if (dayCompleted && !hasMoreDays) {
     return (
       <div className="w-full max-w-3xl mx-auto">
@@ -247,7 +275,6 @@ const ProgressTrackingForm = ({
     );
   }
 
-  // ── Main Form ─────────────────────────────────────────────────────────────────
   return (
     <div className="w-full max-w-3xl mx-auto">
       <div
@@ -309,28 +336,30 @@ const ProgressTrackingForm = ({
           {/* Questions */}
           <div className="flex flex-col gap-5 mb-6">
             {questions.length > 0 ? (
-              questions.map((question, idx) => (
-                <QuestionCard
-                  key={question.id}
-                  question={question}
-                  index={idx}
-                  answers={answers}
-                  hoverRating={hoverRating}
-                  setHoverRating={setHoverRating}
-                  theme={theme}
-                  textColor={textColor}
-                  bgColor={bgColor}
-                  borderColor={borderColor}
-                  onText={handleText}
-                  onRadio={handleRadio}
-                  onDropdown={handleDropdown}
-                  onMultiSelect={handleMultiSelect}
-                  onRating={handleRating}
-                  isSubmitted={!!submittedQuestions[question.id]} // ✅ locked state
-                  isSubmitting={submittingQuestion === question.id} // ✅ loading state
-                  onQuestionSubmit={() => handleQuestionSubmit(question.id)} // ✅ per-question submit
-                />
-              ))
+              questions.map((question, idx) => {
+                return (
+                  <QuestionCard
+                    key={question.id}
+                    question={question}
+                    index={idx}
+                    answers={answers}
+                    hoverRating={hoverRating}
+                    setHoverRating={setHoverRating}
+                    theme={theme}
+                    textColor={textColor}
+                    bgColor={bgColor}
+                    borderColor={borderColor}
+                    onText={handleText}
+                    onRadio={handleRadio}
+                    onDropdown={handleDropdown}
+                    onMultiSelect={handleMultiSelect}
+                    onRating={handleRating}
+                    isSubmitted={!!reduxSubmittedQuestions[question.id]}
+                    isSubmitting={submittingQuestion === question.id}
+                    onQuestionSubmit={() => handleQuestionSubmit(question.id)}
+                  />
+                );
+              })
             ) : (
               <p className={`text-sm ${textColor.muted} text-center py-12`}>
                 No questions available for this day.
@@ -338,7 +367,7 @@ const ProgressTrackingForm = ({
             )}
           </div>
 
-          {/* Next Day Button — shown after all questions submitted and more days exist */}
+          {/* Next Day Button */}
           {dayCompleted && hasMoreDays && (
             <div className="flex justify-end pt-4 border-t border-dashed border-emerald-300 dark:border-emerald-700">
               <button
@@ -364,7 +393,7 @@ const ProgressTrackingForm = ({
   );
 };
 
-// ─── Question Card ─────────────────────────────────────────────────────────────
+// QuestionCard component remains the same as in your code
 const QuestionCard = ({
   question,
   index,
@@ -380,29 +409,35 @@ const QuestionCard = ({
   onDropdown,
   onMultiSelect,
   onRating,
-  isSubmitted, // ✅ locks the question
-  isSubmitting, // ✅ shows spinner on this question's button
-  onQuestionSubmit, // ✅ submits only this question
+  isSubmitted,
+  isSubmitting,
+  onQuestionSubmit,
 }) => {
   const { id, question_text, option_type, options } = question;
 
+  const currentAnswer = answers[id];
+
   const hasAnswer =
-    answers[id] !== undefined &&
-    (Array.isArray(answers[id])
-      ? answers[id].length > 0
-      : String(answers[id]).trim() !== "");
+    currentAnswer !== undefined &&
+    (Array.isArray(currentAnswer)
+      ? currentAnswer.length > 0
+      : String(currentAnswer).trim() !== "");
 
   const getOptionList = () => {
     if (!options) return [];
 
-    if (Array.isArray(options)) {
-      if (typeof options[0] === "string") return options;
-      if (options[0]?.text) {
-        return Array.isArray(options[0].text)
-          ? options[0].text
-          : [options[0].text];
-      }
+    if (Array.isArray(options) && options[0]?.text) {
+      const arr = Array.isArray(options[0].text)
+        ? options[0].text
+        : [options[0].text];
+
+      return arr.map((text, index) => ({
+        id: index + 1,
+        text,
+      }));
     }
+
+    if (Array.isArray(options)) return options;
 
     return [];
   };
@@ -417,7 +452,6 @@ const QuestionCard = ({
     5: "Rating",
   };
 
-  // Disabled styles when locked
   const lockedOverlay = isSubmitted
     ? theme === "dark"
       ? "border-emerald-700 bg-emerald-900/10 opacity-80"
@@ -429,12 +463,10 @@ const QuestionCard = ({
       className={`relative overflow-hidden rounded-xl p-4 sm:p-5 border transition-all duration-200
       ${isSubmitted ? lockedOverlay : `${borderColor.secondary} ${bgColor.secondary}`}`}
     >
-      {/* Left accent bar when submitted */}
       {isSubmitted && (
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-l-xl" />
       )}
 
-      {/* Lock badge */}
       {isSubmitted && (
         <div
           className={`absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
@@ -448,7 +480,6 @@ const QuestionCard = ({
         </div>
       )}
 
-      {/* Question header */}
       <div className="flex items-start gap-3 mb-4 pl-1">
         <span
           className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
@@ -475,12 +506,11 @@ const QuestionCard = ({
         </div>
       </div>
 
-      {/* Answer inputs — disabled when submitted */}
       <div className="pl-9">
         {option_type === 1 && (
           <textarea
             placeholder={isSubmitted ? "" : "Type your answer here..."}
-            value={answers[id] || ""}
+            value={currentAnswer || ""}
             onChange={(e) => onText(id, e.target.value)}
             disabled={isSubmitted}
             rows={3}
@@ -492,102 +522,106 @@ const QuestionCard = ({
         )}
 
         {option_type === 2 && (
-          <div className="flex flex-col gap-2">
-            {optionList.map((opt, i) => (
-              <label
-                key={i}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all duration-150
-                ${isSubmitted ? "cursor-not-allowed opacity-70" : "cursor-pointer"}
-                ${
-                  answers[id] === opt
-                    ? theme === "dark"
-                      ? "bg-emerald-900/30 border-emerald-600 text-emerald-300"
-                      : "bg-emerald-50 border-emerald-400 text-emerald-800"
-                    : `${borderColor.primary} ${bgColor.primary} ${!isSubmitted ? bgColor.hover : ""} ${textColor.secondary}`
-                }`}
-              >
-                <input
-                  type="radio"
-                  name={`q_${id}`}
-                  value={opt}
-                  checked={answers[id] === opt}
-                  onChange={() => onRadio(id, opt)}
-                  disabled={isSubmitted}
-                  className="accent-emerald-600 w-4 h-4 shrink-0"
-                />
-                <span className="text-sm">{opt}</span>
-                {answers[id] === opt && (
-                  <ChevronRight className="w-4 h-4 ml-auto text-emerald-500" />
-                )}
-              </label>
-            ))}
+          <div className="w-full">
+            <div className="flex flex-col gap-3">
+              {optionList.map((opt) => (
+                <label
+                  key={opt.id}
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all duration-150 w-full
+                    ${isSubmitted ? "cursor-not-allowed opacity-70" : "cursor-pointer"}
+                    ${
+                      currentAnswer === opt.id
+                        ? theme === "dark"
+                          ? "bg-emerald-900/30 border-emerald-600 text-emerald-300"
+                          : "bg-emerald-50 border-emerald-400 text-emerald-800"
+                        : `${borderColor.primary} ${bgColor.primary} ${!isSubmitted ? bgColor.hover : ""} ${textColor.secondary}`
+                    }`}
+                >
+                  <input
+                    type="radio"
+                    name={`q_${id}`}
+                    value={opt.id}
+                    checked={currentAnswer === opt.id}
+                    onChange={() => onRadio(id, opt.id)}
+                    disabled={isSubmitted}
+                    className="accent-emerald-600 w-4 h-4 shrink-0"
+                  />
+                  <span className="text-sm flex-1">{opt.text}</span>
+                  {currentAnswer === opt.id && (
+                    <ChevronRight className="w-4 h-4 text-emerald-500" />
+                  )}
+                </label>
+              ))}
+            </div>
           </div>
         )}
 
         {option_type === 3 && (
           <select
-            value={answers[id] || ""}
-            onChange={(e) => onDropdown(id, e.target.value)}
+            value={currentAnswer || ""}
+            onChange={(e) => onDropdown(id, parseInt(e.target.value))}
             disabled={isSubmitted}
             className={`w-full px-4 py-2.5 rounded-lg text-sm border transition-all duration-150
               ${bgColor.primary} ${textColor.primary} ${borderColor.secondary}
               focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
               ${isSubmitted ? "cursor-not-allowed opacity-60" : "cursor-pointer"}
-              ${answers[id] ? (theme === "dark" ? "border-emerald-600" : "border-emerald-400") : ""}`}
+              ${currentAnswer ? (theme === "dark" ? "border-emerald-600" : "border-emerald-400") : ""}`}
           >
             <option value="">— Select an option —</option>
-            {optionList.map((opt, i) => (
-              <option key={i} value={opt}>
-                {opt}
+            {optionList.map((opt) => (
+              <option key={opt.id} value={opt.id}>
+                {opt.text}
               </option>
             ))}
           </select>
         )}
 
         {option_type === 4 && (
-          <div className="flex flex-col gap-2">
-            <p className={`text-xs ${textColor.muted} mb-1`}>
+          <div className="w-full">
+            <p className={`text-xs ${textColor.muted} mb-2`}>
               Select all that apply
             </p>
-            {optionList.map((opt, i) => {
-              const checked =
-                Array.isArray(answers[id]) && answers[id].includes(opt);
-              return (
-                <label
-                  key={i}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all duration-150
-                  ${isSubmitted ? "cursor-not-allowed opacity-70" : "cursor-pointer"}
-                  ${
-                    checked
-                      ? theme === "dark"
-                        ? "bg-emerald-900/30 border-emerald-600 text-emerald-300"
-                        : "bg-emerald-50 border-emerald-400 text-emerald-800"
-                      : `${borderColor.primary} ${bgColor.primary} ${!isSubmitted ? bgColor.hover : ""} ${textColor.secondary}`
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    value={opt}
-                    checked={checked}
-                    onChange={() => onMultiSelect(id, opt)}
-                    disabled={isSubmitted}
-                    className="accent-emerald-600 w-4 h-4 shrink-0"
-                  />
-                  <span className="text-sm">{opt}</span>
-                  {checked && (
-                    <CheckCircle className="w-4 h-4 ml-auto text-emerald-500" />
-                  )}
-                </label>
-              );
-            })}
+            <div className="flex flex-col gap-2">
+              {optionList.map((opt) => {
+                const checked =
+                  Array.isArray(currentAnswer) &&
+                  currentAnswer.includes(opt.id);
+                return (
+                  <label
+                    key={opt.id}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all duration-150 w-full
+                      ${isSubmitted ? "cursor-not-allowed opacity-70" : "cursor-pointer"}
+                      ${
+                        checked
+                          ? theme === "dark"
+                            ? "bg-emerald-900/30 border-emerald-600 text-emerald-300"
+                            : "bg-emerald-50 border-emerald-400 text-emerald-800"
+                          : `${borderColor.primary} ${bgColor.primary} ${!isSubmitted ? bgColor.hover : ""} ${textColor.secondary}`
+                      }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => onMultiSelect(id, opt.id)}
+                      disabled={isSubmitted}
+                      className="accent-emerald-600 w-4 h-4 shrink-0"
+                    />
+                    <span className="text-sm flex-1">{opt.text}</span>
+                    {checked && (
+                      <CheckCircle className="w-4 h-4 ml-auto text-emerald-500" />
+                    )}
+                  </label>
+                );
+              })}
+            </div>
           </div>
         )}
 
         {option_type === 5 && (
           <div className="flex flex-col items-start gap-3">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-wrap">
               {[1, 2, 3, 4, 5].map((star) => {
-                const filled = star <= (hoverRating[id] || answers[id] || 0);
+                const filled = star <= (hoverRating[id] || currentAnswer || 0);
                 return (
                   <button
                     key={star}
@@ -615,22 +649,21 @@ const QuestionCard = ({
                 );
               })}
             </div>
-            {answers[id] > 0 && (
+            {currentAnswer > 0 && (
               <span
                 className={`text-xs px-2 py-1 rounded-full ${theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"}`}
               >
                 {
                   ["", "Poor", "Fair", "Good", "Very Good", "Excellent"][
-                    answers[id]
+                    currentAnswer
                   ]
                 }{" "}
-                · {answers[id]}/5
+                · {currentAnswer}/5
               </span>
             )}
           </div>
         )}
 
-        {/* ✅ Per-question Submit Button */}
         {!isSubmitted && (
           <div className="mt-4 flex justify-end">
             <button

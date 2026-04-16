@@ -157,6 +157,81 @@ export const getQuestionsWithOptionsService = (courseId) => {
   });
 };
 
+// get user response service
+export const getUserResponseService = (userId, courseId) => {
+  return new Promise((resolve, reject) => {
+    if (!userId || !courseId) {
+      return reject(new Error("userId and courseId are required"));
+    }
+
+    const query = `
+      SELECT 
+        id,
+        user_id,
+        course_id,
+        week_no,
+        day_no,
+        user_response
+      FROM bm.user_progress
+      WHERE user_id = $1
+      AND course_id = $2
+      ORDER BY week_no, day_no
+    `;
+
+    connection.query(query, [userId, courseId], (err, result) => {
+      if (err) return reject(err);
+
+      const rows = result.rows || [];
+
+      const formattedData = rows.map((row) => {
+        let parsed = row.user_response || {};
+
+        if (typeof parsed === "string") {
+          try {
+            parsed = JSON.parse(parsed);
+          } catch {
+            parsed = {};
+          }
+        }
+
+        const answers = Object.keys(parsed).map((qId) => {
+          const value = parsed[qId];
+
+          if (typeof value === "number") {
+            return {
+              questionId: Number(qId),
+              optionId: value,
+            };
+          }
+
+          if (Array.isArray(value)) {
+            return {
+              questionId: Number(qId),
+              multipleAnswers: value,
+            };
+          }
+
+          return {
+            questionId: Number(qId),
+            textAnswer: value,
+          };
+        });
+
+        return {
+          id: row.id,
+          user_id: row.user_id,
+          course_id: row.course_id,
+          week_no: row.week_no,
+          day_no: row.day_no,
+          answers,
+        };
+      });
+
+      resolve(formattedData);
+    });
+  });
+};
+
 // submit user response for a given weekNo, dayNo, courseId
 export const postUserResponseService = (
   userId,

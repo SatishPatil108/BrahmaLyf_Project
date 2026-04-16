@@ -265,3 +265,12 @@ export const postUserProgress = async (progressData) => {
     contentType: "application/json",
   });
 };
+
+export const fetchUserResponse = async (courseId) => {
+  return await makeRequest({
+    service: `user/fetchUserResponse?courseId=${courseId}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "user",
+  });
+};
