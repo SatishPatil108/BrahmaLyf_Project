@@ -26,10 +26,11 @@ import {
 // fetch questions with options for a given weekNo, dayNo, courseId
 export const getQuestionsWithOptionsModel = async (req, res) => {
   try {
-    let { courseId } = req.query;
+    let { courseId, weekNo } = req.query;
     const userId = req.userId;
 
     courseId = parseInt(courseId, 10);
+    weekNo = parseInt(weekNo, 10);
 
     // Calculate day_no dynamically (Monday=1 ... Sunday=7)
     const jsDay = new Date().getDay();
@@ -54,7 +55,7 @@ export const getQuestionsWithOptionsModel = async (req, res) => {
       );
     }
 
-    const data = await getQuestionsWithOptionsService(courseId);
+    const data = await getQuestionsWithOptionsService(courseId, weekNo);
 
     if (data === -1) {
       return error(

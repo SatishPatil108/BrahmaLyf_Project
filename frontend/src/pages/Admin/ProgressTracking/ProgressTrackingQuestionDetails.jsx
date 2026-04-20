@@ -27,6 +27,7 @@ const OPTION_TYPE_LABELS = {
   3: "Dropdown",
   4: "Multiple Select",
   5: "Rating",
+  6: "Progress Bar",
 };
 
 const OPTION_TYPE_ICONS = {
@@ -35,6 +36,7 @@ const OPTION_TYPE_ICONS = {
   3: "📋",
   4: "✅",
   5: "⭐",
+  6: "📊",
 };
 
 const OPTION_TYPES_WITH_OPTIONS = [2, 3, 4];
@@ -172,7 +174,7 @@ const ProgressTrackingQuestionDetails = () => {
 
     if (!formData.option_type) {
       newErrors.option_type = "Answer type is required";
-    } else if (![1, 2, 3, 4, 5].includes(Number(formData.option_type))) {
+    } else if (![1, 2, 3, 4, 5, 6].includes(Number(formData.option_type))) {
       newErrors.option_type = "Invalid answer type selected";
     }
 
@@ -515,7 +517,6 @@ const ProgressTrackingQuestionDetails = () => {
                             {OPTION_TYPE_LABELS[question.option_type] ||
                               "Unknown"}
                           </p>
-
                           {/* Show options list for types 2, 3, 4 */}
                           {OPTION_TYPES_WITH_OPTIONS.includes(
                             question.option_type,
@@ -537,7 +538,19 @@ const ProgressTrackingQuestionDetails = () => {
                                 </div>
                               </div>
                             )}
-
+                          
+                          options list block:
+                          {question.option_type === 6 && (
+                            <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 w-fit">
+                              <span className="text-blue-600 dark:text-blue-400 text-sm">
+                                📊
+                              </span>
+                              <span className="text-sm text-blue-700 dark:text-blue-300">
+                                User can set a value from 0% to 100% using +/−
+                                controls
+                              </span>
+                            </div>
+                          )}
                           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                             This question expects a{" "}
                             {OPTION_TYPE_LABELS[
@@ -667,6 +680,7 @@ const ProgressTrackingQuestionDetails = () => {
                 <option value={3}>📋 Dropdown</option>
                 <option value={4}>✅ Multiple Select</option>
                 <option value={5}>⭐ Rating</option>
+                <option value={6}>📊 Progress Bar</option>
               </select>
               {errors.option_type && (
                 <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">

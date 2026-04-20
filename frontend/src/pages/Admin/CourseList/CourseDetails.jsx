@@ -542,6 +542,35 @@ const CourseDetails = () => {
                 </button>
               </div>
             </div>
+
+            {/* Tools and Tasks */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                Quick Actions
+              </h3>
+              <div className="space-y-3">
+                <CustomButton
+                  onClick={handleEdit}
+                  variant="outline"
+                  className="w-full justify-start"  
+                >
+                  <SquarePen className="w-4 h-4 mr-2" />
+                  Edit Course Details
+                </CustomButton>
+                <CustomButton
+                  onClick={() => {
+                    setIsCurriculumDrawerOpen(true);
+                    setIsCurriculumEditing(false);
+                  }}
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add New Module
+                </CustomButton>              
+                 
+              </div>
+            </div>
           </div>
         </div>
 

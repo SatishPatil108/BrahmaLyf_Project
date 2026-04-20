@@ -5,6 +5,7 @@ import cors from "cors";
 import fs from "fs";
 import mainRoutes from "./routes/main_routes.js";
 import { NODE_ENV, PORT } from "./config/config.js";
+import "./commons/AddTrackingQuestionCorn.js"
 
 const app = express();
 

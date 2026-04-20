@@ -36,125 +36,100 @@ export const checkUserAlreadySubmittedService = (
   });
 };
 
-export const getQuestionsWithOptionsService = (courseId) => {
-  return new Promise((resolve, reject) => {
+export const getQuestionsWithOptionsService = async (courseId) => {
+  try {
     courseId = parseInt(courseId, 10);
 
     if (isNaN(courseId)) {
-      return reject(new Error("Invalid courseId"));
+      throw new Error("Invalid courseId");
     }
 
+    // ✅ STEP 1: Get active week from cron state
     const stateQuery = `
-      SELECT week_no
-      FROM bm.questions_cron_state
+      SELECT week_no 
+      FROM bm.questions_cron_state 
       WHERE course_id = $1
-      LIMIT 1
     `;
 
-    connection.query(stateQuery, [courseId], (stateErr, stateResult) => {
-      if (stateErr) {
-        console.error("Error fetching cron state:", stateErr);
-        return reject(stateErr);
+    const stateResult = await connection.query(stateQuery, [courseId]);
+
+    const activeWeekNo =
+      stateResult.rows.length > 0 ? stateResult.rows[0].week_no : 1;
+
+    
+
+    // ✅ STEP 2: Fetch questions for that week
+    const query = `
+      SELECT 
+        q.id AS question_id,
+        q.question_text,
+        q.option_type,
+        q.day_no,
+        o.id AS option_id,
+        o.options AS option_text,
+        o.option_order
+      FROM bm.progress_tracking_questions q
+      LEFT JOIN bm.progress_tracking_options o 
+        ON q.id = o.question_id
+      WHERE q.week_no = $1 
+        AND q.course_id = $2
+        AND q.status = 1
+      ORDER BY q.day_no, q.id, o.option_order;
+    `;
+
+    const result = await connection.query(query, [activeWeekNo, courseId]);
+
+    const rows = result.rows;
+
+    if (!rows.length) {
+      console.warn(
+        `[SERVICE] No questions found for Course ${courseId} — Week ${activeWeekNo}`,
+      );
+      return -1;
+    }
+
+    // ✅ STEP 3: Format data
+    const daysMap = {};
+
+    rows.forEach((row) => {
+      if (!daysMap[row.day_no]) {
+        daysMap[row.day_no] = {};
       }
 
-      if (stateResult.rows.length === 0) {
-        console.warn(`[SERVICE] No cron state found for course ${courseId}`);
-        return resolve(-1);
+      if (!daysMap[row.day_no][row.question_id]) {
+        daysMap[row.day_no][row.question_id] = {
+          id: row.question_id,
+          question_text: row.question_text,
+          option_type: row.option_type,
+          options: [],
+        };
       }
 
-      const activeWeekNo = parseInt(stateResult.rows[0].week_no, 10);
-
-      if (isNaN(activeWeekNo)) {
-        console.error(`[SERVICE] Invalid week_no in DB for course ${courseId}`);
-        return resolve(-1);
-      }
-
-      // ✅ Fix — always fetch week 1
-      const targetWeekNo = 1;
-
-      if (targetWeekNo < 1) {
-        console.warn(
-          `[SERVICE] No previous week available for course ${courseId}`,
-        );
-        return resolve(-1);
-      }
-
-      const query = `
-        SELECT 
-          q.id AS question_id,
-          q.question_text,
-          q.option_type,
-          q.day_no,
-          o.id AS option_id,
-          o.options AS option_text,
-          o.option_order
-        FROM bm.progress_tracking_questions q
-        LEFT JOIN bm.progress_tracking_options o 
-          ON q.id = o.question_id
-        WHERE q.week_no = $1 
-          AND q.day_no BETWEEN 1 AND 7   -- ✅ All 7 days
-          AND q.course_id = $2
-          AND q.status = 1
-        ORDER BY q.day_no, q.id, o.option_order;
-      `;
-
-      connection.query(query, [targetWeekNo, courseId], (err, result) => {
-        if (err) {
-          console.error("Error fetching questions:", err);
-          return reject(err);
-        }
-
-        const rows = result.rows;
-
-        if (!rows.length) {
-          console.warn(
-            `[SERVICE] No questions found for Course ${courseId} — Week ${targetWeekNo}`,
-          );
-          return resolve(-1);
-        }
-
-        // ✅ Group by day_no first, then by question
-        const daysMap = {};
-
-        rows.forEach((row) => {
-          if (!daysMap[row.day_no]) {
-            daysMap[row.day_no] = {};
-          }
-
-          if (!daysMap[row.day_no][row.question_id]) {
-            daysMap[row.day_no][row.question_id] = {
-              id: row.question_id,
-              question_text: row.question_text,
-              option_type: row.option_type,
-              options: [],
-            };
-          }
-
-          if (row.option_id) {
-            daysMap[row.day_no][row.question_id].options.push({
-              id: row.option_id,
-              text: row.option_text,
-              order: row.option_order,
-            });
-          }
+      if (row.option_id) {
+        daysMap[row.day_no][row.question_id].options.push({
+          id: row.option_id,
+          text: row.option_text,
+          order: row.option_order,
         });
-
-        // ✅ Format: array of { day_no, questions[] }
-        const formattedData = Object.entries(daysMap).map(
-          ([day_no, questionsMap]) => ({
-            day_no: parseInt(day_no),
-            questions: Object.values(questionsMap),
-          }),
-        );
-
-        return resolve({
-          week_no: targetWeekNo,
-          total_days: formattedData.length,
-          data: formattedData,
-        });
-      });
+      }
     });
-  });
+
+    const formattedData = Object.entries(daysMap).map(
+      ([day_no, questionsMap]) => ({
+        day_no: parseInt(day_no),
+        questions: Object.values(questionsMap),
+      }),
+    );
+
+    return {
+      week_no: activeWeekNo,
+      total_days: formattedData.length,
+      data: formattedData,
+    };
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+    throw error;
+  }
 };
 
 // get user response service

@@ -2,18 +2,17 @@ import {
   fetchUserProgressQuestionsAndOptionsAPI,
   fetchUserResponseAPI,
 } from "@/store/feature/user";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const useUserProgressDetails = (courseId, userId) => {
+const useUserProgressDetails = (courseId) => {
   const dispatch = useDispatch();
 
   const [weekData, setWeekData] = useState(null);
   const [isFetching, setIsFetching] = useState(true);
 
+  // ✅ All selectors use correct slice shape from your actual initialState
   const error = useSelector((state) => state.user.userProgressDetails?.error);
-
-  // ✅ Read persistent state from Redux
   const submittedQuestions = useSelector(
     (state) => state.user.userProgressDetails.submittedQuestions,
   );
@@ -26,40 +25,84 @@ const useUserProgressDetails = (courseId, userId) => {
   const alreadySubmitted = useSelector(
     (state) => state.user.userProgressDetails.alreadySubmitted,
   );
-
   const submittedAnswers = useSelector(
-    (state) => state.user.userProgressDetails?.submittedAnswers,
+    (state) => state.user.userProgressDetails.submittedAnswers,
   );
 
+  // ✅ weekNo from Redux — used to detect cron-driven week changes
+  const reduxWeekNo = useSelector(
+    (state) => state.user.userProgressDetails.weekNo,
+  );
 
-  useEffect(() => {
+  // ✅ Ref holds previous weekNo — avoids re-fetch on first mount
+  const prevWeekNoRef = useRef(null);
+  // ✅ Tracks whether initial fetch has happened
+  const hasMountedRef = useRef(false);
+
+  const fetchQuestions = useCallback(async () => {
     if (!courseId) return;
 
     setIsFetching(true);
+    try {
+      const payload = await dispatch(
+        fetchUserProgressQuestionsAndOptionsAPI({ courseId }),
+      ).unwrap();
 
-    dispatch(fetchUserProgressQuestionsAndOptionsAPI({ courseId }))
-      .unwrap()
-      .then((payload) => {
-        if (payload?.alreadySubmitted) {
-          setWeekData(null);
-        } else {
-          setWeekData({
-            alreadySubmitted: false,
-            week_no: payload?.week_no,
-            total_days: payload?.total_days,
-            data: payload?.data ?? [],
-            submittedAnswers: payload?.submittedAnswers || {},
-          });
-        }
-      })
-      .catch(() => setWeekData(null))
-      .finally(() => setIsFetching(false));
-  }, [courseId]);
+      // ✅ Consistent with your slice's fulfilled case check
+      if (payload?.alreadySubmitted) {
+        setWeekData(null);
+      } else {
+        setWeekData({
+          alreadySubmitted: false,
+          week_no: payload?.week_no,
+          total_days: payload?.total_days,
+          data: payload?.data ?? [],
+          submittedAnswers: payload?.submittedAnswers || {},
+        });
+      }
+    } catch {
+      setWeekData(null);
+    } finally {
+      setIsFetching(false);
+    }
+  }, [courseId, dispatch]);
 
+  // ✅ Initial fetch on mount / courseId change
+  useEffect(() => {
+    hasMountedRef.current = false; // reset on courseId change
+    prevWeekNoRef.current = null;
+    fetchQuestions().then(() => {
+      hasMountedRef.current = true;
+    });
+  }, [fetchQuestions]);
+
+  // ✅ Re-fetch when cron changes weekNo in Redux
+  // Guard: skip until initial fetch is done + skip if weekNo didn't actually change
+  useEffect(() => {
+    if (!hasMountedRef.current) return;               // still on first load
+    if (prevWeekNoRef.current === null) {              // capture initial weekNo
+      prevWeekNoRef.current = reduxWeekNo;
+      return;
+    }
+    if (reduxWeekNo !== prevWeekNoRef.current) {
+      prevWeekNoRef.current = reduxWeekNo;
+      fetchQuestions();                                // 🔄 week rolled over
+    }
+  }, [reduxWeekNo, fetchQuestions]);
+
+  // ✅ Re-validate on tab focus (free freshness)
+  useEffect(() => {
+    if (!courseId) return;
+    const handleFocus = () => fetchQuestions();
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [courseId, fetchQuestions]);
+
+  // ✅ Fetch user responses separately (read-only, no loading state conflict)
   useEffect(() => {
     if (!courseId) return;
     dispatch(fetchUserResponseAPI({ courseId }));
-  }, [courseId]);
+  }, [courseId, dispatch]);
 
   return {
     weekData,
@@ -70,7 +113,6 @@ const useUserProgressDetails = (courseId, userId) => {
     submittedAnswers,
     completedDays,
     currentDayIndex,
-    submittedAnswers,
   };
 };
 

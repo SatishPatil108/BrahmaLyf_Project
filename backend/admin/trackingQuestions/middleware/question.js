@@ -9,7 +9,7 @@ import joi from "joi";
 export const postProgressTrackingQuestionValidator = (req, res, next) => {
   const itemSchema = joi.object({
     question_text: joi.string().min(3).required(),
-    option_type: joi.number().integer().valid(1, 2, 3, 4, 5).required(),
+    option_type: joi.number().integer().valid(1, 2, 3, 4, 5, 6).required(),
     week_no: joi.number().integer().min(1).max(52).required(),
     day_no: joi.number().integer().min(1).max(7).required(),
     course_id: joi.number().integer().positive().required(),
@@ -45,7 +45,7 @@ export const updateProgressTrackingQuestionValidator = (req, res, next) => {
 
   const bodySchema = joi.object({
     question_text: joi.string().min(3).required(),
-    option_type: joi.number().integer().valid(1, 2, 3, 4, 5).required(),
+    option_type: joi.number().integer().valid(1, 2, 3, 4, 5, 6).required(),
     week_no: joi.number().integer().min(1).max(52).required(),
     day_no: joi.number().integer().min(1).max(7).required(),
     course_id: joi.number().integer().positive().required(),

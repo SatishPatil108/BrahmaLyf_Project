@@ -248,18 +248,25 @@ const userSlice = createSlice({
           state.userProgressDetails.error = null;
         }
       })
+
       .addCase(
         fetchUserProgressQuestionsAndOptionsAPI.fulfilled,
         (state, action) => {
+          const payload = action.payload;
           state.userProgressDetails.loading = false;
-          if (action.payload?.data?.alreadySubmitted) {
+
+          if (payload?.alreadySubmitted) {
+            // ✅ Consistent with hook's .unwrap() check
             state.userProgressDetails.alreadySubmitted = true;
             state.userProgressDetails.lastSubmittedDate =
-              action.payload?.timestamp || new Date().toISOString();
+              payload?.timestamp || new Date().toISOString();
           } else {
             state.userProgressDetails.alreadySubmitted = false;
-            state.userProgressDetails.dayNo = action.payload?.dayNo || 1;
-            state.userProgressDetails.weekNo = action.payload?.weekNo || 1;
+            state.userProgressDetails.dayNo = payload?.day_no || 1;
+
+            // ✅ Fix: was payload?.weekNo — API returns week_no (snake_case)
+            state.userProgressDetails.weekNo =
+              payload?.week_no || state.userProgressDetails.weekNo;
           }
         },
       )

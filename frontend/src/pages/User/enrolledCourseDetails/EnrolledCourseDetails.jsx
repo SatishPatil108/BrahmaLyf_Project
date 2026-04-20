@@ -63,7 +63,6 @@ const EnrolledCourseDetails = () => {
   const { theme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const [showUserProgress, setShowUserProgress] = useState(false);
   const hasAutoOpenedRef = useRef(false);
 
   const [showCourseInfo, setShowCourseInfo] = useState(false);
@@ -77,13 +76,6 @@ const EnrolledCourseDetails = () => {
       navigate("/login");
     }
   }, [error, navigate, dispatch]);
-
-  useEffect(() => {
-    if (submittedToday && !hasAutoOpenedRef.current) {
-      hasAutoOpenedRef.current = true;
-      setShowUserProgress(true);
-    }
-  }, [submittedToday]);
 
   // Helper function for consistent text colors
   const textColor = {
@@ -450,17 +442,6 @@ const EnrolledCourseDetails = () => {
                 <Info className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </button>
 
-              {!submittedToday && (
-                <button
-                  onClick={() => setShowUserProgress(!showUserProgress)}
-                  className={`p-2 rounded-lg hover:${
-                    theme === "dark" ? "bg-gray-800" : "bg-gray-100"
-                  }`}
-                >
-                  <ClipboardClock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </button>
-              )}
-
               <button
                 onClick={() => setShowFeedback(!showFeedback)}
                 className={`p-2 rounded-lg hover:${
@@ -469,7 +450,7 @@ const EnrolledCourseDetails = () => {
               >
                 <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 {currentIndex === totalModules - 1 && totalModules > 0 && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+                  <div className="absolute -top-1 -right-1 w-3 h-3"></div>
                 )}
               </button>
             </div>
@@ -506,24 +487,6 @@ const EnrolledCourseDetails = () => {
                 {showCourseInfo ? "Hide Info" : "Show Course Info"}
               </button>
 
-              {!submittedToday && (
-                <button
-                  onClick={() => setShowUserProgress(!showUserProgress)}
-                  className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                    showUserProgress
-                      ? "bg-green-600 text-white"
-                      : theme === "dark"
-                        ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  <ClipboardClock className="w-4 h-4" />
-                  {showUserProgress
-                    ? "Hide User Progress"
-                    : "Show User Progress"}
-                </button>
-              )}
-
               <button
                 onClick={() => setShowFeedback(!showFeedback)}
                 className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 relative ${
@@ -537,7 +500,7 @@ const EnrolledCourseDetails = () => {
                 <MessageSquare className="w-4 h-4" />
                 Feedback
                 {currentIndex === totalModules - 1 && totalModules > 0 && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+                  <div className="absolute -top-1 -right-1 w-3 h-3"></div>
                 )}
               </button>
             </div>
@@ -603,32 +566,6 @@ const EnrolledCourseDetails = () => {
               </div>
             </div>
           )}
-
-          {/* Mobile — same fix */}
-          <div
-            className={`lg:hidden rounded-xl p-6 mb-4 ${borderColor.primary} border shadow-sm ${bgColor.primary} 
-            ${showUserProgress ? "block" : "hidden"}`}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className={`text-lg font-bold ${textColor.primary}`}>
-                Today's Task
-              </h3>
-              <button
-                onClick={() => setShowUserProgress(false)}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </button>
-            </div>
-            <ProgressTrackingForm
-              theme={theme}
-              courseId={Number(courseId)}
-              isLoading={isLoading}
-              error={progressError}
-              weekData={weekData}
-              onSubmitSuccess={handleProgressSubmitSuccess}
-            />
-          </div>
 
           {/* Mobile Feedback Panel */}
           {showFeedback && (
@@ -870,6 +807,25 @@ const EnrolledCourseDetails = () => {
                   </div>
                 </div>
 
+                {/* Mobile Progress Panel — shown after video */}
+                <div
+                 className={`lg:hidden rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm ${bgColor.primary}`}
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className={`text-lg font-bold ${textColor.primary}`}>
+                      Today's Task
+                    </h3>
+                  </div>
+                  <ProgressTrackingForm
+                    theme={theme}
+                    courseId={Number(courseId)}
+                    isLoading={progressLoading}
+                    error={progressError}
+                    weekData={weekData}
+                    onSubmitSuccess={handleProgressSubmitSuccess}
+                  />
+                </div>
+
                 {/* Course Information Panel (Desktop) */}
                 {showCourseInfo && (
                   <div
@@ -952,31 +908,24 @@ const EnrolledCourseDetails = () => {
                 )}
 
                 {/* ── Desktop Progress Panel — switch to conditional render ────────── */}
-                {showUserProgress && (
-                  <div
-                    className={`hidden lg:block rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm ${bgColor.primary}`}
-                  >
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className={`text-lg font-bold ${textColor.primary}`}>
-                        Today's Task
-                      </h3>
-                      <button
-                        onClick={() => setShowUserProgress(false)}
-                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                      >
-                        <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                      </button>
-                    </div>
-                    <ProgressTrackingForm
-                      theme={theme}
-                      courseId={Number(courseId)}
-                      isLoading={progressLoading}
-                      error={progressError}
-                      weekData={weekData}
-                      onSubmitSuccess={handleProgressSubmitSuccess}
-                    />
+
+                <div
+                  className={`hidden lg:block rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm ${bgColor.primary}`}
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className={`text-lg font-bold ${textColor.primary}`}>
+                      Today's Task
+                    </h3>
                   </div>
-                )}
+                  <ProgressTrackingForm
+                    theme={theme}
+                    courseId={Number(courseId)}
+                    isLoading={progressLoading}
+                    error={progressError}
+                    weekData={weekData}
+                    onSubmitSuccess={handleProgressSubmitSuccess}
+                  />
+                </div>
 
                 {/* Feedback Panel (Desktop) */}
                 {showFeedback && (
