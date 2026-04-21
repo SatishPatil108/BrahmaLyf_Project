@@ -26,6 +26,7 @@ import {
   markQuestionSubmitted,
   setCurrentDayIndex,
 } from "@/store/feature/user/userSlice";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 
 if (
   typeof document !== "undefined" &&
@@ -65,7 +66,6 @@ const ProgressTrackingForm = ({
     completedDays,
     currentDayIndex,
   } = useUserProgressDetails(courseId);
-
 
   const [answers, setAnswers] = useState({});
   const [hoverRating, setHoverRating] = useState({});
@@ -665,16 +665,13 @@ const QuestionCard = ({
 
       <div className="pl-9">
         {option_type === 1 && (
-          <textarea
-            placeholder={isSubmitted ? "" : "Type your answer here..."}
+          <RichTextEditor
             value={currentAnswer || ""}
-            onChange={(e) => onText(id, e.target.value)}
-            disabled={isSubmitted}
-            rows={3}
-            className={`w-full px-4 py-3 rounded-lg text-sm resize-none transition-all duration-200
-              ${bgColor.primary} ${textColor.primary} border ${borderColor.secondary}
-              focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
-              ${isSubmitted ? "cursor-not-allowed opacity-60" : ""}`}
+            onChange={(val) => onText(id, val)}
+            isSubmitted={isSubmitted}
+            bgColor={bgColor}
+            textColor={textColor}
+            borderColor={borderColor}
           />
         )}
 

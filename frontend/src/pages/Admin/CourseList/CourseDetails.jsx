@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   BookOpen,
@@ -16,42 +16,81 @@ import {
   ChevronRight,
   FileVideo,
   Tag,
-  BadgeQuestionMarkIcon
+  BadgeQuestionMarkIcon,
+  List,
 } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer";
 import EditCourse from "./EditCourse";
 import EditCourseCurriculum from "./EditCourseCurriculum";
 import useCourseDetails from "./useCourseDetails";
 import CustomButton from "@/components/CustomButton";
+import ProgressToolsQuestionDetails from "../ProgressTracking/ProgressToolsQuestionDetails";
+import useProgressTaskDetails from "../ProgressTracking/useProgressTaskDetails";
 
 // Color configuration for consistent theming
 const COLORS = {
   primary: {
-    light: { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200" },
-    dark: { bg: "bg-indigo-900/20", text: "text-indigo-400", border: "border-indigo-800" },
+    light: {
+      bg: "bg-indigo-50",
+      text: "text-indigo-700",
+      border: "border-indigo-200",
+    },
+    dark: {
+      bg: "bg-indigo-900/20",
+      text: "text-indigo-400",
+      border: "border-indigo-800",
+    },
     icon: "text-indigo-600 dark:text-indigo-400",
-    gradient: "from-indigo-600 via-purple-600 to-pink-500"
+    gradient: "from-indigo-600 via-purple-600 to-pink-500",
   },
   danger: {
     light: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
-    dark: { bg: "bg-red-900/20", text: "text-red-400", border: "border-red-800" },
-    icon: "text-red-600 dark:text-red-400"
+    dark: {
+      bg: "bg-red-900/20",
+      text: "text-red-400",
+      border: "border-red-800",
+    },
+    icon: "text-red-600 dark:text-red-400",
   },
   success: {
-    light: { bg: "bg-green-50", text: "text-green-700", border: "border-green-200" },
-    dark: { bg: "bg-green-900/20", text: "text-green-400", border: "border-green-800" },
-    icon: "text-green-600 dark:text-green-400"
+    light: {
+      bg: "bg-green-50",
+      text: "text-green-700",
+      border: "border-green-200",
+    },
+    dark: {
+      bg: "bg-green-900/20",
+      text: "text-green-400",
+      border: "border-green-800",
+    },
+    icon: "text-green-600 dark:text-green-400",
   },
   warning: {
-    light: { bg: "bg-yellow-50", text: "text-yellow-700", border: "border-yellow-200" },
-    dark: { bg: "bg-yellow-900/20", text: "text-yellow-400", border: "border-yellow-800" },
-    icon: "text-yellow-600 dark:text-yellow-400"
+    light: {
+      bg: "bg-yellow-50",
+      text: "text-yellow-700",
+      border: "border-yellow-200",
+    },
+    dark: {
+      bg: "bg-yellow-900/20",
+      text: "text-yellow-400",
+      border: "border-yellow-800",
+    },
+    icon: "text-yellow-600 dark:text-yellow-400",
   },
   info: {
-    light: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" },
-    dark: { bg: "bg-blue-900/20", text: "text-blue-400", border: "border-blue-800" },
-    icon: "text-blue-600 dark:text-blue-400"
-  }
+    light: {
+      bg: "bg-blue-50",
+      text: "text-blue-700",
+      border: "border-blue-200",
+    },
+    dark: {
+      bg: "bg-blue-900/20",
+      text: "text-blue-400",
+      border: "border-blue-800",
+    },
+    icon: "text-blue-600 dark:text-blue-400",
+  },
 };
 
 const CourseDetails = () => {
@@ -76,24 +115,56 @@ const CourseDetails = () => {
     setIsCurriculumEditing,
   } = useCourseDetails(courseId);
 
+  const [activeTab, setActiveTab] = useState("Tools");
+  const [isToolsDrawerOpen, setIsToolsDrawerOpen] = useState(false);
 
-  // --- Loading State ---
-  if (loading && !isDrawerOpen) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="relative mb-4">
-          <div className="w-12 h-12 rounded-full border-4 border-gray-200 dark:border-gray-800"></div>
-          <div className="absolute top-0 left-0 w-12 h-12 rounded-full border-4 border-indigo-600 dark:border-indigo-500 border-t-transparent animate-spin"></div>
-        </div>
-        <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
-          Loading course details...
-        </p>
-        <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-          This may take a moment
-        </p>
-      </div>
-    );
-  }
+  const [weekNo, setWeekNo] = useState(1);
+  const [dayNo, setDayNo] = useState(1);
+
+  const {
+    progressToolsQuestions,
+    ptqLoading,
+    ptqError,
+
+    // Actions
+    addTask,
+    updateTask,
+    deleteTask,
+
+    // Status
+    isSubmitting,
+    actionMessage,
+    clearMessage,
+  } = useProgressTaskDetails(weekNo, dayNo);
+
+  const questions = progressToolsQuestions?.questions ?? [];
+  console.log("Questions : ", questions);
+
+  const openToolsDrawer = () => {
+    setIsToolsDrawerOpen(true);
+  };
+
+  const closeToolsDrawer = () => {
+    setIsToolsDrawerOpen(false);
+  };
+
+  // // --- Loading State ---
+  // if (loading && !isDrawerOpen && !isCurriculumDrawerOpen && !isToolsDrawerOpen) {
+  //   return (
+  //     <div className="flex flex-col items-center justify-center min-h-[60vh]">
+  //       <div className="relative mb-4">
+  //         <div className="w-12 h-12 rounded-full border-4 border-gray-200 dark:border-gray-800"></div>
+  //         <div className="absolute top-0 left-0 w-12 h-12 rounded-full border-4 border-indigo-600 dark:border-indigo-500 border-t-transparent animate-spin"></div>
+  //       </div>
+  //       <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
+  //         Loading course details...
+  //       </p>
+  //       <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+  //         This may take a moment
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   // --- Error State ---
   if (error) {
@@ -150,14 +221,14 @@ const CourseDetails = () => {
     domain_name,
     subdomain_name,
     coach_name,
-    coach_email
+    coach_email,
   } = courseDetails;
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -171,12 +242,14 @@ const CourseDetails = () => {
               <div className="flex items-center gap-2">
                 <Tag className="w-5 h-5 opacity-80" />
                 <span className="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">
-                  {domain_name || 'Course'}
+                  {domain_name || "Course"}
                 </span>
               </div>
 
               <div>
-                <h1 className="text-3xl sm:text-4xl font-bold">{course_name}</h1>
+                <h1 className="text-3xl sm:text-4xl font-bold">
+                  {course_name}
+                </h1>
                 {subdomain_name && (
                   <p className="text-lg opacity-90 mt-1">{subdomain_name}</p>
                 )}
@@ -213,7 +286,11 @@ const CourseDetails = () => {
 
               <button
                 onClick={() => {
-                  if (window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) {
+                  if (
+                    window.confirm(
+                      "Are you sure you want to delete this course? This action cannot be undone.",
+                    )
+                  ) {
                     handleDelete(courseId);
                   }
                 }}
@@ -303,7 +380,8 @@ const CourseDetails = () => {
                       Curriculum Outline
                     </h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {curriculum_outline.length} modules • Complete learning path
+                      {curriculum_outline.length} modules • Complete learning
+                      path
                     </p>
                   </div>
                 </div>
@@ -326,7 +404,7 @@ const CourseDetails = () => {
                 {curriculum_outline.length > 0 ? (
                   curriculum_outline.map((item, index) => {
                     const relatedVideos = videos.filter(
-                      (vid) => vid.curriculum_outline_id === item.id
+                      (vid) => vid.curriculum_outline_id === item.id,
                     );
 
                     return (
@@ -367,7 +445,11 @@ const CourseDetails = () => {
                             </button>
                             <button
                               onClick={() => {
-                                if (window.confirm("Are you sure you want to delete this module?")) {
+                                if (
+                                  window.confirm(
+                                    "Are you sure you want to delete this module?",
+                                  )
+                                ) {
                                   handleCurriculumDelete(item.id);
                                 }
                               }}
@@ -458,25 +540,33 @@ const CourseDetails = () => {
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800">
-                  <span className="text-gray-600 dark:text-gray-400">Modules</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Modules
+                  </span>
                   <span className="font-semibold text-gray-900 dark:text-gray-100">
                     {curriculum_outline.length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800">
-                  <span className="text-gray-600 dark:text-gray-400">Total Videos</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Total Videos
+                  </span>
                   <span className="font-semibold text-gray-900 dark:text-gray-100">
                     {videos.length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800">
-                  <span className="text-gray-600 dark:text-gray-400">Duration</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Duration
+                  </span>
                   <span className="font-semibold text-gray-900 dark:text-gray-100">
                     {duration}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-gray-600 dark:text-gray-400">Created</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Created
+                  </span>
                   <span className="font-semibold text-gray-900 dark:text-gray-100">
                     {formatDate(created_on)}
                   </span>
@@ -533,6 +623,14 @@ const CourseDetails = () => {
                   <Plus className="w-4 h-4 mr-2" />
                   Add New Module
                 </CustomButton>
+                <CustomButton
+                  onClick={openToolsDrawer}
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  <List className="w-4 h-4 mr-2" />
+                  Manage Progress Tools
+                </CustomButton>
                 <button
                   onClick={() => window.print()}
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
@@ -543,32 +641,36 @@ const CourseDetails = () => {
               </div>
             </div>
 
-            {/* Tools and Tasks */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                Quick Actions
-              </h3>
-              <div className="space-y-3">
-                <CustomButton
-                  onClick={handleEdit}
-                  variant="outline"
-                  className="w-full justify-start"  
+            {/* Tools and Tasks Section */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300 overflow-hidden">
+              {/* Tab Headers */}
+              <div className="flex border-b border-gray-200 dark:border-gray-800">
+                <button
+                  onClick={openToolsDrawer}
+                  className="flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10"
                 >
-                  <SquarePen className="w-4 h-4 mr-2" />
-                  Edit Course Details
-                </CustomButton>
-                <CustomButton
-                  onClick={() => {
-                    setIsCurriculumDrawerOpen(true);
-                    setIsCurriculumEditing(false);
-                  }}
-                  variant="outline"
-                  className="w-full justify-start"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add New Module
-                </CustomButton>              
-                 
+                  <span className="flex items-center justify-center gap-2">
+                    <BadgeQuestionMarkIcon className="w-4 h-4" />
+                    Progress Tools
+                  </span>
+                </button>
+              </div>
+
+              {/* Tab Content */}
+              <div className="p-5">
+                <div className="text-center py-8">
+                  <BadgeQuestionMarkIcon className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Progress Tools Manager
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    Manage questions for progress tracking across weeks and days
+                  </p>
+                  <CustomButton onClick={openToolsDrawer} variant="primary">
+                    <List className="w-4 h-4 mr-2" />
+                    Open Tools Manager
+                  </CustomButton>
+                </div>
               </div>
             </div>
           </div>
@@ -597,6 +699,12 @@ const CourseDetails = () => {
             onSubmit={handleCurriculumFormSubmit}
           />
         )}
+
+        {/* Progress Tools Drawer */}
+        <ProgressToolsQuestionDetails
+          isOpen={isToolsDrawerOpen}
+          onClose={closeToolsDrawer}
+        />
       </div>
     </div>
   );
@@ -605,15 +713,15 @@ const CourseDetails = () => {
 // --- Sub components ---
 const InfoCard = ({ title, icon, content, color = "info" }) => {
   return (
-    <div className={`rounded-xl p-5 border transition-colors duration-300
+    <div
+      className={`rounded-xl p-5 border transition-colors duration-300
       ${COLORS[color].light.bg} ${COLORS[color].light.border}
       dark:${COLORS[color].dark.bg} dark:${COLORS[color].dark.border}`}
     >
       <div className="flex items-center gap-3 mb-3">
-        <div className={`${COLORS[color].icon}`}>
-          {icon}
-        </div>
-        <h3 className={`text-lg font-semibold
+        <div className={`${COLORS[color].icon}`}>{icon}</div>
+        <h3
+          className={`text-lg font-semibold
           ${COLORS[color].light.text} dark:${COLORS[color].dark.text}`}
         >
           {title}
@@ -629,9 +737,7 @@ const InfoCard = ({ title, icon, content, color = "info" }) => {
 const Section = ({ title, content, icon }) => (
   <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
     <div className="flex items-center gap-3 mb-4">
-      <div className="text-indigo-600 dark:text-indigo-400">
-        {icon}
-      </div>
+      <div className="text-indigo-600 dark:text-indigo-400">{icon}</div>
       <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
         {title}
       </h2>

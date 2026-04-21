@@ -412,20 +412,20 @@ export const deleteShortVideo = async (shortId) => {
   });
 };
 
-// fetch progress tracking questions by week number and day number
-export const fetchProgressTrackingQuestions = async ({ weekNo, dayNo }) => {
+// fetch progress tools questions by week number and day number
+export const fetchProgressToolsQuestions = async ({ weekNo, dayNo }) => {
   return await makeRequest({
-    service: `admin/progress-tracking/questions?weekNo=${weekNo}&dayNo=${dayNo}`,
+    service: `admin/progress-tools/questions?weekNo=${weekNo}&dayNo=${dayNo}`,
     method: API_METHODS.GET,
     authRequired: true,
     tokenType: "admin",
   });
 };
 
-// post progress tracking questions
-export const postProgressTrackingQuestion = async (questionData) => {
+// post progress tools questions
+export const postProgressToolsQuestion = async (questionData) => {
   return await makeRequest({
-    service: `admin/progress-tracking/questions`,
+    service: `admin/progress-tools/questions`,
     method: API_METHODS.POST,
     data: questionData,
     authRequired: true,
@@ -434,10 +434,10 @@ export const postProgressTrackingQuestion = async (questionData) => {
   });
 };
 
-// update progress tracking question details
-export const updateProgressTrackingQuestion = async (questionId, data) => {
+// update progress tools question details
+export const updateProgressToolsQuestion = async (questionId, data) => {
   return await makeRequest({
-    service: `admin/progress-tracking/questions/${questionId}`,
+    service: `admin/progress-tools/questions/${questionId}`,
     method: API_METHODS.PUT,
     data: data,
     authRequired: true,
@@ -445,30 +445,30 @@ export const updateProgressTrackingQuestion = async (questionId, data) => {
   });
 };
 
-// delete progress tracking question
-export const deleteProgressTrackingQuestion = async (questionId) => {
+// delete progress tools question
+export const deleteProgressToolsQuestion = async (questionId) => {
   return await makeRequest({
-    service: `admin/progress-tracking/questions/${questionId}`,
+    service: `admin/progress-tools/questions/${questionId}`,
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "admin",
   });
 };
 
-// fetch all progress tracking option
-export const fetchProgressTrackingOptions = async () => {
+// fetch all progress tools options
+export const fetchProgressToolsOptions = async () => {
   return await makeRequest({
-    service: "admin/progress-tracking/options",
+    service: "admin/progress-tools/options",
     method: API_METHODS.GET,
     authRequired: true,
     tokenType: "admin",
   });
 };
 
-// post progress tracking options for a question
-export const postProgressTrackingOptions = async (questionId, optionsData) => {
+// post progress tools options for a question
+export const postProgressToolsOptions = async (questionId, optionsData) => {
   return await makeRequest({
-    service: `admin/progress-tracking/questions/${questionId}/options`,
+    service: `admin/progress-tools/questions/${questionId}/options`,
     method: API_METHODS.POST,
     data: optionsData,
     authRequired: true,
@@ -476,10 +476,10 @@ export const postProgressTrackingOptions = async (questionId, optionsData) => {
   });
 };
 
-// update progress tracking option details
-export const updateProgressTrackingOption = async (optionId, data) => {
+// update progress tools option details
+export const updateProgressToolsOption = async (optionId, data) => {
   return await makeRequest({
-    service: `admin/progress-tracking/options/${optionId}`,
+    service: `admin/progress-tools/options/${optionId}`,
     method: API_METHODS.PUT,
     data: data,
     authRequired: true,
@@ -487,10 +487,10 @@ export const updateProgressTrackingOption = async (optionId, data) => {
   });
 };
 
-// delete progress tracking option
-export const deleteProgressTrackingOption = async (optionId) => {
+// delete progress tools option
+export const deleteProgressToolsOption = async (optionId) => {
   return await makeRequest({
-    service: `admin/progress-tracking/options/${optionId}`,
+    service: `admin/progress-tools/options/${optionId}`,
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "admin",

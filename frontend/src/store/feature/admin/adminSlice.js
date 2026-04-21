@@ -36,14 +36,14 @@ import {
   fetchAllShortVideosAPI,
   updateShortVideoAPI,
   deleteShortVideoAPI,
-  postProgressTrackingQuestionAPI,
-  fetchProgressTrackingQuestionsAPI,
-  deleteProgressTrackingQuestionAPI,
-  updateProgressTrackingQuestionAPI,
-  postProgressTrackingOptionsAPI,
-  fetchProgressTrackingOptionsAPI,
-  updateProgressTrackingOptionAPI,
-  deleteProgressTrackingOptionAPI,
+  fetchProgressToolsQuestionsAPI,
+  postProgressToolsQuestionAPI,
+  updateProgressToolsQuestionAPI,
+  deleteProgressToolsQuestionAPI,
+  fetchProgressToolsOptionsAPI,
+  postProgressToolsOptionsAPI,
+  updateProgressToolsOptionAPI,
+  deleteProgressToolsOptionAPI,
 } from "./adminThunk";
 
 const adminSlice = createSlice({
@@ -58,8 +58,8 @@ const adminSlice = createSlice({
     audiosDetails: { audios: [] },
     shortVideosDetails: { videos: [] },
     inquiriesDetails: { inquiries: [] },
-    progressTrackingQuestionsDetails: { questions: [] },
-    progressTrackingOptionsDetails: { options: [] },
+    progressToolsQuestions: { questions: [] },
+    progressToolsOptions: { options: [] },
     coachesList: [],
     courseDetails: null,
     loading: false,
@@ -283,59 +283,56 @@ const adminSlice = createSlice({
       })
 
       // progress tracking questions
-      .addCase(postProgressTrackingQuestionAPI.fulfilled, (state, action) => {
+      .addCase(postProgressToolsQuestionAPI.fulfilled, (state, action) => {
         state.ptqLoading = false;
-        state.progressTrackingQuestionsDetails.questions.unshift(
-          action.payload,
-        );
+        state.progressToolsQuestions.questions.unshift(action.payload);
       })
 
-      .addCase(fetchProgressTrackingQuestionsAPI.fulfilled, (state, action) => {
+      .addCase(fetchProgressToolsQuestionsAPI.fulfilled, (state, action) => {
         state.ptqLoading = false;
-        state.progressTrackingQuestionsDetails = action.payload;
+        state.progressToolsQuestions = action.payload;
       })
 
-      .addCase(updateProgressTrackingQuestionAPI.fulfilled, (state, action) => {
+      .addCase(updateProgressToolsQuestionAPI.fulfilled, (state, action) => {
         state.ptqLoading = false;
-        state.progressTrackingQuestionsDetails.questions = (
-          state.progressTrackingQuestionsDetails.questions || []
+        state.progressToolsQuestions.questions = (
+          state.progressToolsQuestions.questions || []
         ).map((question) => {
           if (question.question_id === action.payload.id)
             return { id: action.payload.id, ...action.payload };
           return question;
-          
         });
       })
 
-      .addCase(deleteProgressTrackingQuestionAPI.fulfilled, (state, action) => {
+      .addCase(deleteProgressToolsQuestionAPI.fulfilled, (state, action) => {
         state.ptqLoading = false;
-        state.progressTrackingQuestionsDetails.questions =
-          state.progressTrackingQuestionsDetails.questions.filter(
+        state.progressToolsQuestions.questions =
+          state.progressToolsQuestions.questions.filter(
             (q) => q.id !== action.payload.id,
           );
       })
 
       // progress tracking options
-      .addCase(postProgressTrackingOptionsAPI.fulfilled, (state, action) => {
-        state.progressTrackingOptionsDetails.options.unshift(action.payload);
+      .addCase(postProgressToolsOptionsAPI.fulfilled, (state, action) => {
+        state.progressToolsOptions.options.unshift(action.payload);
       })
 
-      .addCase(fetchProgressTrackingOptionsAPI.fulfilled, (state, action) => {
-        state.progressTrackingOptionsDetails = action.payload || [];
+      .addCase(fetchProgressToolsOptionsAPI.fulfilled, (state, action) => {
+        state.progressToolsOptions = action.payload || [];
       })
 
-      .addCase(updateProgressTrackingOptionAPI.fulfilled, (state, action) => {
-        state.progressTrackingOptionsDetails.options =
-          state.progressTrackingOptionsDetails.options.map((option) => {
+      .addCase(updateProgressToolsOptionAPI.fulfilled, (state, action) => {
+        state.progressToolsOptions.options =
+          state.progressToolsOptions.options.map((option) => {
             if (option.id == action.payload.id)
               option = { id: action.payload.id, ...action.payload };
             return option;
           });
       })
 
-      .addCase(deleteProgressTrackingOptionAPI.fulfilled, (state, action) => {
-        state.progressTrackingOptionsDetails.options =
-          state.progressTrackingOptionsDetails.options.filter(
+      .addCase(deleteProgressToolsOptionAPI.fulfilled, (state, action) => {
+        state.progressToolsOptions.options =
+          state.progressToolsOptions.options.filter(
             (o) => o.id !== action.payload.id,
           );
       })

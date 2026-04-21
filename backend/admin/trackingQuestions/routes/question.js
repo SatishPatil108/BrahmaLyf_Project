@@ -12,33 +12,33 @@ import { postProgressTrackingQuestionValidator, updateProgressTrackingQuestionVa
 export default (app) => {
 
     app.post(
-        "/apis/admin/progress-tracking/questions",
+        "/apis/admin/progress-tools/questions",
         verifyAdminToken,
         postProgressTrackingQuestionValidator,
         postProgressTrackingQuestionController
     );
 
     app.put(
-        "/apis/admin/progress-tracking/questions/:question_id",
+        "/apis/admin/progress-tools/questions/:question_id",
         verifyAdminToken,
         updateProgressTrackingQuestionValidator,
         updateProgressTrackingQuestionController
     );
 
     app.get(
-        "/apis/admin/progress-tracking/questions",
+        "/apis/admin/progress-tools/questions",
         verifyAdminToken,
         getAllProgressTrackingQuestionsController
     );
 
     app.get(
-        "/apis/admin/progress-tracking/questions/:question_id",
+        "/apis/admin/progress-tools/questions/:question_id",
         verifyAdminToken,
         getProgressTrackingQuestionController
     );
 
     app.delete(
-        "/apis/admin/progress-tracking/questions/:question_id",
+        "/apis/admin/progress-tools/questions/:question_id",
         verifyAdminToken,
         deleteProgressTrackingQuestionController
     );

@@ -1,43 +1,18 @@
-import { useRef, useEffect, useCallback } from "react";
-
-const MAX_CHARS = 500;
+import { useRef, useEffect } from "react";
 
 const RichTextEditor = ({
-  id,
-  currentAnswer,
-  onText,
+  value,
+  onChange,
   isSubmitted,
   bgColor,
   textColor,
   borderColor,
 }) => {
   const editorRef = useRef(null);
-  const fillRef = useRef(null);
-  const labelRef = useRef(null);
-
-  const getCharCount = () =>
-    (editorRef.current?.innerText || "").replace(/\n$/, "").length;
-
-  const updateProgress = useCallback(() => {
-    if (!fillRef.current || !labelRef.current) return;
-    const chars = getCharCount();
-    const pct = Math.min((chars / MAX_CHARS) * 100, 100);
-    fillRef.current.style.width = `${pct}%`;
-    const isOver = chars > MAX_CHARS;
-    const isWarn = chars > MAX_CHARS * 0.85;
-    fillRef.current.className = `h-full rounded-sm transition-all duration-300 ${
-      isOver ? "bg-red-500" : isWarn ? "bg-amber-400" : "bg-emerald-500"
-    }`;
-    labelRef.current.textContent = `${chars} / ${MAX_CHARS} chars`;
-    labelRef.current.className = `text-xs whitespace-nowrap ${
-      isOver ? "text-red-500" : "text-gray-400"
-    }`;
-  }, []);
 
   const execCmd = (cmd, val = null) => {
     document.execCommand(cmd, false, val);
     editorRef.current?.focus();
-    updateProgress();
   };
 
   const insertLink = () => {
@@ -47,8 +22,7 @@ const RichTextEditor = ({
   };
 
   const handleInput = () => {
-    onText(id, editorRef.current?.innerHTML || "");
-    updateProgress();
+    onChange(editorRef.current?.innerHTML || "");
   };
 
   const handlePaste = (e) => {
@@ -60,15 +34,14 @@ const RichTextEditor = ({
   };
 
   useEffect(() => {
-    if (editorRef.current && currentAnswer !== undefined) {
-      if (editorRef.current.innerHTML !== currentAnswer) {
-        editorRef.current.innerHTML = currentAnswer || "";
-      }
+    const editor = editorRef.current;
+    if (!editor) return;
+    if (editor.innerHTML !== (value || "")) {
+      editor.innerHTML = value || "";
     }
-    updateProgress();
-  }, [currentAnswer, updateProgress]);
+  }, [value]);
 
-  const toolbarBtn = (label, title, onClick, extraStyle = "") => (
+  const toolbarBtn = (label, title, onClick) => (
     <button
       key={title}
       title={title}
@@ -77,9 +50,10 @@ const RichTextEditor = ({
         onClick();
       }}
       disabled={isSubmitted}
-      className={`px-2 py-1 rounded text-xs font-medium border border-transparent
-        hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-gray-300
-        disabled:opacity-40 disabled:cursor-not-allowed transition-all ${extraStyle}`}
+      className="px-2 py-1 rounded text-xs font-medium border border-transparent
+        text-gray-600 dark:text-gray-300
+        hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600
+        disabled:opacity-40 disabled:cursor-not-allowed transition-all"
       dangerouslySetInnerHTML={{ __html: label }}
     />
   );
@@ -88,12 +62,13 @@ const RichTextEditor = ({
     <div className="w-full">
       {/* Toolbar */}
       <div
-        className={`flex flex-wrap items-center gap-1 px-2 py-1.5 rounded-t-lg
-          border-b-0 ${bgColor?.secondary || "bg-gray-50 dark:bg-gray-800"}
-          border ${borderColor?.secondary || "border-gray-200 dark:border-gray-700"}`}
+        className={`flex flex-wrap items-center gap-1 px-2 py-1.5 rounded-t-lg border border-b-0
+          ${bgColor?.secondary || "bg-gray-50 dark:bg-gray-800"}
+          ${borderColor?.secondary || "border-gray-200 dark:border-gray-700"}`}
       >
         <select
-          className="text-xs px-1.5 py-1 rounded border border-gray-200 dark:border-gray-600 bg-transparent"
+          className="text-xs px-1.5 py-1 rounded border border-gray-200 dark:border-gray-600
+            bg-transparent text-gray-600 dark:text-gray-300 cursor-pointer"
           onChange={(e) => {
             execCmd("formatBlock", e.target.value);
             e.target.value = "";
@@ -140,23 +115,6 @@ const RichTextEditor = ({
           [&:empty]:before:content-[attr(data-placeholder)] [&:empty]:before:text-gray-400`}
         data-placeholder="Type your answer here..."
       />
-
-      {/* Progress bar */}
-      <div className="flex items-center gap-3 mt-2">
-        <div className="flex-1 h-1 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden border border-gray-200 dark:border-gray-600">
-          <div
-            ref={fillRef}
-            className="h-full rounded-full bg-emerald-500 transition-all duration-300"
-            style={{ width: "0%" }}
-          />
-        </div>
-        <span
-          ref={labelRef}
-          className="text-xs text-gray-400 whitespace-nowrap"
-        >
-          0 / {MAX_CHARS} chars
-        </span>
-      </div>
     </div>
   );
 };
