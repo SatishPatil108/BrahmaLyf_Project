@@ -32,6 +32,7 @@ import FeedbackForm from "@/pages/User/FeedbackForm/FeedbackForm.jsx";
 import { useYouTubeEmbedUrl } from "@/hooks/useYouTubeEmbedUrl";
 import ProgressTrackingForm from "./ProgressTrackingForm";
 import useUserProgressDetails from "./useUserProgressDetails";
+import ProgressToolsForm from "./ProgressToolsForm";
 
 const EnrolledCourseDetails = () => {
   const { courseId } = useParams();
@@ -809,7 +810,7 @@ const EnrolledCourseDetails = () => {
 
                 {/* Mobile Progress Panel — shown after video */}
                 <div
-                 className={`lg:hidden rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm ${bgColor.primary}`}
+                  className={`lg:hidden rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm ${bgColor.primary}`}
                 >
                   <div className="flex items-center justify-between mb-6">
                     <h3 className={`text-lg font-bold ${textColor.primary}`}>
@@ -817,6 +818,25 @@ const EnrolledCourseDetails = () => {
                     </h3>
                   </div>
                   <ProgressTrackingForm
+                    theme={theme}
+                    courseId={Number(courseId)}
+                    isLoading={progressLoading}
+                    error={progressError}
+                    weekData={weekData}
+                    onSubmitSuccess={handleProgressSubmitSuccess}
+                  />
+                </div>
+
+                {/* Mobile Tools panel */}
+                <div
+                  className={`lg:hidden rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm ${bgColor.primary}`}
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className={`text-lg font-bold ${textColor.primary}`}>
+                      Today's Tools
+                    </h3>
+                  </div>
+                  <ProgressToolsForm
                     theme={theme}
                     courseId={Number(courseId)}
                     isLoading={progressLoading}
@@ -918,6 +938,25 @@ const EnrolledCourseDetails = () => {
                     </h3>
                   </div>
                   <ProgressTrackingForm
+                    theme={theme}
+                    courseId={Number(courseId)}
+                    isLoading={progressLoading}
+                    error={progressError}
+                    weekData={weekData}
+                    onSubmitSuccess={handleProgressSubmitSuccess}
+                  />
+                </div>
+
+                {/* Desktop Tools Panel  */}
+                <div
+                  className={`hidden lg:block rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm ${bgColor.primary}`}
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className={`text-lg font-bold ${textColor.primary}`}>
+                      Today's Tools
+                    </h3>
+                  </div>
+                  <ProgressToolsForm
                     theme={theme}
                     courseId={Number(courseId)}
                     isLoading={progressLoading}

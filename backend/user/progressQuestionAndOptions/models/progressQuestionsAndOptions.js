@@ -26,36 +26,19 @@ import {
 // fetch questions with options for a given weekNo, dayNo, courseId
 export const getQuestionsWithOptionsModel = async (req, res) => {
   try {
-    let { courseId, weekNo } = req.query;
+    let { courseId } = req.query;
+
     const userId = req.userId;
 
     courseId = parseInt(courseId, 10);
-    weekNo = parseInt(weekNo, 10);
 
-    // Calculate day_no dynamically (Monday=1 ... Sunday=7)
+    // Monday = 1 ... Sunday = 7
     const jsDay = new Date().getDay();
+
     const dayNo = jsDay === 0 ? 7 : jsDay;
 
-    const submissionCheck = await checkUserAlreadySubmittedService(
-      userId,
-      courseId,
-      dayNo,
-    );
-
-    if (submissionCheck.alreadySubmitted) {
-      return success(
-        res,
-        HTTP_OK,
-        APP_RESPONSE_CODE_SUCCESS,
-        "You have already completed today's progress ✅",
-        {
-          alreadySubmitted: true,
-          submission: submissionCheck.data,
-        },
-      );
-    }
-
-    const data = await getQuestionsWithOptionsService(courseId, weekNo);
+    // Get active week questions
+    const data = await getQuestionsWithOptionsService(courseId);
 
     if (data === -1) {
       return error(
@@ -67,6 +50,30 @@ export const getQuestionsWithOptionsModel = async (req, res) => {
       );
     }
 
+    // Check submission for current course/week/day
+    const submissionCheck = await checkUserAlreadySubmittedService(
+      userId,
+      courseId,
+      data.week_no,
+      dayNo,
+    );
+
+    // Already submitted today
+    if (submissionCheck.alreadySubmitted) {
+      return success(
+        res,
+        HTTP_OK,
+        APP_RESPONSE_CODE_SUCCESS,
+        "You have already completed today's progress ✅",
+        {
+          alreadySubmitted: true,
+          submission: submissionCheck.data,
+          ...data,
+        },
+      );
+    }
+
+    // Not submitted yet
     return success(
       res,
       HTTP_OK,
@@ -79,6 +86,7 @@ export const getQuestionsWithOptionsModel = async (req, res) => {
     );
   } catch (err) {
     console.error("getQuestionsWithOptionsController error:", err);
+
     return error(
       res,
       500,

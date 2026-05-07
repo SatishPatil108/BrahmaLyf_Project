@@ -408,3 +408,66 @@ export const updateUserLanguageAPI = createAsyncThunk(
     }
   },
 );
+
+export const fetchUserToolsQuestionsAPI = createAsyncThunk(
+  "user/fetchProgressToolsQuestions",
+  async ({ courseId }, thunkAPI) => {
+    try {
+      const response = await userAPI.fetchUserToolsQuestions(courseId);
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch user progress tools questions",
+      );
+    }
+  },
+);
+
+// post user progress tools answers
+export const postUserToolsProgressAPI = createAsyncThunk(
+  "user/postUserToolsProgress",
+  async (toolsData, thunkAPI) => {
+    try {
+      const response = await userAPI.postUserToolsProgress(toolsData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to post user progress tools answers",
+      );
+    }
+  },
+);
+
+// fetch user progress tools
+export const fetchUserToolsResponseAPI = createAsyncThunk(
+  "user/fetchUserToolsResponse",
+  async ({ courseId }, thunkAPI) => {
+    try {
+      const response = await userAPI.fetchUserToolsResponse(courseId);
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch user tools response",
+      );
+    }
+  },
+);
+
+// update user progress tools response
+export const updateUserToolsResponseAPI = createAsyncThunk(
+  "user/updateUserTools",
+  async ({ questionId, toolsData }, thunkAPI) => {
+    try {
+      const response = await userAPI.updateUserToolsResponse(questionId, toolsData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to update user tools data",
+      );
+    }
+  },
+);

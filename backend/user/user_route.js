@@ -13,6 +13,7 @@ import contactUsRoutes from "./contactUs/routes/contactUs.js";
 import shortVideosRoutes from "./videos/routes/video.js";
 import userNotesRoutes from "./notes/routes/note.js";
 import fetchUserProgressQuestionsAndOptionsRoutes from "./progressQuestionAndOptions/routes/progressQuestionsAndOptions.js";
+import fetchUserToolsQuestionsRoutes from "./progressToolsQuestions/routes/progressToolsQuestions.js";
 
 export default (app) => {
   app.get("/apis/", (req, res) => {
@@ -33,4 +34,5 @@ export default (app) => {
   contactUsRoutes(app);
   userNotesRoutes(app);
   fetchUserProgressQuestionsAndOptionsRoutes(app);
+  fetchUserToolsQuestionsRoutes(app);
 };

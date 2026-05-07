@@ -286,3 +286,46 @@ export const updateUserLanguage = async (language) => {
     contentType: "application/json",
   });
 };
+
+// fetch user Tools Questions
+export const fetchUserToolsQuestions = async (courseId) => {
+  return await makeRequest({
+    service: `user/fetchProgressToolsQuestions?courseId=${courseId}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "user",
+  });
+}
+
+// post user tools response
+export const postUserToolsProgress = async (toolsData) => {
+  return await makeRequest({
+    service: `user/progress-tools`,
+    method: API_METHODS.POST,
+    authRequired: true,
+    tokenType: "user",
+    data: toolsData,
+    contentType: "application/json",
+  });
+};
+
+// fetch user tools response
+export const fetchUserToolsResponse = async (courseId) => {
+  return await makeRequest({
+    service: `user/fetchUserToolsResponse?courseId=${courseId}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "user",
+  });
+};
+
+// update users tools response
+export const updateUserToolsResponse = async (questionId, toolsData) => {
+  return await makeRequest({
+    service: `user/progress-tools/${questionId}`,
+    method: API_METHODS.PUT,
+    data: toolsData,
+    authRequired: true,
+    tokenType: "user",
+  });
+};

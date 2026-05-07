@@ -6,6 +6,7 @@ import fs from "fs";
 import mainRoutes from "./routes/main_routes.js";
 import { NODE_ENV, PORT } from "./config/config.js";
 import "./commons/AddTrackingQuestionCorn.js";
+import "./commons/AddToolsQuestionCorn.js";
 
 const app = express();
 
@@ -34,21 +35,25 @@ mainRoutes(app);
 let server;
 
 if (NODE_ENV === "production") {
-  let sslOptions;
-  try {
-    sslOptions = {
-      key: fs.readFileSync("/etc/letsencrypt/live/brahmalyf.com/privkey.pem"),
-      cert: fs.readFileSync(
-        "/etc/letsencrypt/live/brahmalyf.com/fullchain.pem",
-      ),
-    };
-  } catch (err) {
-    console.error("❌ Failed to read SSL certs:", err.message);
-    process.exit(1);
-  }
-  server = createHttpsServer(sslOptions, app);
-}
+  const sslOptions = {
+    key: fs.readFileSync("/etc/letsencrypt/live/brahmalyf.com/privkey.pem"),
+    cert: fs.readFileSync("/etc/letsencrypt/live/brahmalyf.com/fullchain.pem"),
+  };
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+  // HTTPS server
+  createHttpsServer(sslOptions, app).listen(443, () => {
+    console.log("✅ HTTPS Server running on port 443");
+  });
+
+  // HTTP redirect server
+  createHttpServer((req, res) => {
+    res.writeHead(301, {
+      Location: "https://" + req.headers.host + req.url,
+    });
+    res.end();
+  }).listen(80);
+} else {
+  createHttpServer(app).listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 HTTP Server running on port ${PORT}`);
+  });
+}

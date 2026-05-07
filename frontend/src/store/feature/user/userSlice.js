@@ -28,7 +28,36 @@ import {
   postUserProgressAPI,
   fetchUserResponseAPI,
   updateUserLanguageAPI,
+  fetchUserToolsQuestionsAPI,
+  postUserToolsProgressAPI,
+  fetchUserToolsResponseAPI,
+  updateUserToolsResponseAPI,
 } from "./userThunk";
+
+const createCourseScopedState = () => ({
+  lastSubmittedDate: null,
+  alreadySubmitted: false,
+  loading: false,
+  error: null,
+
+  weekNo: 1,
+  currentDayIndex: 0,
+
+  submittedQuestions: {},
+  submittedAnswers: {},
+
+  completedDays: {},
+
+  userResponse: null,
+});
+
+const getScopedCourseState = (rootState, section, courseId) => {
+  if (!rootState[section].byCourse[courseId]) {
+    rootState[section].byCourse[courseId] = createCourseScopedState();
+  }
+
+  return rootState[section].byCourse[courseId];
+};
 
 const initialState = {
   language: "en",
@@ -66,16 +95,11 @@ const initialState = {
   moduleDetails: null,
 
   userProgressDetails: {
-    lastSubmittedDate: null,
-    alreadySubmitted: false,
-    loading: false,
-    error: null,
-    weekNo: 1,
-    currentDayIndex: 0,
-    submittedQuestions: {},
-    submittedAnswers: {},
-    completedDays: {},
-    userResponse: null,
+    byCourse: {},
+  },
+
+  userToolsDetails: {
+    byCourse: {},
   },
 };
 
@@ -98,19 +122,15 @@ const userSlice = createSlice({
       state.enrolledCourseDetails = null;
       state.moduleDetails = null;
     },
-    resetUserProgress: (state) => {
-      state.userProgressDetails = {
-        lastSubmittedDate: null,
-        alreadySubmitted: false,
-        loading: false,
-        error: null,
-        weekNo: 1,
-        currentDayIndex: 0,
-        submittedQuestions: {},
-        submittedAnswers: {},
-        completedDays: {},
-        userResponse: null,
-      };
+
+    resetScopedCourseState: (state, action) => {
+      const { section, courseId } = action.payload;
+
+      if (courseId) {
+        delete state[section].byCourse[courseId];
+      } else {
+        state[section].byCourse = {};
+      }
     },
 
     resetUserLanguage: (state) => {
@@ -122,25 +142,36 @@ const userSlice = createSlice({
       state.language = action.payload || "en";
     },
 
-    // ✅ Mark a single question as submitted
     markQuestionSubmitted: (state, action) => {
-      const { questionId } = action.payload;
-      state.userProgressDetails.submittedQuestions[questionId] = true;
-    },
-    // ✅ Mark a full day as completed
-    markDayCompleted: (state, action) => {
-      const { dayNo } = action.payload;
-      state.userProgressDetails.completedDays[dayNo] = true;
+      const { courseId, questionId } = action.payload;
+
+      const courseState = getScopedCourseState(
+        state,
+        "userProgressDetails",
+        courseId,
+      );
+
+      courseState.submittedQuestions[questionId] = true;
     },
 
-    // ✅ Move to next day
-    setCurrentDayIndex: (state, action) => {
-      state.userProgressDetails.currentDayIndex = action.payload;
+    markToolsQuestionSubmitted: (state, action) => {
+      const { courseId, questionId } = action.payload;
+
+      const courseState = getScopedCourseState(
+        state,
+        "userToolsDetails",
+        courseId,
+      );
+
+      courseState.submittedQuestions[questionId] = true;
     },
 
-    // ✅ Mark all as submitted (alreadySubmitted from API)
-    setAlreadySubmitted: (state, action) => {
-      state.userProgressDetails.alreadySubmitted = action.payload;
+    markScopedDayCompleted: (state, action) => {
+      const { section, courseId, dayNo } = action.payload;
+
+      const courseState = getScopedCourseState(state, section, courseId);
+
+      courseState.completedDays[dayNo] = true;
     },
   },
 
@@ -252,22 +283,21 @@ const userSlice = createSlice({
       .addCase(
         fetchUserProgressQuestionsAndOptionsAPI.fulfilled,
         (state, action) => {
+          const courseId = action.meta.arg.courseId;
+
           const payload = action.payload;
-          state.userProgressDetails.loading = false;
 
-          if (payload?.alreadySubmitted) {
-            // ✅ Consistent with hook's .unwrap() check
-            state.userProgressDetails.alreadySubmitted = true;
-            state.userProgressDetails.lastSubmittedDate =
-              payload?.timestamp || new Date().toISOString();
-          } else {
-            state.userProgressDetails.alreadySubmitted = false;
-            state.userProgressDetails.dayNo = payload?.day_no || 1;
+          const courseState = getScopedCourseState(
+            state,
+            "userProgressDetails",
+            courseId,
+          );
 
-            // ✅ Fix: was payload?.weekNo — API returns week_no (snake_case)
-            state.userProgressDetails.weekNo =
-              payload?.week_no || state.userProgressDetails.weekNo;
-          }
+          courseState.loading = false;
+
+          courseState.alreadySubmitted = payload?.alreadySubmitted || false;
+
+          courseState.weekNo = payload?.week_no || 1;
         },
       )
 
@@ -332,6 +362,98 @@ const userSlice = createSlice({
         state.userProgressDetails.error = action.error.message;
       })
 
+      // tools section
+      .addCase(fetchUserToolsQuestionsAPI.fulfilled, (state, action) => {
+        const courseId = action.meta.arg.courseId;
+
+        const payload = action.payload;
+
+        const courseState = getScopedCourseState(
+          state,
+          "userToolsDetails",
+          courseId,
+        );
+
+        courseState.loading = false;
+
+        courseState.alreadySubmitted = payload?.alreadySubmitted || false;
+
+        courseState.weekNo = payload?.week_no || 1;
+      })
+
+      // post tools
+      .addCase(postUserToolsProgressAPI.fulfilled, (state, action) => {
+        state.userToolsDetails.alreadySubmitted = true;
+        state.userToolsDetails.lastSubmittedDate = new Date().toISOString();
+      })
+
+      .addCase(fetchUserToolsResponseAPI.fulfilled, (state, action) => {
+        const courseId = action.meta.arg.courseId;
+
+        const courseState = getScopedCourseState(
+          state,
+          "userToolsDetails",
+          courseId,
+        );
+
+        const submissions = action.payload?.submission ?? [];
+
+        if (!submissions.length) return;
+
+        const normalizedAnswers = {};
+
+        const submittedQuestions = {};
+
+        const completedDays = {};
+
+        submissions.forEach((submission) => {
+          const { day_no, answers } = submission;
+
+          if (!normalizedAnswers[day_no]) {
+            normalizedAnswers[day_no] = {};
+          }
+
+          answers.forEach(({ questionId, textAnswer }) => {
+            normalizedAnswers[day_no][questionId] = textAnswer || "";
+
+            submittedQuestions[questionId] = true;
+          });
+
+          completedDays[day_no] = true;
+        });
+
+        courseState.submittedAnswers = normalizedAnswers;
+
+        courseState.submittedQuestions = submittedQuestions;
+
+        courseState.completedDays = completedDays;
+      })
+
+      .addCase(updateUserToolsResponseAPI.fulfilled, (state, action) => {
+        const { courseId, dayNo, questionId, textAnswer } = action.meta.arg;
+
+        // create course state if not exists
+        if (!state.userToolsDetails.byCourse[courseId]) {
+          state.userToolsDetails.byCourse[courseId] = {
+            submittedAnswers: {},
+            submittedQuestions: {},
+          };
+        }
+
+        const courseState = state.userToolsDetails.byCourse[courseId];
+
+        // create day state if not exists
+        if (!courseState.submittedAnswers[dayNo]) {
+          courseState.submittedAnswers[dayNo] = {};
+        }
+
+        // update answer
+        courseState.submittedAnswers[dayNo][questionId] = textAnswer;
+
+        // mark submitted
+        courseState.submittedQuestions[questionId] = true;
+      })
+
       // user Notes
       .addCase(fetchUserNotesAPI.fulfilled, (state, action) => {
         state.userNotesDetails = action.payload || [];
@@ -383,11 +505,15 @@ export const {
   clearSubcategories,
   resetCoachesVideos,
   clearEnrolledCourseDetails,
-  resetUserProgress,
+
   markQuestionSubmitted,
-  markDayCompleted,
-  setCurrentDayIndex,
-  setAlreadySubmitted,
+  markToolsQuestionSubmitted,
+
+  markScopedDayCompleted,
+  resetScopedCourseState,
+
+  resetUserLanguage,
+  setLanguage
 } = userSlice.actions;
 
 export default userSlice.reducer;

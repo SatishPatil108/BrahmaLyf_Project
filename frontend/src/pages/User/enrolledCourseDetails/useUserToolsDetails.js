@@ -1,6 +1,6 @@
 import {
-  fetchUserProgressQuestionsAndOptionsAPI,
-  fetchUserResponseAPI,
+  fetchUserToolsQuestionsAPI,
+  fetchUserToolsResponseAPI,
 } from "@/store/feature/user";
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 const EMPTY_OBJECT = {};
 
-const useUserProgressDetails = (courseId) => {
+const useUserToolsDetails = (courseId) => {
   const dispatch = useDispatch();
 
   const [weekData, setWeekData] = useState(null);
@@ -18,7 +18,7 @@ const useUserProgressDetails = (courseId) => {
 
   // ✅ COURSE-SCOPED STATE
   const courseState = useSelector(
-    (state) => state.user.userProgressDetails.byCourse?.[courseId],
+    (state) => state.user.userToolsDetails.byCourse?.[courseId],
   );
 
   // ✅ SAFE DEFAULTS
@@ -55,7 +55,7 @@ const useUserProgressDetails = (courseId) => {
 
     try {
       const payload = await dispatch(
-        fetchUserProgressQuestionsAndOptionsAPI({
+        fetchUserToolsQuestionsAPI({
           courseId,
         }),
       ).unwrap();
@@ -74,7 +74,7 @@ const useUserProgressDetails = (courseId) => {
         submittedAnswers: payload?.submittedAnswers || {},
       });
     } catch (err) {
-      console.error("fetchQuestions error:", err);
+      console.error("fetchToolsQuestions error:", err);
 
       setWeekData({
         alreadySubmitted: false,
@@ -147,7 +147,7 @@ const useUserProgressDetails = (courseId) => {
     if (!courseId) return;
 
     dispatch(
-      fetchUserResponseAPI({
+      fetchUserToolsResponseAPI({
         courseId,
       }),
     );
@@ -165,4 +165,4 @@ const useUserProgressDetails = (courseId) => {
   };
 };
 
-export default useUserProgressDetails;
+export default useUserToolsDetails;

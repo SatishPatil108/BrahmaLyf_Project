@@ -22,7 +22,7 @@ import {
 
 import useUserProgressDetails from "./useUserProgressDetails";
 import {
-  markDayCompleted,
+  markScopedDayCompleted,
   markQuestionSubmitted,
 } from "@/store/feature/user/userSlice";
 import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
@@ -66,6 +66,7 @@ const ProgressTrackingForm = ({
   const [answers, setAnswers] = useState({});
   const [hoverRating, setHoverRating] = useState({});
   const [submittingQuestion, setSubmittingQuestion] = useState(null);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [showCompletionCard, setShowCompletionCard] = useState(false);
   const [showCompletedForm, setShowCompletedForm] = useState(false);
   const completionTimeoutRef = useRef(null);
@@ -73,15 +74,6 @@ const ProgressTrackingForm = ({
   const weekNo = weekData?.week_no || 1;
   const totalDays = weekData?.total_days || 7;
   const allDaysData = weekData?.data || [];
-
-  // FIX #4: Reset state when courseId changes
-  useEffect(() => {
-    setAnswers({});
-    setHoverRating({});
-    setSubmittingQuestion(null);
-    setShowCompletionCard(false);
-    setShowCompletedForm(false);
-  }, [courseId]);
 
   // Flatten all questions from all days
   const allQuestions = useMemo(() => {
@@ -109,54 +101,61 @@ const ProgressTrackingForm = ({
   }, [allDaysData]);
 
   useEffect(() => {
-    if (!courseId) {
-      setAnswers({});
-      return;
+    if (courseId) {
+      dispatch(fetchUserResponseAPI({ courseId }));
     }
+  }, [courseId, dispatch]);
 
-      const merged = {};
+  // Load all answers across all days
+  useEffect(() => {
+    if (!reduxSubmittedAnswers) return;
 
-    Object.values(reduxSubmittedAnswers || {}).forEach((dayAnswers) => {
-        Object.assign(merged, dayAnswers);
-      });
-      setAnswers(merged);
-  }, [courseId, reduxSubmittedAnswers]);
+    const merged = {};
+
+    Object.entries(reduxSubmittedAnswers || {}).forEach(
+      ([dayKey, dayAnswers]) => {
+        if (dayAnswers && typeof dayAnswers === "object") {
+          Object.assign(merged, dayAnswers);
+        }
+      },
+    );
+
+    setAnswers(merged);
+    setIsDataLoaded(true);
+  }, [reduxSubmittedAnswers]);
 
   // Check for completion and show success card
   const totalQuestions = allQuestions.length;
   const submittedCount = allQuestions.filter(
-    (q) => reduxSubmittedQuestions[q.id],
+    (q) => reduxSubmittedQuestions?.[q.id],
   ).length;
   const allCompleted = totalQuestions > 0 && submittedCount === totalQuestions;
 
   // Handle showing completion card and then showing filled form
   useEffect(() => {
-    if (!allCompleted) {
-      setShowCompletionCard(false);
-      setShowCompletedForm(false);
-
+    if (allCompleted && !showCompletionCard && !showCompletedForm) {
+      // Clear any existing timeout
       if (completionTimeoutRef.current) {
         clearTimeout(completionTimeoutRef.current);
       }
 
-      return;
-    }
-
-    if (showCompletionCard || showCompletedForm) return;
-
+      // Show completion card
       setShowCompletionCard(true);
 
+      // After 4.5 seconds, hide completion card and show filled form
       completionTimeoutRef.current = setTimeout(() => {
         setShowCompletionCard(false);
         setShowCompletedForm(true);
       }, 4500);
+    }
 
+    // Cleanup timeout on unmount or when allCompleted becomes false
     return () => {
       if (completionTimeoutRef.current) {
         clearTimeout(completionTimeoutRef.current);
       }
     };
-  }, [allCompleted]);
+  }, [allCompleted, showCompletionCard, showCompletedForm]);
 
   const forceRefreshAnswers = useCallback(async () => {
     if (!courseId) return;
@@ -237,7 +236,8 @@ const ProgressTrackingForm = ({
       const allDone = dayQuestions.every((q) => updatedSubmitted[q.id]);
       if (allDone) {
         dispatch(
-          markDayCompleted({
+          markScopedDayCompleted({
+            section: "userProgressDetails",
             courseId,
             dayNo,
           }),
@@ -485,7 +485,7 @@ const ProgressTrackingForm = ({
               const day = questionsByDay[dayNo];
               const dayQuestions = day.questions;
               const daySubmittedCount = dayQuestions.filter(
-                (q) => reduxSubmittedQuestions[q.id],
+                (q) => reduxSubmittedQuestions?.[q.id],
               ).length;
               const dayCompleted = daySubmittedCount === dayQuestions.length;
 
@@ -529,7 +529,7 @@ const ProgressTrackingForm = ({
                         onDropdown={handleDropdown}
                         onMultiSelect={handleMultiSelect}
                         onRating={handleRating}
-                        isSubmitted={!!reduxSubmittedQuestions[question.id]}
+                        isSubmitted={!!reduxSubmittedQuestions?.[question.id]}
                         isSubmitting={submittingQuestion === question.id}
                         onQuestionSubmit={() =>
                           handleQuestionSubmit(question.id, parseInt(dayNo))
@@ -543,7 +543,7 @@ const ProgressTrackingForm = ({
 
             {allQuestions.length === 0 && (
               <p className={`text-sm ${textColor.muted} text-center py-12`}>
-                No questions available for this course.
+                No questions available.
               </p>
             )}
           </div>
@@ -562,8 +562,7 @@ const ProgressTrackingForm = ({
 };
 
 // QuestionCard component remains the same as your existing one
-const QuestionCard = React.memo(
-  ({
+const QuestionCard = ({
   question,
   index,
   answers,
@@ -726,9 +725,7 @@ const QuestionCard = React.memo(
         {option_type === 3 && (
           <select
             value={currentAnswer || ""}
-              onChange={(e) =>
-                onDropdown(id, e.target.value ? parseInt(e.target.value) : "")
-              }
+            onChange={(e) => onDropdown(id, parseInt(e.target.value))}
             disabled={isSubmitted}
             className={`w-full px-4 py-2.5 rounded-lg text-sm border transition-all duration-150
               ${bgColor.primary} ${textColor.primary} ${borderColor.secondary}
@@ -983,7 +980,6 @@ const QuestionCard = React.memo(
       </div>
     </div>
   );
-  },
-);
+};
 
 export default ProgressTrackingForm;
