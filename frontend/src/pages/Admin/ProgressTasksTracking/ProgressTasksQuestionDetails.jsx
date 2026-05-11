@@ -431,6 +431,7 @@ const ProgressTasksQuestionDetails = ({
 }) => {
   const [weekNo, setWeekNo] = useState(1);
   const [dayNo, setDayNo] = useState(1);
+  const { courseId } = useParams();
 
   const {
     progressTasksQuestions,
@@ -443,10 +444,9 @@ const ProgressTasksQuestionDetails = ({
     addQuestion,
     updateQuestion,
     handleDeleteQuestion,
-  } = useProgressTaskDetails(weekNo, dayNo);
+  } = useProgressTaskDetails(courseId, weekNo, dayNo);
 
   const questions = progressTasksQuestions?.questions || [];
-  const { courseId } = useParams();
 
   // UI State
   const [isListDrawerOpen, setIsListDrawerOpen] = useState(false);

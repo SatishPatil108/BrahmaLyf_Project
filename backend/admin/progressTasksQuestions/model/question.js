@@ -75,10 +75,16 @@ export const getProgressTasksQuestionModel = async (req, res) => {
 
 export const getAllProgressTasksQuestionsModel = async (req, res) => {
   try {
+    const courseId = Number(req.query.courseId);
     const weekNo = Number(req.query.weekNo);
     const dayNo = Number(req.query.dayNo);
 
-    const response = await getAllProgressTasksQuestionsService(weekNo, dayNo);
+    const response = await getAllProgressTasksQuestionsService(
+      courseId,
+      weekNo,
+      dayNo,
+    );
+
     if (response === -1) {
       return error(
         res,
@@ -88,6 +94,7 @@ export const getAllProgressTasksQuestionsModel = async (req, res) => {
         null,
       );
     }
+
     return success(
       res,
       HTTP_OK,
@@ -97,6 +104,7 @@ export const getAllProgressTasksQuestionsModel = async (req, res) => {
     );
   } catch (err) {
     console.error("Get All Progress Tracking Questions Error:", err);
+
     return error(
       res,
       HTTP_INTERNAL_SERVER_ERROR,

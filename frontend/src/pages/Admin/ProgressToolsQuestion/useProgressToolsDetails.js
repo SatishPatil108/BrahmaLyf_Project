@@ -9,7 +9,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const useProgressToolsDetails = (weekNo, dayNo) => {
+const useProgressToolsDetails = (courseId, weekNo, dayNo) => {
   const dispatch = useDispatch();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,16 +34,16 @@ const useProgressToolsDetails = (weekNo, dayNo) => {
 
   // ✅ Fetch tools
   useEffect(() => {
-    if (weekNo && dayNo) {
-      dispatch(fetchProgressToolsQuestionsAPI({ weekNo, dayNo }));
+    if (courseId && weekNo && dayNo) {
+      dispatch(fetchProgressToolsQuestionsAPI({ courseId, weekNo, dayNo }));
     }
-  }, [dispatch, weekNo, dayNo]);
+  }, [dispatch, courseId, weekNo, dayNo]);
 
   const refetch = useCallback(() => {
-    if (weekNo && dayNo) {
-      dispatch(fetchProgressToolsQuestionsAPI({ weekNo, dayNo }));
+    if (courseId && weekNo && dayNo) {
+      dispatch(fetchProgressToolsQuestionsAPI({ courseId, weekNo, dayNo }));
     }
-  }, [dispatch, weekNo, dayNo]);
+  }, [dispatch, courseId, weekNo, dayNo]);
 
   useEffect(() => {
     if (!actionMessage) return;

@@ -413,9 +413,13 @@ export const deleteShortVideo = async (shortId) => {
 };
 
 // fetch progress tasks questions by week number and day number
-export const fetchProgressTasksQuestions = async ({ weekNo, dayNo }) => {
+export const fetchProgressTasksQuestions = async ({
+  courseId,
+  weekNo,
+  dayNo,
+}) => {
   return await makeRequest({
-    service: `admin/progress-tasks/questions?weekNo=${weekNo}&dayNo=${dayNo}`,
+    service: `admin/progress-tasks/questions?courseId=${courseId}&weekNo=${weekNo}&dayNo=${dayNo}`,
     method: API_METHODS.GET,
     authRequired: true,
     tokenType: "admin",
@@ -461,9 +465,13 @@ export const deleteProgressTasksQuestion = async (questionId) => {
 };
 
 // fetch all progress tools questions by week number and day number
-export const fetchProgressToolsQuestions = async ({ weekNo, dayNo }) => {
+export const fetchProgressToolsQuestions = async ({
+  courseId,
+  weekNo,
+  dayNo,
+}) => {
   return await makeRequest({
-    service: `admin/progress-tools/questions?weekNo=${weekNo}&dayNo=${dayNo}`,
+    service: `admin/progress-tools/questions?courseId=${courseId}&weekNo=${weekNo}&dayNo=${dayNo}`,
     method: API_METHODS.GET,
     authRequired: true,
     tokenType: "admin",

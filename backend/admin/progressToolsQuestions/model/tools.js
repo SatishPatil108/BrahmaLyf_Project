@@ -80,10 +80,15 @@ export const getProgressToolsQuestionModel = async (req, res) => {
 // ✅ Get all tool questions
 export const getAllProgressToolsQuestionsModel = async (req, res) => {
   try {
+    const courseId = Number(req.query.courseId);
     const weekNo = Number(req.query.weekNo);
     const dayNo = Number(req.query.dayNo);
 
-    const response = await getAllProgressToolsQuestionsService(weekNo, dayNo);
+    const response = await getAllProgressToolsQuestionsService(
+      courseId,
+      weekNo,
+      dayNo,
+    );
 
     if (response === -1) {
       return error(

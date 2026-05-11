@@ -396,7 +396,7 @@ const ShortsList = () => {
         {/* Empty State */}
         {!loading && !error && filteredVideos.length === 0 && (
           <div className="text-center py-16 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-900">
-            <Music className="w-16 h-16 text-gray-300 dark:text-gray-700 mx-auto mb-4" />
+            <Video className="w-16 h-16 text-gray-300 dark:text-gray-700 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
               No Short Video Found
             </h3>

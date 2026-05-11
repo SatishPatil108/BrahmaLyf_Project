@@ -9,13 +9,13 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const useProgressTaskDetails = (weekNo, dayNo) => {
+// courseId is now received as a parameter
+const useProgressTaskDetails = (courseId, weekNo, dayNo) => {
   const dispatch = useDispatch();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
 
-  // ✅ FIXED naming (Tools, not Task)
   const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
   const [isTaskEditing, setIsTaskEditing] = useState(false);
 
@@ -32,18 +32,31 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     dispatch(fetchAllCoursesAPI({ pageNo: 1, pageSize: 10 }));
   }, [dispatch]);
 
-  // Fetch questions
+  // Fetch questions based on courseId, weekNo, and dayNo
   useEffect(() => {
-    if (weekNo && dayNo) {
-      dispatch(fetchProgressTasksQuestionsAPI({ weekNo, dayNo }));
+    if (courseId && weekNo && dayNo) {
+      dispatch(
+        fetchProgressTasksQuestionsAPI({
+          courseId,
+          weekNo,
+          dayNo,
+        }),
+      );
     }
-  }, [dispatch, weekNo, dayNo]);
+  }, [dispatch, courseId, weekNo, dayNo]);
 
+  // Refetch helper
   const refetch = useCallback(() => {
-    if (weekNo && dayNo) {
-      dispatch(fetchProgressTasksQuestionsAPI({ weekNo, dayNo }));
+    if (courseId && weekNo && dayNo) {
+      dispatch(
+        fetchProgressTasksQuestionsAPI({
+          courseId,
+          weekNo,
+          dayNo,
+        }),
+      );
     }
-  }, [dispatch, weekNo, dayNo]);
+  }, [dispatch, courseId, weekNo, dayNo]);
 
   useEffect(() => {
     if (!actionMessage) return;
@@ -55,7 +68,7 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     return () => clearTimeout(timer);
   }, [actionMessage]);
 
-  // ✅ Add
+  // Add Question
   const addQuestion = async (courseId, questionData) => {
     setIsSubmitting(true);
     clearMessage();
@@ -86,7 +99,7 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     }
   };
 
-  // ✅ Update
+  // Update Question
   const updateQuestion = async (questionId, courseId, questionData) => {
     setIsSubmitting(true);
     clearMessage();
@@ -118,7 +131,7 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     }
   };
 
-  // ✅ Delete
+  // Delete Question
   const handleDeleteQuestion = async (questionId) => {
     setIsSubmitting(true);
     clearMessage();
@@ -143,7 +156,7 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     }
   };
 
-  // ✅ Edit handler (accept question)
+  // Edit Question
   const handleEditQuestion = (question) => {
     setIsTaskEditing(true);
     setIsTaskDrawerOpen(true);
@@ -153,7 +166,9 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
   return {
     // Data
     progressTasksQuestions,
+    questions,
     coursesDetails,
+    courses,
     ptqLoading,
     ptqError,
 
@@ -169,6 +184,7 @@ const useProgressTaskDetails = (weekNo, dayNo) => {
     setIsTaskEditing,
 
     // Actions
+    refetch,
     addQuestion,
     updateQuestion,
     handleDeleteQuestion,

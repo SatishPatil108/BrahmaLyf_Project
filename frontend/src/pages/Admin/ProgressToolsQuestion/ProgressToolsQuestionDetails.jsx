@@ -312,6 +312,7 @@ const ProgressToolsQuestionDetails = ({
 }) => {
   const [weekNo, setWeekNo] = useState(1);
   const [dayNo, setDayNo] = useState(1);
+  const { courseId } = useParams();
 
   const {
     progressToolsQuestions,
@@ -324,9 +325,8 @@ const ProgressToolsQuestionDetails = ({
     addTool,
     updateTool,
     handleDeleteTool,
-  } = useProgressToolsDetails(weekNo, dayNo);
+  } = useProgressToolsDetails(courseId, weekNo, dayNo);
 
-  const { courseId } = useParams();
   const tools = progressToolsQuestions?.tools || [];
 
   // UI state

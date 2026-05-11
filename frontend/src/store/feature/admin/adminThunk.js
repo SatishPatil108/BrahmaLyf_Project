@@ -600,9 +600,13 @@ export const deleteShortVideoAPI = createAsyncThunk(
 // fetch progress tools question by week no and day no
 export const fetchProgressTasksQuestionsAPI = createAsyncThunk(
   "admin/get/progress-tasks/questions",
-  async ({ weekNo, dayNo }, thunkAPI) => {
+  async ({ courseId, weekNo, dayNo }, thunkAPI) => {
     try {
-      const response = await fetchProgressTasksQuestions({ weekNo, dayNo });
+      const response = await fetchProgressTasksQuestions({
+        courseId,
+        weekNo,
+        dayNo,
+      });
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -686,9 +690,13 @@ export const postProgressToolsQuestionAPI = createAsyncThunk(
 // fetch progress tools question by week no and day no
 export const fetchProgressToolsQuestionsAPI = createAsyncThunk(
   "admin/get/progress-tools/questions",
-  async ({ weekNo, dayNo }, thunkAPI) => {
+  async ({ courseId, weekNo, dayNo }, thunkAPI) => {
     try {
-      const response = await fetchProgressToolsQuestions({ weekNo, dayNo });
+      const response = await fetchProgressToolsQuestions({
+        courseId,
+        weekNo,
+        dayNo,
+      });
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(

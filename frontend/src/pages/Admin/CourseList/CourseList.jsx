@@ -25,7 +25,10 @@ const CourseList = () => {
   const location = useLocation();
   const { pageNo, pageSize, setPageNo, setPageSize } = usePagination(1, 6);
 
-  const { coursesDetails, loading, error } = useCourseList(pageNo, pageSize);
+  const { coursesDetails, loading, error, refetch } = useCourseList(
+    pageNo,
+    pageSize,
+  );
   const courses = coursesDetails.courses || [];
 
   const dispatch = useDispatch();
@@ -34,6 +37,7 @@ const CourseList = () => {
   const { coachesList = [], coachesLoading = false } = useSelector(
     (state) => state.admin || {},
   );
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   useEffect(() => {
     if (location.state && location.state.mode === "create") {
@@ -47,6 +51,13 @@ const CourseList = () => {
   const handleAddCourse = () => {
     dispatch(fetchCoachesDropdownAPI());
     setIsDrawerOpen(true);
+  };
+
+  const handleDrawerClose = (courseCreated = false) => {
+    setIsDrawerOpen(false);
+    if (courseCreated) {
+      refetch();
+    }
   };
 
   const formatDate = (dateString) => {
@@ -298,13 +309,13 @@ const CourseList = () => {
         {isDrawerOpen && (
           <CustomDrawer
             isOpen={isDrawerOpen}
-            onClose={() => setIsDrawerOpen(false)}
+            onClose={() => handleDrawerClose(false)}
             title="Create New Course"
             footer={null}
             width="800px"
           >
             <CourseStepper
-              onClose={() => setIsDrawerOpen(false)}
+              onClose={handleDrawerClose}
               coaches={coachesList}
               coachesLoading={coachesLoading}
               course={null}

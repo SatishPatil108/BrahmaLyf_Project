@@ -239,7 +239,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
         });
 
         await dispatch(addNewCourseAPI(formData)).unwrap();
-        onClose();
+        onClose(true);
       } catch (err) {
         setApiError(
           err?.message || err?.data?.message || "Failed to create course",

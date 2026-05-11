@@ -20,59 +20,87 @@ export const getProgressTasksQuestionService = (questionId) => {
   });
 };
 
-export const getAllProgressTasksQuestionsService = (week_no, day_no) => {
+export const getAllProgressTasksQuestionsService = (
+  course_id,
+  week_no,
+  day_no
+) => {
   return new Promise((resolve, reject) => {
-    // Validate week_no and day_no
+    // Validate inputs
+    course_id = parseInt(course_id, 10);
     week_no = parseInt(week_no, 10);
     day_no = parseInt(day_no, 10);
 
-    if (!week_no || week_no < 1) return reject({ message: "Invalid week_no" });
-    if (!day_no || day_no < 1) return reject({ message: "Invalid day_no" });
+    if (!course_id || course_id < 1) {
+      return reject({ message: "Invalid course_id" });
+    }
 
-    //  Count query — total questions for this week/day group
+    if (!week_no || week_no < 1) {
+      return reject({ message: "Invalid week_no" });
+    }
+
+    if (!day_no || day_no < 1) {
+      return reject({ message: "Invalid day_no" });
+    }
+
+    // Count query — total questions for this course/week/day
     const countQuery = `
       SELECT COUNT(*) AS total_questions
       FROM bm.progress_tracking_questions
       WHERE status = 1
-        AND week_no = $1
-        AND day_no = $2
+        AND course_id = $1
+        AND week_no = $2
+        AND day_no = $3
     `;
 
-    connection.query(countQuery, [week_no, day_no], (err, countResult) => {
-      if (err) return reject(err);
-
-      const totalQuestions = parseInt(countResult.rows[0].total_questions, 10);
-
-      //  Data query
-      const dataQuery = `
-         SELECT
-             q.id AS question_id,
-             q.question_text,
-             q.option_type,
-             q.week_no,
-             q.day_no,
-             q.course_id,
-             o.options
-          FROM bm.progress_tracking_questions q
-          LEFT JOIN bm.progress_tracking_options o
-          ON o.question_id = q.id
-          WHERE q.status = 1
-          AND q.week_no = $1
-          AND q.day_no = $2
-        ORDER BY q.id ASC
-      `;
-
-      connection.query(dataQuery, [week_no, day_no], (err, dataResult) => {
+    connection.query(
+      countQuery,
+      [course_id, week_no, day_no],
+      (err, countResult) => {
         if (err) return reject(err);
 
-        return resolve({
-          week_no,
-          day_no,
-          total_questions: totalQuestions,
-          questions: dataResult.rows || [],
-        });
-      });
-    });
+        const totalQuestions = parseInt(
+          countResult.rows[0].total_questions,
+          10
+        );
+
+        // Data query
+        const dataQuery = `
+          SELECT
+            q.id AS question_id,
+            q.question_text,
+            q.option_type,
+            q.week_no,
+            q.day_no,
+            q.course_id,
+            o.options
+          FROM bm.progress_tracking_questions q
+          LEFT JOIN bm.progress_tracking_options o
+            ON o.question_id = q.id
+          WHERE q.status = 1
+            AND q.course_id = $1
+            AND q.week_no = $2
+            AND q.day_no = $3
+          ORDER BY q.id ASC
+        `;
+
+        connection.query(
+          dataQuery,
+          [course_id, week_no, day_no],
+          (err, dataResult) => {
+            if (err) return reject(err);
+
+            return resolve({
+              course_id,
+              week_no,
+              day_no,
+              total_questions: totalQuestions,
+              questions: dataResult.rows || [],
+            });
+          }
+        );
+      }
+    );
   });
 };
 
