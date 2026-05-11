@@ -462,11 +462,54 @@ export const updateUserToolsResponseAPI = createAsyncThunk(
   "user/updateUserTools",
   async ({ questionId, toolsData }, thunkAPI) => {
     try {
-      const response = await userAPI.updateUserToolsResponse(questionId, toolsData);
+      const response = await userAPI.updateUserToolsResponse(
+        questionId,
+        toolsData,
+      );
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to update user tools data",
+      );
+    }
+  },
+);
+
+// fetch user progress tracking tasks questions and options for a specific week
+export const fetchUserTaskQuestionsAPI = createAsyncThunk(
+  "user/fetchUserTasksWeekQuestions",
+  async ({ courseId, weekNo }, thunkAPI) => {
+    try {
+      const response = await userAPI.fetchUserTasksWeekQuestions(
+        courseId,
+        weekNo,
+      );
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch user progress tracking questions and options",
+      );
+    }
+  },
+);
+
+// fetch user progress tracking tools questions and options for a specific week
+export const fetchUserToolQuestionsAPI = createAsyncThunk(
+  "user/fetchUserToolsWeekQuestions",
+  async ({ courseId, weekNo }, thunkAPI) => {
+    try {
+      const response = await userAPI.fetchUserToolsWeekQuestions(
+        courseId,
+        weekNo,
+      );
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch user progress tracking questions and options",
       );
     }
   },

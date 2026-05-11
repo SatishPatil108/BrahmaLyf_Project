@@ -2,6 +2,7 @@ import verifyUserToken from "../../middleware/verifyUserToken.js";
 import {
   getProgressToolsQuestionsController,
   getProgressToolsUserResponseController,
+  getUserToolsWeekQuestionsController,
   postProgressToolsUserResponseController,
   updateProgressToolsUserResponseController,
 } from "../controller/progressToolsQuestions.js";
@@ -11,6 +12,12 @@ export default (app) => {
     "/apis/user/fetchProgressToolsQuestions",
     verifyUserToken,
     getProgressToolsQuestionsController,
+  );
+
+  app.get(
+    "/apis/user/fetchUserToolsWeekQuestions",
+    verifyUserToken,
+    getUserToolsWeekQuestionsController,
   );
 
   app.get(

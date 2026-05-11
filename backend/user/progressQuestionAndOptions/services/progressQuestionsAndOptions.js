@@ -56,8 +56,6 @@ export const getQuestionsWithOptionsService = async (courseId) => {
     const activeWeekNo =
       stateResult.rows.length > 0 ? stateResult.rows[0].week_no : 1;
 
-    
-
     // ✅ STEP 2: Fetch questions for that week
     const query = `
       SELECT 
@@ -131,6 +129,92 @@ export const getQuestionsWithOptionsService = async (courseId) => {
     throw error;
   }
 };
+
+export const getUserTasksWeekQuestionsService = async (courseId, weekNo) => {
+  try {
+    // Parse and validate inputs
+    courseId = parseInt(courseId, 10);
+    weekNo = parseInt(weekNo, 10);
+
+    if (isNaN(courseId) || isNaN(weekNo)) {
+      throw new Error("Invalid courseId or weekNo");
+    }
+
+    // Fetch task questions for the given course and week
+    const query = `
+      SELECT
+        q.id AS question_id,
+        q.question_text,
+        q.option_type,
+        q.day_no,
+        o.id AS option_id,
+        o.options AS option_text,
+        o.option_order
+      FROM bm.progress_tracking_questions q
+      LEFT JOIN bm.progress_tracking_options o
+        ON q.id = o.question_id
+      WHERE q.week_no = $1
+        AND q.course_id = $2
+        AND q.status = 1
+      ORDER BY q.day_no, q.id, o.option_order;
+    `;
+
+    const result = await connection.query(query, [weekNo, courseId]);
+    const rows = result.rows;
+
+    // Group rows by question_id so each question contains its options
+    const questionsMap = new Map();
+
+    for (const row of rows) {
+      if (!questionsMap.has(row.question_id)) {
+        questionsMap.set(row.question_id, {
+          question_id: row.question_id,
+          question_text: row.question_text,
+          option_type: row.option_type,
+          day_no: row.day_no,
+          options: [],
+        });
+      }
+
+      // Add option only if it exists
+      if (row.option_id) {
+        questionsMap.get(row.question_id).options.push({
+          option_id: row.option_id,
+          option_text: row.option_text,
+          option_order: row.option_order,
+        });
+      }
+    }
+
+    const questions = Array.from(questionsMap.values());
+
+    // If no records found
+    if (!questions.length) {
+      console.warn(
+        `[SERVICE] No task questions found for Course ${courseId} — Week ${weekNo}`,
+      );
+
+      return {
+        courseId,
+        weekNo,
+        totalRecords: 0,
+        questions: [],
+      };
+    }
+
+    // Return structured response
+    return {
+      courseId,
+      weekNo,
+      totalRecords: questions.length, 
+      questions,
+    };
+  } catch (error) {
+    console.error("Error fetching task questions:", error);
+    throw error;
+  }
+};
+
 
 // get user response service
 export const getUserResponseService = (userId, courseId) => {

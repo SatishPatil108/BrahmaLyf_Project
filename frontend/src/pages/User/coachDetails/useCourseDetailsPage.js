@@ -8,12 +8,14 @@ import {
   fetchCourseFeedbackById,
 } from "@/store/feature/user";
 
-import { toast } from 'react-toastify'
+import { toast } from "react-toastify";
 
 const useCourseDetailsPage = (videoId) => {
   const dispatch = useDispatch();
+
   const { coachDetails, courseDetails, isLoading, error, allCoursesFeedback } =
     useSelector((state) => state.user);
+
   const { user } = useSelector((state) => state.auth);
 
   // Added `user` from redux state
@@ -43,7 +45,7 @@ const useCourseDetailsPage = (videoId) => {
           courseId: courseDetails.course_id,
           pageNo: 1,
           pageSize: 10,
-        })
+        }),
       );
     }
   }, [courseDetails, dispatch]);
@@ -53,11 +55,15 @@ const useCourseDetailsPage = (videoId) => {
     if (!courseDetails?.course_id) return;
     try {
       setEnrolling(true);
-      const res = await dispatch(enrollInCourseAPI(courseDetails.course_id)).unwrap();
+      const res = await dispatch(
+        enrollInCourseAPI(courseDetails.course_id),
+      ).unwrap();
 
       if (res?.data) {
         const { user_name, course_name } = res.data;
-        toast.success(`🎉 Welcome ${user_name}! You have successfully enrolled in "${course_name}".`);
+        toast.success(
+          `🎉 Welcome ${user_name}! You have successfully enrolled in "${course_name}".`,
+        );
       } else {
         toast.success(res?.message || "Enrollment successful!");
       }
@@ -74,7 +80,7 @@ const useCourseDetailsPage = (videoId) => {
       confirm("You must be logged in first!");
       return;
     }
-    setMessage(""); // Clear previous messages
+    setMessage("");
     enrollInCourse();
   };
   return {
@@ -83,9 +89,9 @@ const useCourseDetailsPage = (videoId) => {
     allCoursesFeedback,
     loading: isLoading,
     error,
-    handleEnroll, // Only expose handleEnroll
+    handleEnroll,
     enrolling,
-    message, // Inline message
+    message,
   };
 };
 

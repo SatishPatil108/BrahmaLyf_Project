@@ -295,7 +295,7 @@ export const fetchUserToolsQuestions = async (courseId) => {
     authRequired: true,
     tokenType: "user",
   });
-}
+};
 
 // post user tools response
 export const postUserToolsProgress = async (toolsData) => {
@@ -325,6 +325,26 @@ export const updateUserToolsResponse = async (questionId, toolsData) => {
     service: `user/progress-tools/${questionId}`,
     method: API_METHODS.PUT,
     data: toolsData,
+    authRequired: true,
+    tokenType: "user",
+  });
+};
+
+// fetch User Tasks Questions and options for a specific week
+export const fetchUserTasksWeekQuestions = async (courseId, weekNo) => {
+  return await makeRequest({
+    service: `user/fetchUserTasksWeekQuestions?courseId=${1}&weekNo=${1}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "user",
+  });
+};
+
+// fetch User Tools Questions and options for a specific week
+export const fetchUserToolsWeekQuestions = async (courseId, weekNo) => {
+  return await makeRequest({
+    service: `user/fetchUserToolsWeekQuestions?courseId=${1}&weekNo=${1}`,
+    method: API_METHODS.GET,
     authRequired: true,
     tokenType: "user",
   });

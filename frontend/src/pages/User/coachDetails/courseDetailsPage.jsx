@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   Play,
@@ -16,10 +16,20 @@ import {
   Shield,
   Bookmark,
   Share2,
+  Wrench,
+  Lock,
+  List,
 } from "lucide-react";
 import useCourseDetailsPage from "./useCourseDetailsPage";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useYouTubeEmbedUrl } from "@/hooks/useYouTubeEmbedUrl";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchUserTaskQuestionsAPI,
+  fetchUserToolQuestionsAPI,
+} from "@/store/feature/user";
+import ToolsForm from "./ToolsForm";
+import TasksForm from "./TasksForm";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL_IMG;
 
@@ -35,8 +45,23 @@ const CourseDetailsPage = () => {
     allCoursesFeedback,
   } = useCourseDetailsPage(videoId);
 
-  const { theme } = useTheme(); // dark/light
+  const dispatch = useDispatch();
+
+  const { courseId } = useParams();
+  const [weekNo, setWeekNo] = useState(1);
+
+  const { TasksDetails, ToolsDetails } = useSelector((state) => state.user);
+
+  const taskQuestions = TasksDetails?.tasks || [];
+  const toolQuestions = ToolsDetails?.tools || [];
+
+  const { theme } = useTheme();
   const [activeSection, setActiveSection] = useState("overview");
+
+  useEffect(() => {
+    dispatch(fetchUserTaskQuestionsAPI({ courseId, weekNo }));
+    dispatch(fetchUserToolQuestionsAPI({ courseId, weekNo }));
+  }, [dispatch, courseId, weekNo]);
 
   const { getYouTubeEmbedUrl } = useYouTubeEmbedUrl({
     fallbackUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
@@ -55,32 +80,32 @@ const CourseDetailsPage = () => {
 
   // Theme-based styles
   const containerStyle = {
-    backgroundColor: theme === 'dark' ? '#030712' : '#ffffff',
-    color: theme === 'dark' ? '#f9fafb' : '#111827',
-    transition: 'background-color 0.3s, color 0.3s'
+    backgroundColor: theme === "dark" ? "#030712" : "#ffffff",
+    color: theme === "dark" ? "#f9fafb" : "#111827",
+    transition: "background-color 0.3s, color 0.3s",
   };
 
   const cardStyle = {
-    backgroundColor: theme === 'dark' ? '#111827' : '#ffffff',
-    borderColor: theme === 'dark' ? '#374151' : '#e5e7eb',
-    color: theme === 'dark' ? '#f9fafb' : '#111827'
+    backgroundColor: theme === "dark" ? "#111827" : "#ffffff",
+    borderColor: theme === "dark" ? "#374151" : "#e5e7eb",
+    color: theme === "dark" ? "#f9fafb" : "#111827",
   };
 
   const textSecondaryStyle = {
-    color: theme === 'dark' ? '#9ca3af' : '#6b7280'
+    color: theme === "dark" ? "#9ca3af" : "#6b7280",
   };
 
   const textPrimaryStyle = {
-    color: theme === 'dark' ? '#f9fafb' : '#111827'
+    color: theme === "dark" ? "#f9fafb" : "#111827",
   };
 
   const buttonStyle = {
-    background: 'linear-gradient(to right, #2563eb, #1d4ed8)',
-    color: '#ffffff'
+    background: "linear-gradient(to right, #2563eb, #1d4ed8)",
+    color: "#ffffff",
   };
 
   const buttonHoverStyle = {
-    background: 'linear-gradient(to right, #1d4ed8, #1e40af)'
+    background: "linear-gradient(to right, #1d4ed8, #1e40af)",
   };
 
   // Course highlights
@@ -113,9 +138,12 @@ const CourseDetailsPage = () => {
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="text-center">
             <div className="relative inline-block">
-              <div className="w-12 h-12 rounded-full border-4" style={{
-                borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
-              }}></div>
+              <div
+                className="w-12 h-12 rounded-full border-4"
+                style={{
+                  borderColor: theme === "dark" ? "#374151" : "#e5e7eb",
+                }}
+              ></div>
               <div className="absolute top-0 left-0 w-12 h-12 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
             </div>
             <p className="mt-4 text-lg font-medium" style={textPrimaryStyle}>
@@ -132,11 +160,18 @@ const CourseDetailsPage = () => {
       <div style={containerStyle} className="min-h-screen">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="text-center">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ backgroundColor: theme === 'dark' ? '#1f2937' : '#f3f4f6' }}>
-              <BookOpen className="w-8 h-8" style={{
-                color: theme === 'dark' ? '#9ca3af' : '#6b7280'
-              }} />
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{
+                backgroundColor: theme === "dark" ? "#1f2937" : "#f3f4f6",
+              }}
+            >
+              <BookOpen
+                className="w-8 h-8"
+                style={{
+                  color: theme === "dark" ? "#9ca3af" : "#6b7280",
+                }}
+              />
             </div>
             <h2 className="text-xl font-semibold mb-2" style={textPrimaryStyle}>
               Course Not Found
@@ -154,44 +189,59 @@ const CourseDetailsPage = () => {
     <div style={containerStyle} className="min-h-screen">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0" style={{
-          backgroundColor: theme === 'dark' ? '#111827' : '#f9fafb'
-        }}></div>
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundColor: theme === "dark" ? "#111827" : "#f9fafb",
+          }}
+        ></div>
         <div className="max-w-7xl mx-auto px-4 pt-8 pb-6 relative">
           <div className="mb-4">
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <Link
                 to="/"
                 style={{
-                  color: theme === 'dark' ? '#9ca3af' : '#4b5563'
+                  color: theme === "dark" ? "#9ca3af" : "#4b5563",
                 }}
                 className="hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
               >
                 Home
               </Link>
-              <ChevronRight className="w-4 h-4" style={{
-                color: theme === 'dark' ? '#9ca3af' : '#9ca3af'
-              }} />
+              <ChevronRight
+                className="w-4 h-4"
+                style={{
+                  color: theme === "dark" ? "#9ca3af" : "#9ca3af",
+                }}
+              />
               <Link
                 to="/courses"
                 style={{
-                  color: theme === 'dark' ? '#9ca3af' : '#4b5563'
+                  color: theme === "dark" ? "#9ca3af" : "#4b5563",
                 }}
                 className="hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
               >
                 Courses
               </Link>
-              <ChevronRight className="w-4 h-4" style={{
-                color: theme === 'dark' ? '#9ca3af' : '#9ca3af'
-              }} />
-              <span className="font-medium" style={{
-                color: theme === 'dark' ? '#93c5fd' : '#1d4ed8'
-              }}>
+              <ChevronRight
+                className="w-4 h-4"
+                style={{
+                  color: theme === "dark" ? "#9ca3af" : "#9ca3af",
+                }}
+              />
+              <span
+                className="font-medium"
+                style={{
+                  color: theme === "dark" ? "#93c5fd" : "#1d4ed8",
+                }}
+              >
                 {coach?.domain_name}
               </span>
-              <ChevronRight className="w-4 h-4" style={{
-                color: theme === 'dark' ? '#9ca3af' : '#9ca3af'
-              }} />
+              <ChevronRight
+                className="w-4 h-4"
+                style={{
+                  color: theme === "dark" ? "#9ca3af" : "#9ca3af",
+                }}
+              />
               <span className="font-medium" style={textPrimaryStyle}>
                 {coach?.subdomain_name}
               </span>
@@ -203,21 +253,33 @@ const CourseDetailsPage = () => {
             <div className="lg:col-span-2 space-y-6">
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="px-3 py-1 rounded-full text-sm font-medium" style={{
-                    backgroundColor: theme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : '#dbeafe',
-                    color: theme === 'dark' ? '#93c5fd' : '#1e40af'
-                  }}>
+                  <span
+                    className="px-3 py-1 rounded-full text-sm font-medium"
+                    style={{
+                      backgroundColor:
+                        theme === "dark"
+                          ? "rgba(59, 130, 246, 0.3)"
+                          : "#dbeafe",
+                      color: theme === "dark" ? "#93c5fd" : "#1e40af",
+                    }}
+                  >
                     {coach?.subdomain_name}
                   </span>
                 </div>
 
-                <h1 className="text-3xl md:text-4xl font-bold mb-4" style={textPrimaryStyle}>
+                <h1
+                  className="text-3xl md:text-4xl font-bold mb-4"
+                  style={textPrimaryStyle}
+                >
                   {course?.course_name}
                 </h1>
 
-                <p className="text-lg mb-6" style={{
-                  color: theme === 'dark' ? '#d1d5db' : '#374151'
-                }}>
+                <p
+                  className="text-lg mb-6"
+                  style={{
+                    color: theme === "dark" ? "#d1d5db" : "#374151",
+                  }}
+                >
                   {course?.curriculum_description}
                 </p>
               </div>
@@ -247,14 +309,18 @@ const CourseDetailsPage = () => {
                     style={cardStyle}
                   >
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg" style={{
-                        backgroundColor: theme === 'dark' ? '#1f2937' : '#f3f4f6'
-                      }}>
+                      <div
+                        className="p-2 rounded-lg"
+                        style={{
+                          backgroundColor:
+                            theme === "dark" ? "#1f2937" : "#f3f4f6",
+                        }}
+                      >
                         {React.cloneElement(item.icon, {
                           className: "w-4 h-4",
                           style: {
-                            color: theme === 'dark' ? '#93c5fd' : '#2563eb'
-                          }
+                            color: theme === "dark" ? "#93c5fd" : "#2563eb",
+                          },
                         })}
                       </div>
                     </div>
@@ -273,49 +339,84 @@ const CourseDetailsPage = () => {
 
             {/* Right Column - Enrollment Card */}
             <div className="space-y-6">
-              <div className="sticky top-6 rounded-2xl p-6 shadow-xl border"
-                style={cardStyle}>
+              <div
+                className="sticky top-6 rounded-2xl p-6 shadow-xl border"
+                style={cardStyle}
+              >
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold" style={textPrimaryStyle}>
                     Enroll Now
                   </h3>
                   <div className="flex items-center gap-2">
-                    <button className="p-2 rounded-lg transition-colors" style={{
-                      color: theme === 'dark' ? '#9ca3af' : '#6b7280',
-                      backgroundColor: theme === 'dark' ? 'transparent' : 'transparent'
-                    }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                    <button
+                      className="p-2 rounded-lg transition-colors"
+                      style={{
+                        color: theme === "dark" ? "#9ca3af" : "#6b7280",
+                        backgroundColor:
+                          theme === "dark" ? "transparent" : "transparent",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.backgroundColor =
+                          theme === "dark" ? "#374151" : "#f3f4f6")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.backgroundColor = "transparent")
+                      }
+                    >
                       <Bookmark className="w-5 h-5" />
                     </button>
-                    <button className="p-2 rounded-lg transition-colors" style={{
-                      color: theme === 'dark' ? '#9ca3af' : '#6b7280',
-                      backgroundColor: theme === 'dark' ? 'transparent' : 'transparent'
-                    }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                    <button
+                      className="p-2 rounded-lg transition-colors"
+                      style={{
+                        color: theme === "dark" ? "#9ca3af" : "#6b7280",
+                        backgroundColor:
+                          theme === "dark" ? "transparent" : "transparent",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.backgroundColor =
+                          theme === "dark" ? "#374151" : "#f3f4f6")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.backgroundColor = "transparent")
+                      }
+                    >
                       <Share2 className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
 
                 <div className="space-y-4 mb-6">
-                  <div className="flex items-center gap-3 p-3 rounded-lg border" style={{
-                    borderColor: theme === 'dark' ? '#1e3a8a' : '#93c5fd',
-                    backgroundColor: theme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe'
-                  }}>
-                    <Calendar className="w-5 h-5" style={{
-                      color: theme === 'dark' ? '#93c5fd' : '#2563eb'
-                    }} />
+                  <div
+                    className="flex items-center gap-3 p-3 rounded-lg border"
+                    style={{
+                      borderColor: theme === "dark" ? "#1e3a8a" : "#93c5fd",
+                      backgroundColor:
+                        theme === "dark"
+                          ? "rgba(59, 130, 246, 0.2)"
+                          : "#dbeafe",
+                    }}
+                  >
+                    <Calendar
+                      className="w-5 h-5"
+                      style={{
+                        color: theme === "dark" ? "#93c5fd" : "#2563eb",
+                      }}
+                    />
                     <div>
-                      <p className="text-sm" style={{
-                        color: theme === 'dark' ? '#93c5fd' : '#1d4ed8'
-                      }}>
+                      <p
+                        className="text-sm"
+                        style={{
+                          color: theme === "dark" ? "#93c5fd" : "#1d4ed8",
+                        }}
+                      >
                         Created on
                       </p>
-                      <p className="font-medium" style={{
-                        color: theme === 'dark' ? '#bfdbfe' : '#1e40af'
-                      }}>
+                      <p
+                        className="font-medium"
+                        style={{
+                          color: theme === "dark" ? "#bfdbfe" : "#1e40af",
+                        }}
+                      >
                         {formatDate(course?.created_on)}
                       </p>
                     </div>
@@ -323,26 +424,44 @@ const CourseDetailsPage = () => {
 
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" style={{ color: '#10b981' }} />
-                      <span className="text-sm" style={{
-                        color: theme === 'dark' ? '#d1d5db' : '#374151'
-                      }}>
+                      <CheckCircle
+                        className="w-5 h-5"
+                        style={{ color: "#10b981" }}
+                      />
+                      <span
+                        className="text-sm"
+                        style={{
+                          color: theme === "dark" ? "#d1d5db" : "#374151",
+                        }}
+                      >
                         Certificate of Completion
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" style={{ color: '#10b981' }} />
-                      <span className="text-sm" style={{
-                        color: theme === 'dark' ? '#d1d5db' : '#374151'
-                      }}>
+                      <CheckCircle
+                        className="w-5 h-5"
+                        style={{ color: "#10b981" }}
+                      />
+                      <span
+                        className="text-sm"
+                        style={{
+                          color: theme === "dark" ? "#d1d5db" : "#374151",
+                        }}
+                      >
                         Lifetime Access
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" style={{ color: '#10b981' }} />
-                      <span className="text-sm" style={{
-                        color: theme === 'dark' ? '#d1d5db' : '#374151'
-                      }}>
+                      <CheckCircle
+                        className="w-5 h-5"
+                        style={{ color: "#10b981" }}
+                      />
+                      <span
+                        className="text-sm"
+                        style={{
+                          color: theme === "dark" ? "#d1d5db" : "#374151",
+                        }}
+                      >
                         Mobile & Tablet Friendly
                       </span>
                     </div>
@@ -355,10 +474,13 @@ const CourseDetailsPage = () => {
                   className="w-full py-4 rounded-xl font-bold transition-all duration-300 text-white shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
                   style={buttonStyle}
                   onMouseEnter={(e) => {
-                    if (!enrolling) e.currentTarget.style.background = buttonHoverStyle.background;
+                    if (!enrolling)
+                      e.currentTarget.style.background =
+                        buttonHoverStyle.background;
                   }}
                   onMouseLeave={(e) => {
-                    if (!enrolling) e.currentTarget.style.background = buttonStyle.background;
+                    if (!enrolling)
+                      e.currentTarget.style.background = buttonStyle.background;
                   }}
                 >
                   {enrolling ? (
@@ -381,9 +503,9 @@ const CourseDetailsPage = () => {
         {/* Navigation Tabs */}
         <div className="mb-8 py-4 w-full">
           <div
-            className="grid grid-cols-2 sm:grid-cols-4 border-b"
+            className="grid grid-cols-2 sm:grid-cols-6 border-b"
             style={{
-              borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+              borderColor: theme === "dark" ? "#ffffff" : "#e5e7eb",
             }}
           >
             {[
@@ -391,43 +513,52 @@ const CourseDetailsPage = () => {
               "target-audience",
               "learning-outcomes",
               "curriculum",
+              "todays-tasks",
+              "todays-tools",
             ].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveSection(tab)}
                 className={`
-          px-2 sm:px-4 lg:px-6 
-          py-3 sm:py-3.5 
-          font-medium text-xs sm:text-sm lg:text-base
-          transition-all duration-200
-          flex items-center justify-center text-center
-          ${activeSection === tab
+                  px-2 sm:px-4 lg:px-6 
+                  py-3 sm:py-3.5 
+                  font-medium text-xs sm:text-sm lg:text-base
+                  transition-all duration-200
+                  flex items-center justify-center text-center
+                ${
+                  activeSection === tab
                     ? "border-b-2 shadow-sm"
                     : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }
-        `}
+                }
+                `}
                 style={
                   activeSection === tab
                     ? {
-                      color: theme === 'dark' ? '#93c5fd' : '#2563eb',
-                      borderColor: theme === 'dark' ? '#93c5fd' : '#2563eb',
-                      backgroundColor: theme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : '#eff6ff'
-                    }
+                        color: theme === "dark" ? "#93c5fd" : "#2563eb",
+                        borderColor: theme === "dark" ? "#93c5fd" : "#2563eb",
+                        backgroundColor:
+                          theme === "dark"
+                            ? "rgba(59, 130, 246, 0.2)"
+                            : "#eff6ff",
+                      }
                     : {
-                      color: theme === 'dark' ? '#9ca3af' : '#6b7280',
-                      backgroundColor: 'transparent'
-                    }
+                        color: theme === "dark" ? "#9ca3af" : "#6b7280",
+                        backgroundColor: "transparent",
+                      }
                 }
                 onMouseEnter={(e) => {
                   if (activeSection !== tab) {
-                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6';
-                    e.currentTarget.style.color = theme === 'dark' ? '#e5e7eb' : '#374151';
+                    e.currentTarget.style.backgroundColor =
+                      theme === "dark" ? "#374151" : "#f3f4f6";
+                    e.currentTarget.style.color =
+                      theme === "dark" ? "#e5e7eb" : "#374151";
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (activeSection !== tab) {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = theme === 'dark' ? '#9ca3af' : '#6b7280';
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color =
+                      theme === "dark" ? "#9ca3af" : "#6b7280";
                   }
                 }}
               >
@@ -440,6 +571,16 @@ const CourseDetailsPage = () => {
                   <>
                     <span className="hidden sm:inline">Learning Outcomes</span>
                     <span className="inline sm:hidden">Outcomes</span>
+                  </>
+                ) : tab === "todays-tasks" ? (
+                  <>
+                    <span className="hidden sm:inline">Today's Tasks</span>
+                    <span className="inline sm:hidden">Tasks</span>
+                  </>
+                ) : tab === "todays-tools" ? (
+                  <>
+                    <span className="hidden sm:inline">Today's Tools</span>
+                    <span className="inline sm:hidden">Tools</span>
                   </>
                 ) : (
                   tab.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())
@@ -454,29 +595,48 @@ const CourseDetailsPage = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {activeSection === "overview" && (
-              <div className="rounded-2xl p-6 border shadow-sm"
-                style={cardStyle}>
-                <h2 className="text-2xl font-bold mb-4" style={textPrimaryStyle}>
+              <div
+                className="rounded-2xl p-6 border shadow-sm"
+                style={cardStyle}
+              >
+                <h2
+                  className="text-2xl font-bold mb-4"
+                  style={textPrimaryStyle}
+                >
                   Course Overview
                 </h2>
-                <p className="leading-relaxed" style={{
-                  color: theme === 'dark' ? '#d1d5db' : '#374151'
-                }}>
+                <p
+                  className="leading-relaxed"
+                  style={{
+                    color: theme === "dark" ? "#d1d5db" : "#374151",
+                  }}
+                >
                   {course?.curriculum_description}
                 </p>
               </div>
             )}
 
             {activeSection === "target-audience" && (
-              <div className="rounded-2xl p-6 border shadow-sm"
-                style={cardStyle}>
+              <div
+                className="rounded-2xl p-6 border shadow-sm"
+                style={cardStyle}
+              >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{
-                    backgroundColor: theme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : '#dbeafe'
-                  }}>
-                    <Users className="w-6 h-6" style={{
-                      color: theme === 'dark' ? '#93c5fd' : '#2563eb'
-                    }} />
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{
+                      backgroundColor:
+                        theme === "dark"
+                          ? "rgba(59, 130, 246, 0.3)"
+                          : "#dbeafe",
+                    }}
+                  >
+                    <Users
+                      className="w-6 h-6"
+                      style={{
+                        color: theme === "dark" ? "#93c5fd" : "#2563eb",
+                      }}
+                    />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold" style={textPrimaryStyle}>
@@ -489,24 +649,36 @@ const CourseDetailsPage = () => {
                   </div>
                 </div>
 
-                <p className="leading-relaxed whitespace-pre-line" style={{
-                  color: theme === 'dark' ? '#d1d5db' : '#374151'
-                }}>
+                <p
+                  className="leading-relaxed whitespace-pre-line"
+                  style={{
+                    color: theme === "dark" ? "#d1d5db" : "#374151",
+                  }}
+                >
                   {course?.target_audience}
                 </p>
               </div>
             )}
 
             {activeSection === "learning-outcomes" && (
-              <div className="rounded-2xl p-6 border shadow-sm"
-                style={cardStyle}>
+              <div
+                className="rounded-2xl p-6 border shadow-sm"
+                style={cardStyle}
+              >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{
-                    backgroundColor: theme === 'dark' ? 'rgba(34, 197, 94, 0.3)' : '#d1fae5'
-                  }}>
-                    <Target className="w-6 h-6" style={{
-                      color: theme === 'dark' ? '#86efac' : '#10b981'
-                    }} />
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{
+                      backgroundColor:
+                        theme === "dark" ? "rgba(34, 197, 94, 0.3)" : "#d1fae5",
+                    }}
+                  >
+                    <Target
+                      className="w-6 h-6"
+                      style={{
+                        color: theme === "dark" ? "#86efac" : "#10b981",
+                      }}
+                    />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold" style={textPrimaryStyle}>
@@ -518,24 +690,38 @@ const CourseDetailsPage = () => {
                   </div>
                 </div>
 
-                <p className="leading-relaxed whitespace-pre-line" style={{
-                  color: theme === 'dark' ? '#d1d5db' : '#374151'
-                }}>
+                <p
+                  className="leading-relaxed whitespace-pre-line"
+                  style={{
+                    color: theme === "dark" ? "#d1d5db" : "#374151",
+                  }}
+                >
                   {course?.learning_outcomes}
                 </p>
               </div>
             )}
 
             {activeSection === "curriculum" && (
-              <div className="rounded-2xl p-6 border shadow-sm"
-                style={cardStyle}>
+              <div
+                className="rounded-2xl p-6 border shadow-sm"
+                style={cardStyle}
+              >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{
-                    backgroundColor: theme === 'dark' ? 'rgba(168, 85, 247, 0.3)' : '#f3e8ff'
-                  }}>
-                    <BookOpen className="w-6 h-6" style={{
-                      color: theme === 'dark' ? '#d8b4fe' : '#9333ea'
-                    }} />
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{
+                      backgroundColor:
+                        theme === "dark"
+                          ? "rgba(168, 85, 247, 0.3)"
+                          : "#f3e8ff",
+                    }}
+                  >
+                    <BookOpen
+                      className="w-6 h-6"
+                      style={{
+                        color: theme === "dark" ? "#d8b4fe" : "#9333ea",
+                      }}
+                    />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold" style={textPrimaryStyle}>
@@ -547,25 +733,119 @@ const CourseDetailsPage = () => {
                   </div>
                 </div>
 
-                <p className="leading-relaxed whitespace-pre-line" style={{
-                  color: theme === 'dark' ? '#d1d5db' : '#374151'
-                }}>
+                <p
+                  className="leading-relaxed whitespace-pre-line"
+                  style={{
+                    color: theme === "dark" ? "#d1d5db" : "#374151",
+                  }}
+                >
                   {course?.curriculum_description}
                 </p>
               </div>
             )}
 
+            {activeSection === "todays-tasks" && (
+              <div
+                className="rounded-2xl p-6 border shadow-sm"
+                style={cardStyle}
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{
+                      backgroundColor:
+                        theme === "dark"
+                          ? "rgba(168, 85, 247, 0.3)"
+                          : "#f3e8ff",
+                    }}
+                  >
+                    <Wrench
+                      className="w-6 h-6"
+                      style={{
+                        color: theme === "dark" ? "#d8b4fe" : "#9333ea",
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold" style={textPrimaryStyle}>
+                      Tasks & Resources
+                    </h2>
+                    <p style={textSecondaryStyle}>
+                      Essential tools, software, and learning resources
+                    </p>
+                  </div>
+                </div>
+
+                <TasksForm
+                  courseId={courseId}
+                  weekNo={weekNo}
+                  taskQuestions={taskQuestions}
+                />
+              </div>
+            )}
+
+            {activeSection === "todays-tools" && (
+              <div
+                className="rounded-2xl p-6 border shadow-sm"
+                style={cardStyle}
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{
+                      backgroundColor:
+                        theme === "dark"
+                          ? "rgba(168, 85, 247, 0.3)"
+                          : "#f3e8ff",
+                    }}
+                  >
+                    <Wrench
+                      className="w-6 h-6"
+                      style={{
+                        color: theme === "dark" ? "#d8b4fe" : "#9333ea",
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold" style={textPrimaryStyle}>
+                      Tools & Resources
+                    </h2>
+                    <p style={textSecondaryStyle}>
+                      Essential tools, software, and learning resources
+                    </p>
+                  </div>
+                </div>
+
+                <ToolsForm
+                  courseId={courseId}
+                  weekNo={weekNo}
+                  toolQuestions={toolQuestions}
+                />
+              </div>
+            )}
+
             {/* Student Reviews */}
             {allCoursesFeedback && allCoursesFeedback.length > 0 && (
-              <div className="rounded-2xl p-6 mt-8 border shadow-sm"
-                style={cardStyle}>
+              <div
+                className="rounded-2xl p-6 mt-8 border shadow-sm"
+                style={cardStyle}
+              >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{
-                    backgroundColor: theme === 'dark' ? 'rgba(250, 204, 21, 0.3)' : '#fef3c7'
-                  }}>
-                    <Quote className="w-6 h-6" style={{
-                      color: theme === 'dark' ? '#fde047' : '#eab308'
-                    }} />
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{
+                      backgroundColor:
+                        theme === "dark"
+                          ? "rgba(250, 204, 21, 0.3)"
+                          : "#fef3c7",
+                    }}
+                  >
+                    <Quote
+                      className="w-6 h-6"
+                      style={{
+                        color: theme === "dark" ? "#fde047" : "#eab308",
+                      }}
+                    />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold" style={textPrimaryStyle}>
@@ -584,15 +864,16 @@ const CourseDetailsPage = () => {
                       className="p-5 rounded-xl border hover:shadow-md transition-shadow"
                       style={{
                         backgroundColor: cardStyle.backgroundColor,
-                        borderColor: theme === 'dark' ? '#4b5563' : '#e5e7eb'
+                        borderColor: theme === "dark" ? "#4b5563" : "#e5e7eb",
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = theme === 'dark'
-                          ? '0 4px 6px rgba(0, 0, 0, 0.3)'
-                          : '0 4px 6px rgba(0, 0, 0, 0.1)';
+                        e.currentTarget.style.boxShadow =
+                          theme === "dark"
+                            ? "0 4px 6px rgba(0, 0, 0, 0.3)"
+                            : "0 4px 6px rgba(0, 0, 0, 0.1)";
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.boxShadow = 'none';
+                        e.currentTarget.style.boxShadow = "none";
                       }}
                     >
                       <div className="flex items-center gap-2 mb-4">
@@ -601,25 +882,37 @@ const CourseDetailsPage = () => {
                             key={i}
                             className="w-4 h-4"
                             style={{
-                              fill: i < feedback.rating
-                                ? '#fbbf24'
-                                : theme === 'dark' ? '#4b5563' : '#d1d5db',
-                              color: i < feedback.rating
-                                ? '#fbbf24'
-                                : theme === 'dark' ? '#4b5563' : '#d1d5db'
+                              fill:
+                                i < feedback.rating
+                                  ? "#fbbf24"
+                                  : theme === "dark"
+                                    ? "#4b5563"
+                                    : "#d1d5db",
+                              color:
+                                i < feedback.rating
+                                  ? "#fbbf24"
+                                  : theme === "dark"
+                                    ? "#4b5563"
+                                    : "#d1d5db",
                             }}
                           />
                         ))}
-                        <span className="text-sm font-medium ml-2" style={{
-                          color: theme === 'dark' ? '#d1d5db' : '#374151'
-                        }}>
+                        <span
+                          className="text-sm font-medium ml-2"
+                          style={{
+                            color: theme === "dark" ? "#d1d5db" : "#374151",
+                          }}
+                        >
                           {feedback.rating}.0
                         </span>
                       </div>
 
-                      <p className="mb-4 italic" style={{
-                        color: theme === 'dark' ? '#d1d5db' : '#374151'
-                      }}>
+                      <p
+                        className="mb-4 italic"
+                        style={{
+                          color: theme === "dark" ? "#d1d5db" : "#374151",
+                        }}
+                      >
                         "{feedback.comments}"
                       </p>
 
@@ -644,34 +937,40 @@ const CourseDetailsPage = () => {
               </div>
             )}
           </div>
-
-          {/* Sidebar - Course Stats */}
           <div className="space-y-6">
-            <div className="rounded-2xl p-6 border shadow-sm"
-              style={cardStyle}>
+            <div className="rounded-2xl p-6 border shadow-sm" style={cardStyle}>
               <h3 className="text-lg font-bold mb-4" style={textPrimaryStyle}>
                 Course Details
               </h3>
               <div className="space-y-4">
-                <div className="flex justify-between items-center py-2 border-b" style={{
-                  borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
-                }}>
+                <div
+                  className="flex justify-between items-center py-2 border-b"
+                  style={{
+                    borderColor: theme === "dark" ? "#374151" : "#e5e7eb",
+                  }}
+                >
                   <span style={textSecondaryStyle}>Domain</span>
                   <span className="font-medium" style={textPrimaryStyle}>
                     {coach?.domain_name}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b" style={{
-                  borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
-                }}>
+                <div
+                  className="flex justify-between items-center py-2 border-b"
+                  style={{
+                    borderColor: theme === "dark" ? "#374151" : "#e5e7eb",
+                  }}
+                >
                   <span style={textSecondaryStyle}>Subdomain</span>
                   <span className="font-medium" style={textPrimaryStyle}>
                     {coach?.subdomain_name}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b" style={{
-                  borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
-                }}>
+                <div
+                  className="flex justify-between items-center py-2 border-b"
+                  style={{
+                    borderColor: theme === "dark" ? "#374151" : "#e5e7eb",
+                  }}
+                >
                   <span style={textSecondaryStyle}>Duration</span>
                   <span className="font-medium" style={textPrimaryStyle}>
                     {course?.duration}
@@ -690,17 +989,23 @@ const CourseDetailsPage = () => {
       </div>
 
       {/* Bottom CTA */}
-      <div className="py-12 border-t" style={{
-        borderColor: theme === 'dark' ? '#374151' : '#e5e7eb',
-        backgroundColor: theme === 'dark' ? '#111827' : '#f9fafb'
-      }}>
+      <div
+        className="py-12 border-t"
+        style={{
+          borderColor: theme === "dark" ? "#374151" : "#e5e7eb",
+          backgroundColor: theme === "dark" ? "#111827" : "#f9fafb",
+        }}
+      >
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4" style={textPrimaryStyle}>
             Ready to Start Your Learning Journey?
           </h2>
-          <p className="text-lg mb-8" style={{
-            color: theme === 'dark' ? '#d1d5db' : '#374151'
-          }}>
+          <p
+            className="text-lg mb-8"
+            style={{
+              color: theme === "dark" ? "#d1d5db" : "#374151",
+            }}
+          >
             Join thousands of students who have transformed their skills with
             this course
           </p>
@@ -710,10 +1015,12 @@ const CourseDetailsPage = () => {
             className="px-8 py-4 rounded-xl font-bold transition-all duration-300 text-white shadow-lg hover:shadow-xl text-lg disabled:opacity-70 disabled:cursor-not-allowed"
             style={buttonStyle}
             onMouseEnter={(e) => {
-              if (!enrolling) e.currentTarget.style.background = buttonHoverStyle.background;
+              if (!enrolling)
+                e.currentTarget.style.background = buttonHoverStyle.background;
             }}
             onMouseLeave={(e) => {
-              if (!enrolling) e.currentTarget.style.background = buttonStyle.background;
+              if (!enrolling)
+                e.currentTarget.style.background = buttonStyle.background;
             }}
           >
             {enrolling ? "Enrolling..." : "Enroll Now"}

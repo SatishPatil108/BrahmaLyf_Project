@@ -20,6 +20,7 @@ import {
   checkUserAlreadySubmittedService,
   getQuestionsWithOptionsService,
   getUserResponseService,
+  getUserTasksWeekQuestionsService,
   postUserResponseService,
 } from "../services/progressQuestionsAndOptions.js";
 
@@ -86,6 +87,48 @@ export const getQuestionsWithOptionsModel = async (req, res) => {
     );
   } catch (err) {
     console.error("getQuestionsWithOptionsController error:", err);
+
+    return error(
+      res,
+      500,
+      APP_RESPONSE_CODE_ERROR,
+      "Internal server error",
+      null,
+    );
+  }
+};
+
+export const getUserTasksWeekQuestionsModel = async (req, res) => {
+  try {
+    let { courseId, weekNo } = req.query;
+
+    courseId = parseInt(courseId, 10);
+    weekNo = parseInt(weekNo, 10);
+
+    // Get data from service
+    const data = await getUserTasksWeekQuestionsService(courseId, weekNo);
+
+    // No records found
+    if (!data || data.totalRecords === 0) {
+      return error(
+        res,
+        HTTP_OK,
+        APP_RESPONSE_CODE_ERROR,
+        NO_RECORD_FOUND,
+        null,
+      );
+    }
+
+    // Success response
+    return success(
+      res,
+      HTTP_OK,
+      APP_RESPONSE_CODE_SUCCESS,
+      PROGRESS_QUESTIONS_AND_OPTIONS_FETCHED_SUCCESS,
+      data,
+    );
+  } catch (err) {
+    console.error("getUserTasksWeekQuestionsModel error:", err);
 
     return error(
       res,

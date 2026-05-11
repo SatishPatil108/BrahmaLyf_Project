@@ -113,6 +113,59 @@ export const getToolsQuestionsService = async (courseId) => {
   }
 };
 
+export const getUserToolsWeekQuestionsService = async (courseId, weekNo) => {
+  try {
+    // Parse and validate inputs
+    courseId = parseInt(courseId, 10);
+    weekNo = parseInt(weekNo, 10);
+
+    if (isNaN(courseId) || isNaN(weekNo)) {
+      throw new Error("Invalid courseId or weekNo");
+    }
+
+    // Fetch tools questions for the given course and week
+    const query = `
+      SELECT 
+        q.id AS question_id,
+        q.tools_question AS question_text,
+        q.day_no
+      FROM bm.progress_tools q
+      WHERE q.week_no = $1
+        AND q.course_id = $2
+        AND q.status = 1
+      ORDER BY q.day_no, q.id;
+    `;
+
+    const result = await connection.query(query, [weekNo, courseId]);
+    const rows = result.rows;
+
+    // No records found
+    if (!rows.length) {
+      console.warn(
+        `[SERVICE] No tools questions found for Course ${courseId} — Week ${weekNo}`,
+      );
+
+      return {
+        courseId,
+        weekNo,
+        totalRecords: 0,
+        questions: [],
+      };
+    }
+
+    // Return structured response
+    return {
+      courseId,
+      weekNo,
+      totalRecords: rows.length,
+      questions: rows,
+    };
+  } catch (err) {
+    console.error("Error fetching user's tools questions for the week:", err);
+    throw err;
+  }
+};
+
 // Get user's previously submitted tools responses
 export const getUserToolsResponseService = (userId, courseId) => {
   return new Promise((resolve, reject) => {
