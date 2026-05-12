@@ -22,7 +22,6 @@ export default (app) => {
 
   app.get(
     "/apis/user/fetchUserTasksWeekQuestions",
-    verifyUserToken,
     getUserTasksWeekQuestionsController,
   );
 

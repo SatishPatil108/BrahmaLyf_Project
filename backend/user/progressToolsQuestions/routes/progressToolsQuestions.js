@@ -16,7 +16,6 @@ export default (app) => {
 
   app.get(
     "/apis/user/fetchUserToolsWeekQuestions",
-    verifyUserToken,
     getUserToolsWeekQuestionsController,
   );
 

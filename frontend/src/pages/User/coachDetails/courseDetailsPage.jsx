@@ -513,7 +513,7 @@ const CourseDetailsPage = () => {
               "target-audience",
               "learning-outcomes",
               "curriculum",
-              "todays-tasks",
+              "todays-practice",
               "todays-tools",
             ].map((tab) => (
               <button
@@ -572,10 +572,10 @@ const CourseDetailsPage = () => {
                     <span className="hidden sm:inline">Learning Outcomes</span>
                     <span className="inline sm:hidden">Outcomes</span>
                   </>
-                ) : tab === "todays-tasks" ? (
+                ) : tab === "todays-practice" ? (
                   <>
-                    <span className="hidden sm:inline">Today's Tasks</span>
-                    <span className="inline sm:hidden">Tasks</span>
+                    <span className="hidden sm:inline">Today's Practice</span>
+                    <span className="inline sm:hidden">Practice</span>
                   </>
                 ) : tab === "todays-tools" ? (
                   <>
@@ -744,7 +744,7 @@ const CourseDetailsPage = () => {
               </div>
             )}
 
-            {activeSection === "todays-tasks" && (
+            {activeSection === "todays-practice" && (
               <div
                 className="rounded-2xl p-6 border shadow-sm"
                 style={cardStyle}
@@ -768,7 +768,7 @@ const CourseDetailsPage = () => {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold" style={textPrimaryStyle}>
-                      Tasks & Resources
+                      Practice & Resources
                     </h2>
                     <p style={textSecondaryStyle}>
                       Essential tools, software, and learning resources

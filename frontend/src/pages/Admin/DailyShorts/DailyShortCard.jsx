@@ -6,6 +6,7 @@ import {
   Trash2,
   X,
   Clapperboard,
+  Flame,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -58,6 +59,19 @@ const DailyShortCard = ({
     short.category ||
     domains.find((d) => d.domain_id === short.domain_id)?.domain_name ||
     null;
+
+  // Helper function to strip HTML for preview text
+  const stripHtml = (html) => {
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
+
+  const plainDescription = stripHtml(description);
+  const descriptionPreview =
+    plainDescription.length > 60
+      ? plainDescription.substring(0, 60) + "..."
+      : plainDescription;
 
   return (
     <div
@@ -194,9 +208,16 @@ const DailyShortCard = ({
               </div>
 
               {/* Title */}
-              <h3 className="text-white text-sm font-semibold leading-tight line-clamp-2 mb-2">
+              <h3 className="text-white text-sm font-semibold leading-tight line-clamp-2 mb-1">
                 {title}
               </h3>
+
+              {/* Description Preview - shows plain text preview */}
+              {descriptionPreview && (
+                <p className="text-white/70 text-xs mb-2 line-clamp-2">
+                  {descriptionPreview}
+                </p>
+              )}
 
               {/* Domain pill - bottom left */}
               {domainName && (

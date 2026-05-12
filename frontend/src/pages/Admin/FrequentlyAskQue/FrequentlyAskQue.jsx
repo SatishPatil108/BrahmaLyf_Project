@@ -8,7 +8,6 @@ import {
   AlertCircle,
   CheckCircle,
   HelpCircle,
-  Loader2,
 } from "lucide-react";
 import useFrequentlyAskQue from "./useFrequentlyAskQue";
 import CustomButton from "@/components/CustomButton";
@@ -20,8 +19,11 @@ import {
   fetchFAQsAPI,
   updateFAQAPI,
 } from "@/store/feature/admin";
+
 import usePagination from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination/Pagination";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
+import { stripHtml } from "@/components/RichTextEditor/stripHtml";
 
 const FrequentlyAskQue = () => {
   const dispatch = useDispatch();
@@ -90,10 +92,17 @@ const FrequentlyAskQue = () => {
     }
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors((prev) => ({ ...prev, [e.target.name]: null }));
+  const handleQuestionChange = (value) => {
+    setFormData({ ...formData, question: value });
+    if (errors.question) {
+      setErrors((prev) => ({ ...prev, question: null }));
+    }
+  };
+
+  const handleAnswerChange = (value) => {
+    setFormData({ ...formData, answer: value });
+    if (errors.answer) {
+      setErrors((prev) => ({ ...prev, answer: null }));
     }
   };
 
@@ -101,18 +110,20 @@ const FrequentlyAskQue = () => {
     let isValid = true;
     const newErrors = {};
 
-    if (!formData.question.trim()) {
+    const plainQuestion = stripHtml(formData.question);
+    if (!plainQuestion.trim()) {
       newErrors.question = "Question is required";
       isValid = false;
-    } else if (formData.question.length < 10) {
+    } else if (plainQuestion.length < 10) {
       newErrors.question = "Question should be at least 10 characters";
       isValid = false;
     }
 
-    if (!formData.answer.trim()) {
+    const plainAnswer = stripHtml(formData.answer);
+    if (!plainAnswer.trim()) {
       newErrors.answer = "Answer is required";
       isValid = false;
-    } else if (formData.answer.length < 20) {
+    } else if (plainAnswer.length < 20) {
       newErrors.answer = "Answer should be at least 20 characters";
       isValid = false;
     }
@@ -133,7 +144,7 @@ const FrequentlyAskQue = () => {
         await dispatch(
           updateFAQAPI({
             faqId: formData.id,
-            faqData: { question: formData.question, answer: formData.answer },
+            faqData: { question: stripHtml(formData.question), answer: stripHtml(formData.answer) },
           }),
         ).unwrap();
 
@@ -181,8 +192,8 @@ const FrequentlyAskQue = () => {
   }, [actionMessage]);
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen p-4 sm:p-6 lg:p-8 transition-colors duration-300">
-      <div className="max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div className="flex items-center gap-3">
@@ -318,9 +329,10 @@ const FrequentlyAskQue = () => {
                         </span>
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors text-left">
-                          {faq.question}
-                        </h3>
+                        <div
+                          className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors text-left prose prose-sm max-w-none"
+                          dangerouslySetInnerHTML={{ __html: faq.question }}
+                        />
                         <div className="flex items-center gap-2 mt-1">
                           {openIndex === index ? (
                             <>
@@ -369,9 +381,10 @@ const FrequentlyAskQue = () => {
                           </span>
                         </div>
                         <div className="flex-1">
-                          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                            {faq.answer}
-                          </p>
+                          <div
+                            className="prose prose-sm sm:prose-base dark:prose-invert max-w-none"
+                            dangerouslySetInnerHTML={{ __html: faq.answer }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -405,24 +418,17 @@ const FrequentlyAskQue = () => {
           }
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Question Field */}
+            {/* Question Field with RichTextEditor */}
             <div>
               <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
                 Question *
               </label>
-              <textarea
-                name="question"
+              <RichTextEditor
                 value={formData.question}
-                onChange={handleChange}
-                rows={3}
-                className={`w-full px-4 py-3 rounded-lg border shadow-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800
-                  placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-200
-                  ${
-                    errors.question
-                      ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
-                      : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
-                  }`}
+                onChange={handleQuestionChange}
                 placeholder="Enter the question (e.g., How do I reset my password?)"
+                error={!!errors.question}
+                minHeight="100px"
               />
               {errors.question && (
                 <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
@@ -432,24 +438,17 @@ const FrequentlyAskQue = () => {
               )}
             </div>
 
-            {/* Answer Field */}
+            {/* Answer Field with RichTextEditor */}
             <div>
               <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
                 Answer *
               </label>
-              <textarea
-                name="answer"
-                rows={5}
+              <RichTextEditor
                 value={formData.answer}
-                onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-lg border shadow-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800
-                  placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-200
-                  ${
-                    errors.answer
-                      ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
-                      : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
-                  }`}
+                onChange={handleAnswerChange}
                 placeholder="Enter the detailed answer..."
+                error={!!errors.answer}
+                minHeight="200px"
               />
               {errors.answer && (
                 <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">

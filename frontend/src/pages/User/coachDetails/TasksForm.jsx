@@ -10,7 +10,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditorWithLock";
+import RichTextEditorWithLock from "@/components/RichTextEditor/RichTextEditorWithLock";
 
 const optionTypeLabel = {
   1: "Text",
@@ -125,7 +126,7 @@ function QuestionCard({ question, index, theme, isLocked = true }) {
     switch (question.option_type) {
       case 1: // Text
         return (
-          <RichTextEditor
+          <RichTextEditorWithLock
             value={answer}
             onChange={(val) => setAnswer(val)}
             isSubmitted={isLocked}
@@ -141,11 +142,11 @@ function QuestionCard({ question, index, theme, isLocked = true }) {
             <div className="flex flex-col gap-3">
               {optionList.map((opt) => (
                 <label
-                  key={opt.id}
+                  key={opt.option_id}
                   className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all duration-150 w-full
                     ${isLocked ? "cursor-not-allowed opacity-70" : "cursor-pointer"}
                     ${
-                      selectedOption === opt.id
+                      selectedOption === opt.option_id
                         ? theme === "dark"
                           ? "bg-purple-900/30 border-purple-600 text-purple-300"
                           : "bg-purple-50 border-purple-400 text-purple-800"
@@ -155,14 +156,14 @@ function QuestionCard({ question, index, theme, isLocked = true }) {
                   <input
                     type="radio"
                     name={`q_${question.question_id}`}
-                    value={opt.id}
-                    checked={selectedOption === opt.id}
-                    onChange={() => setSelectedOption(opt.id)}
+                    value={opt.option_id}
+                    checked={selectedOption === opt.option_id}
+                    onChange={() => setSelectedOption(opt.option_id)}
                     disabled={isLocked}
                     className="accent-purple-600 w-4 h-4 shrink-0"
                   />
                   <span className="text-sm flex-1">{opt.text}</span>
-                  {selectedOption === opt.id && (
+                  {selectedOption === opt.option_id && (
                     <ChevronRight className="w-4 h-4 text-purple-500" />
                   )}
                 </label>
@@ -185,7 +186,7 @@ function QuestionCard({ question, index, theme, isLocked = true }) {
           >
             <option value="">— Select an option —</option>
             {optionList.map((opt) => (
-              <option key={opt.id} value={opt.id}>
+              <option key={opt.option_id} value={opt.option_id}>
                 {opt.text}
               </option>
             ))}
@@ -200,10 +201,10 @@ function QuestionCard({ question, index, theme, isLocked = true }) {
             </p>
             <div className="flex flex-col gap-2">
               {optionList.map((opt) => {
-                const checked = selectedOptions.includes(opt.id);
+                const checked = selectedOptions.includes(opt.option_id);
                 return (
                   <label
-                    key={opt.id}
+                    key={opt.option_id}
                     className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all duration-150 w-full
                       ${isLocked ? "cursor-not-allowed opacity-70" : "cursor-pointer"}
                       ${
@@ -220,10 +221,15 @@ function QuestionCard({ question, index, theme, isLocked = true }) {
                       onChange={() => {
                         if (checked) {
                           setSelectedOptions(
-                            selectedOptions.filter((id) => id !== opt.id),
+                            selectedOptions.filter(
+                              (id) => id !== opt.option_id,
+                            ),
                           );
                         } else {
-                          setSelectedOptions([...selectedOptions, opt.id]);
+                          setSelectedOptions([
+                            ...selectedOptions,
+                            opt.option_id,
+                          ]);
                         }
                       }}
                       disabled={isLocked}
@@ -349,7 +355,7 @@ function QuestionCard({ question, index, theme, isLocked = true }) {
 
       default:
         return (
-          <RichTextEditor
+          <RichTextEditorWithLock
             value={answer}
             onChange={(val) => setAnswer(val)}
             isSubmitted={isLocked}

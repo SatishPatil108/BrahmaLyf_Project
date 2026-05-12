@@ -19,6 +19,7 @@ import {
   Calendar,
   ChevronRight,
   Eye,
+  BookImage,
 } from "lucide-react";
 
 const CourseList = () => {
@@ -69,17 +70,23 @@ const CourseList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300 p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-10">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
-              Course Catalog
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Manage and explore all available courses
-            </p>
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg">
+              <BookImage className="w-5 h-5 text-white" />
+            </div>
+
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                Course Catalog
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Manage and explore all available courses
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">

@@ -11,7 +11,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditorWithLock";
 
 const optionTypeLabel = {
   1: "Text",
@@ -130,7 +130,7 @@ function QuestionCard({ question, index, theme, isLocked = true }) {
     switch (question.option_type) {
       case 1: // Text
         return (
-          <RichTextEditor
+          <RichTextEditorWithLock
             value={answer}
             onChange={(val) => setAnswer(val)}
             isSubmitted={isLocked}
@@ -354,7 +354,7 @@ function QuestionCard({ question, index, theme, isLocked = true }) {
 
       default:
         return (
-          <RichTextEditor
+          <RichTextEditorWithLock
             value={answer}
             onChange={(val) => setAnswer(val)}
             isSubmitted={isLocked}

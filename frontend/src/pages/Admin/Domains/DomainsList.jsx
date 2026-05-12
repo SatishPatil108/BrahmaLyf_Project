@@ -113,7 +113,7 @@ const DomainsList = () => {
 
   const handleDomainClick = (domain) => {
     navigate(`/admin/domains/${domain.domain_id}/subdomains`, {
-      state: { domainName: domain.domain_name },
+      state: { domainName: domain.domain_name }
     });
   };
 

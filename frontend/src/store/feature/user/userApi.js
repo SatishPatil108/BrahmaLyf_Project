@@ -335,8 +335,7 @@ export const fetchUserTasksWeekQuestions = async (courseId, weekNo) => {
   return await makeRequest({
     service: `user/fetchUserTasksWeekQuestions?courseId=${1}&weekNo=${1}`,
     method: API_METHODS.GET,
-    authRequired: true,
-    tokenType: "user",
+    authRequired: false,
   });
 };
 
@@ -345,7 +344,6 @@ export const fetchUserToolsWeekQuestions = async (courseId, weekNo) => {
   return await makeRequest({
     service: `user/fetchUserToolsWeekQuestions?courseId=${1}&weekNo=${1}`,
     method: API_METHODS.GET,
-    authRequired: true,
-    tokenType: "user",
+    authRequired: false,
   });
 };

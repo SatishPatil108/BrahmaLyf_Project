@@ -25,7 +25,8 @@ import {
   markScopedDayCompleted,
   markQuestionSubmitted,
 } from "@/store/feature/user/userSlice";
-import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditorWithLock";
+import RichTextEditorWithLock from "@/components/RichTextEditor/RichTextEditorWithLock";
 
 if (
   typeof document !== "undefined" &&
@@ -695,7 +696,7 @@ const QuestionCard = ({
 
       <div className="pl-9">
         {option_type === 1 && (
-          <RichTextEditor
+          <RichTextEditorWithLock
             value={currentAnswer || ""}
             onChange={(val) => onText(id, val)}
             isSubmitted={isSubmitted}

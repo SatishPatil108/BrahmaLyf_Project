@@ -26,7 +26,7 @@ import {
   markToolsQuestionSubmitted,
 } from "@/store/feature/user/userSlice";
 
-import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditorWithLock";
 
 if (
   typeof document !== "undefined" &&
@@ -637,7 +637,7 @@ const ToolsQuestionCard = ({
 
       {/* Answer area */}
       <div className="pl-9">
-        <RichTextEditor
+        <RichTextEditorWithLock
           value={currentAnswer || ""}
           onChange={(val) => onText(id, val)}
           isSubmitted={isLocked} // only lock editor when not editing

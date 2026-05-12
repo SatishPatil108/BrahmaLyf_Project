@@ -22,6 +22,9 @@ import useDomainData from "../CourseList/useDomainData";
 import usePagination from "@/hooks";
 import DailyShortCard from "./DailyShortCard";
 
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
+import { stripHtml } from "@/components/RichTextEditor/stripHtml";
+
 // ── Stat Card ──
 const StatCard = ({ label, value, icon: Icon, color }) => (
   <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
@@ -133,12 +136,14 @@ const ShortsList = () => {
   const validate = () => {
     const e = {};
     if (!shortName.trim()) e.shortName = "Title is required";
-    if (!shortInfo.trim()) e.shortInfo = "Description is required";
-    else if (shortInfo.trim().length < 10) e.shortInfo = "Min 10 characters";
+
+    const plainDescription = stripHtml(shortInfo);
+    if (!plainDescription.trim()) e.shortInfo = "Description is required";
     if (!shortCategory) e.shortCategory = "Domain is required";
     if (!shortVideoUrl.trim()) e.shortVideoUrl = "Video URL is required";
     if (!shortThumbnailFile && !shortThumbnailUrl)
       e.shortThumbnail = "Thumbnail is required";
+
     setErrors(e);
     setTouched({
       shortName: true,
@@ -155,7 +160,7 @@ const ShortsList = () => {
     if (!validate()) return;
     const fd = new FormData();
     fd.append("video_title", shortName);
-    fd.append("video_description", shortInfo);
+    fd.append("video_description", shortInfo); // This now contains HTML from RichTextEditor
     fd.append("domain_id", shortCategory);
     fd.append("video_file", shortVideoUrl);
     if (shortThumbnailFile && typeof shortThumbnailFile === "object")
@@ -193,8 +198,8 @@ const ShortsList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto ">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div className="flex items-center gap-3">
@@ -205,7 +210,7 @@ const ShortsList = () => {
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Daily Shorts{" "}
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {videos.length} short{videos.length !== 1 ? "s" : ""} · Manage
                 your short video collection
               </p>
@@ -470,22 +475,22 @@ const ShortsList = () => {
               )}
             </div>
 
-            {/* Description */}
+            {/* Description with RichTextEditor (removed textarea) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Description <span className="text-rose-500">*</span>
               </label>
-              <textarea
+              <RichTextEditor
                 value={shortInfo}
-                rows={3}
-                onChange={(e) => {
-                  setShortInfo(e.target.value);
+                onChange={(value) => {
+                  setShortInfo(value);
                   if (errors.shortInfo)
                     setErrors((p) => ({ ...p, shortInfo: null }));
                 }}
                 onBlur={() => handleBlur("shortInfo")}
-                placeholder="Describe your short video"
-                className={inputClass("shortInfo")}
+                placeholder="Describe your short video..."
+                error={!!errors.shortInfo}
+                minHeight="200px"
               />
               {errors.shortInfo && touched.shortInfo && (
                 <p className="mt-1 text-xs text-rose-500 flex items-center gap-1">
