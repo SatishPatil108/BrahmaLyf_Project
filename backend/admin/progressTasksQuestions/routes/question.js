@@ -5,10 +5,16 @@ import {
   deleteProgressTasksQuestionController,
   getProgressTasksQuestionController,
   getAllProgressTasksQuestionsController,
+  getAllProgressPracticeMessagesController,
+  updateProgressPracticeMessageController,
+  postProgressPracticeMessageController,
+  deleteProgressPracticeMessageController,
 } from "../controller/question.js";
 
 import {
+  postProgressPracticeMessageValidator,
   postProgressTasksQuestionValidator,
+  updateProgressPracticeMessageValidator,
   updateProgressTasksQuestionValidator,
 } from "../middleware/question.js";
 
@@ -43,5 +49,38 @@ export default (app) => {
     "/apis/admin/progress-tasks/questions/:question_id",
     verifyAdminToken,
     deleteProgressTasksQuestionController,
+  );
+
+  // Additional routes for progress practice messages can be added here following the same pattern
+  app.get(
+    "/apis/admin/progress-messages/messages",
+    verifyAdminToken,
+    getAllProgressTasksQuestionsController,
+  );
+
+  app.get(
+    "/apis/admin/progress-messages/:message_id",
+    verifyAdminToken,
+    getAllProgressPracticeMessagesController,
+  );
+
+  app.post(
+    "/apis/admin/progress-practice/message/:courseId",
+    verifyAdminToken,
+    postProgressPracticeMessageValidator,
+    postProgressPracticeMessageController,
+  );
+
+  app.put(
+    "/apis/admin/progress-practice/message/:courseId/:weekNo",
+    verifyAdminToken,
+    updateProgressPracticeMessageValidator,
+    updateProgressPracticeMessageController,
+  );
+
+  app.delete(
+    "/apis/admin/progress-practice/message/:courseId/:weekNo",
+    verifyAdminToken,
+    deleteProgressPracticeMessageController,
   );
 };

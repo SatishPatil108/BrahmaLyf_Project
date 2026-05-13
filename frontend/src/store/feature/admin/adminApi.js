@@ -186,7 +186,6 @@ export const fetchCoaches = async () => {
 };
 
 //post curriculum data
-// Add curriculum outline for a course (POST)
 export const addCourseCurriculum = async (courseId, curriculumData) => {
   return await makeRequest({
     service: `admin/coaches/course/curriculum_outline/${courseId}`,
@@ -302,8 +301,6 @@ export const updateCurriculumItem = async (curriculumId, curriculumData) => {
     tokenType: "admin",
   });
 };
-
-// mediation  music
 
 // add new music
 export const postMusic = async (musicData) => {
@@ -510,6 +507,54 @@ export const updateProgressToolsQuestion = async ({
 export const deleteProgressToolsQuestion = async (tools_question_id) => {
   return await makeRequest({
     service: `admin/progress-tools/questions/${tools_question_id}`,
+    method: API_METHODS.DELETE,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// add progress practice message
+export const postProgressPracticeMessage = async ({ courseId, messageData }) => {
+  return await makeRequest({
+    service: `admin/progress-practice/message/${courseId}`,
+    method: API_METHODS.POST,
+    data: messageData,
+    authRequired: true,
+    tokenType: "admin",
+    contentType: "application/json",
+  });
+};
+
+// fetch progress practice message
+export const fetchProgressPracticeMessages = async (courseId, weekNo) => {
+  return await makeRequest({
+    service: `admin/progress-practice/message/${courseId}?weekNo=${weekNo}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// update progress practice message
+export const updateProgressPracticeMessage = async ({
+  courseId,
+  messageId,
+  messageData,
+}) => {
+  return await makeRequest({
+    service: `admin/progress-practice/message/${courseId}/${messageId}`,
+    method: API_METHODS.PUT,
+    data: messageData,
+    authRequired: true,
+    tokenType: "admin",
+    contentType: "application/json",
+  });
+};
+
+// delete progress practice message
+export const deleteProgressPracticeMessage = async (courseId, messageId) => {
+  return await makeRequest({
+    service: `admin/progress-practice/message/${courseId}/${messageId}`,
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "admin",

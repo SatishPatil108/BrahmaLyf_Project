@@ -47,6 +47,10 @@ import {
   updateProgressToolsQuestion,
   deleteProgressToolsQuestion,
   postProgressToolsQuestion,
+  deleteProgressPracticeMessage,
+  updateProgressPracticeMessage,
+  fetchProgressPracticeMessages,
+  postProgressPracticeMessage,
 } from "./adminApi";
 
 export const getAdminDashboardData = createAsyncThunk(
@@ -737,6 +741,78 @@ export const deleteProgressToolsQuestionAPI = createAsyncThunk(
       return thunkAPI.rejectWithValue(
         error.response?.data?.message ||
           "Failed to delete progress tools question",
+      );
+    }
+  },
+);
+
+// post progress messages question
+export const postProgressPracticeMessageAPI = createAsyncThunk(
+  "admin/postProgressPracticeMessage",
+  async (courseId, messageData, thunkAPI) => {
+    try {
+      const response = await postProgressPracticeMessage(
+        courseId,
+        messageData,
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to add progress messages",
+      );
+    }
+  },
+);
+
+// fetch progress messages question by week no and course id
+export const fetchProgressPracticeMessagesAPI = createAsyncThunk(
+  "admin/get/progress-messages",
+  async ({ courseId, weekNo }, thunkAPI) => {
+    try {
+      const response = await fetchProgressPracticeMessages({
+        courseId,
+        weekNo,
+      });
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to fetch progress messages",
+      );
+    }
+  },
+);
+
+// update progress messages question
+export const updateProgressPracticeMessageAPI = createAsyncThunk(
+  "admin/updateProgressPracticeMessage",
+  async ({ courseId, messageId, messageData }, thunkAPI) => {
+    try {
+      const response = await updateProgressPracticeMessage({
+        courseId,
+        messageId,
+        messageData,
+      });
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to update progress messages",
+      );
+    }
+  },
+);
+
+// delete progress messages question
+export const deleteProgressPracticeMessageAPI = createAsyncThunk(
+  "admin/deleteProgressPracticeMessage",
+  async (messageId, thunkAPI) => {
+    try {
+      await deleteProgressPracticeMessage(messageId);
+      return messageId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to delete progress messages",
       );
     }
   },

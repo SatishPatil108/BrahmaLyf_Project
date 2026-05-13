@@ -144,7 +144,7 @@ const FrequentlyAskQue = () => {
         await dispatch(
           updateFAQAPI({
             faqId: formData.id,
-            faqData: { question: stripHtml(formData.question), answer: stripHtml(formData.answer) },
+            faqData: { question: formData.question, answer: formData.answer },
           }),
         ).unwrap();
 
@@ -424,6 +424,7 @@ const FrequentlyAskQue = () => {
                 Question *
               </label>
               <RichTextEditor
+                key={formData.id ?? "new"}
                 value={formData.question}
                 onChange={handleQuestionChange}
                 placeholder="Enter the question (e.g., How do I reset my password?)"
@@ -444,6 +445,7 @@ const FrequentlyAskQue = () => {
                 Answer *
               </label>
               <RichTextEditor
+                key={formData.id ?? "new"}
                 value={formData.answer}
                 onChange={handleAnswerChange}
                 placeholder="Enter the detailed answer..."

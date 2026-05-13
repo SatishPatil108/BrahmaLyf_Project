@@ -35,6 +35,7 @@ import CustomButton from "@/components/CustomButton";
 import ProgressTasksQuestionDetails from "../ProgressTasksTracking/ProgressTasksQuestionDetails";
 import ProgressToolsQuestionDetails from "../ProgressToolsQuestion/ProgressToolsQuestionDetails";
 import CustomDrawer from "@/components/CustomDrawer";
+import { stripHtml } from "@/components/RichTextEditor/stripHtml";
 
 // Enhanced color configuration
 const COLORS = {
@@ -331,9 +332,13 @@ const CourseDetails = () => {
                     <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">
                       {intro_video.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      {intro_video.description}
-                    </p>
+
+                    <p
+                      className="text-gray-600 dark:text-gray-300"
+                      dangerouslySetInnerHTML={{
+                        __html: intro_video.description,
+                      }}
+                    />
                   </div>
 
                   <div className="rounded-lg overflow-hidden shadow-lg">
@@ -451,16 +456,12 @@ const CourseDetails = () => {
                                 <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                                   <div className="flex items-center gap-1">
                                     <FileVideo className="w-4 h-4" />
-                                    <span>
-                                      {relatedVideos.length} video
-                                      {relatedVideos.length !== 1 ? "s" : ""}
-                                    </span>
                                   </div>
                                   {item.description && (
                                     <div className="flex items-center gap-1">
-                                      <FileText className="w-4 h-4" />
-                                      <span className="line-clamp-1">
-                                        {item.description.substring(0, 60)}
+                                      <FileText className="w-4 h-4 flex-shrink-0" />
+                                      <span className="line-clamp-1 text-xs">
+                                        {stripHtml(item.description)}
                                       </span>
                                     </div>
                                   )}
@@ -589,10 +590,13 @@ const CourseDetails = () => {
                               Module Description
                             </h4>
                           </div>
-                          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                            {drawerItem.description ||
-                              "No description provided"}
-                          </p>
+
+                          <p
+                            className="text-gray-700 dark:text-gray-300 leading-relaxed"
+                            dangerouslySetInnerHTML={{
+                              __html: drawerItem.description,
+                            }}
+                          />
                         </div>
 
                         {/* Videos Section */}
@@ -915,9 +919,13 @@ const InfoCard = ({ title, icon, content, color = "info" }) => {
           {title}
         </h3>
       </div>
-      <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+      {/* <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
         {content}
-      </p>
+      </p> */}
+      <p
+        className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line"
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
     </div>
   );
 };
@@ -933,9 +941,10 @@ const Section = ({ title, content, icon }) => (
       </h2>
     </div>
     <div className="prose prose-sm max-w-none dark:prose-invert">
-      <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
-        {content}
-      </p>
+      <p
+        className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line"
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
     </div>
   </div>
 );

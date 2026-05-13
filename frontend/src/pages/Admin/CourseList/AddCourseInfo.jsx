@@ -1,26 +1,28 @@
 import { useState } from "react";
 import FileUploaderWithPreview from "@/components/FileUploaderWithPreview/FileUploaderWithPreview";
 import YouTubeUrlInput from "@/components/videoUrlValidator/YouTubeUrlInput";
-import { 
-  BookOpen, 
-  Users, 
-  Target, 
-  ListChecks, 
-  Clock, 
-  Video, 
+import {
+  BookOpen,
+  Users,
+  Target,
+  ListChecks,
+  Clock,
+  Video,
   User,
   Globe,
-  Layers
+  Layers,
 } from "lucide-react";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
+import { stripHtml } from "@/components/RichTextEditor/stripHtml";
 
 const AddCourseInfo = ({
   courseData = {},
-  setCourseData = () => { },
+  setCourseData = () => {},
   coaches = [],
   loadingCoaches = false,
   domains = [],
   subdomains = [],
-  fetchSubdomains = () => { },
+  fetchSubdomains = () => {},
 }) => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -32,10 +34,10 @@ const AddCourseInfo = ({
       [name]: files ? files[0] : value,
     };
     setCourseData(updatedData);
-    
+
     // Clear error when user starts typing
     if (errors[name] && touched[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -44,134 +46,153 @@ const AddCourseInfo = ({
     const updatedData = { ...courseData, domain: domainId, subdomain: "" };
     setCourseData(updatedData);
     fetchSubdomains(domainId);
-    
+
     // Clear errors for domain and subdomain
-    setErrors(prev => ({ ...prev, domain: '', subdomain: '' }));
+    setErrors((prev) => ({ ...prev, domain: "", subdomain: "" }));
   };
 
   const handleBlur = (field) => {
-    setTouched(prev => ({ ...prev, [field]: true }));
+    setTouched((prev) => ({ ...prev, [field]: true }));
     validateField(field, courseData[field]);
   };
 
   const validateField = (field, value) => {
     const fieldErrors = {};
-    
+
     switch (field) {
-      case 'courseName':
+      case "courseName":
         if (!value?.trim()) {
           fieldErrors.courseName = "Course name is required";
         } else if (value.trim().length < 3) {
           fieldErrors.courseName = "Course name must be at least 3 characters";
         }
         break;
-        
-      case 'targetedAudience':
+
+      case "targetedAudience":
         if (!value?.trim()) {
           fieldErrors.targetedAudience = "Targeted audience is required";
         }
         break;
-        
-      case 'learningOutcome':
+
+      case "learningOutcome":
         if (!value?.trim()) {
           fieldErrors.learningOutcome = "Learning outcome is required";
         }
         break;
-        
-      case 'curriculumDesc':
+
+      case "courseOverview":
         if (!value?.trim()) {
-          fieldErrors.curriculumDesc = "Curriculum description is required";
+          fieldErrors.courseOverview = "Curriculum description is required";
         } else if (value.trim().length < 20) {
-          fieldErrors.curriculumDesc = "Please provide a more detailed curriculum description (minimum 20 characters)";
+          fieldErrors.courseOverview =
+            "Please provide a more detailed curriculum description (minimum 20 characters)";
         }
         break;
-        
-      case 'domain':
+
+      case "domain":
         if (!value) {
           fieldErrors.domain = "Please select a domain";
         }
         break;
-        
-      case 'subdomain':
+
+      case "subdomain":
         if (!value) {
           fieldErrors.subdomain = "Please select a subdomain";
         }
         break;
-        
-      case 'coachId':
+
+      case "coachId":
         if (!value) {
           fieldErrors.coachId = "Please select a coach";
         }
         break;
-        
-      case 'videoTitle':
+
+      case "videoTitle":
         if (!value?.trim()) {
           fieldErrors.videoTitle = "Video title is required";
         }
         break;
-        
-      case 'videoDesc':
+
+      case "videoDesc":
         if (!value?.trim()) {
           fieldErrors.videoDesc = "Video description is required";
         }
         break;
-        
-      case 'videoUrl':
+
+      case "videoUrl":
         if (!value?.trim()) {
           fieldErrors.videoUrl = "Video URL is required";
         }
         break;
-        
-      case 'courseDurationHours':
-      case 'courseDurationMinutes':
+
+      case "courseDurationHours":
+      case "courseDurationMinutes":
         if (value !== undefined && (isNaN(value) || value < 0)) {
           fieldErrors[field] = "Please enter a valid number";
         }
         break;
     }
-    
-    setErrors(prev => ({ ...prev, ...fieldErrors }));
+
+    setErrors((prev) => ({ ...prev, ...fieldErrors }));
   };
 
   const validateForm = () => {
     const requiredFields = [
-      'courseName', 'targetedAudience', 'learningOutcome', 
-      'curriculumDesc', 'domain', 'subdomain', 'coachId',
-      'videoTitle', 'videoDesc', 'videoUrl'
+      "courseName",
+      "targetedAudience",
+      "learningOutcome",
+      "courseOverview",
+      "domain",
+      "subdomain",
+      "coachId",
+      "videoTitle",
+      "videoDesc",
+      "videoUrl",
     ];
-    
+
     const newErrors = {};
-    requiredFields.forEach(field => {
+    requiredFields.forEach((field) => {
       if (!courseData[field]) {
-        newErrors[field] = `${field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} is required`;
+        newErrors[field] =
+          `${field.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())} is required`;
       }
     });
-    
+
     // Additional validations
     if (courseData.courseName && courseData.courseName.trim().length < 3) {
       newErrors.courseName = "Course name must be at least 3 characters";
     }
-    
-    if (courseData.curriculumDesc && courseData.curriculumDesc.trim().length < 20) {
-      newErrors.curriculumDesc = "Curriculum description must be at least 20 characters";
+
+    if (
+      courseData.courseOverview &&
+      courseData.courseOverview.trim().length < 20
+    ) {
+      newErrors.courseOverview =
+        "Curriculum description must be at least 20 characters";
     }
-    
+
     if (!courseData.videoThumbnail) {
       newErrors.videoThumbnail = "Video thumbnail is required";
     }
-    
+
     setErrors(newErrors);
-    setTouched(Object.keys(newErrors).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
-    
+    setTouched(
+      Object.keys(newErrors).reduce(
+        (acc, key) => ({ ...acc, [key]: true }),
+        {},
+      ),
+    );
+
     return Object.keys(newErrors).length === 0;
   };
 
   const inputClass = (fieldName) => `
     w-full px-4 py-2.5 rounded-lg border text-sm
     focus:outline-none focus:ring-2 focus:ring-offset-0
-    ${errors[fieldName] && touched[fieldName]
-      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+    ${
+      errors[fieldName] && touched[fieldName]
+        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
     }
     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
     disabled:opacity-60 disabled:cursor-not-allowed
@@ -185,7 +206,8 @@ const AddCourseInfo = ({
           Create New Course
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Fill in the course details below. All fields marked with * are required.
+          Fill in the course details below. All fields marked with * are
+          required.
         </p>
       </div>
 
@@ -214,9 +236,9 @@ const AddCourseInfo = ({
               name="domain"
               value={courseData.domain ?? ""}
               onChange={handleDomainChange}
-              onBlur={() => handleBlur('domain')}
+              onBlur={() => handleBlur("domain")}
               required
-              className={inputClass('domain')}
+              className={inputClass("domain")}
             >
               <option value="">Select Domain</option>
               {domains.map((d) => (
@@ -244,10 +266,10 @@ const AddCourseInfo = ({
               name="subdomain"
               value={courseData.subdomain ?? ""}
               onChange={handleChange}
-              onBlur={() => handleBlur('subdomain')}
+              onBlur={() => handleBlur("subdomain")}
               disabled={!courseData.domain || subdomains.length === 0}
               required
-              className={inputClass('subdomain')}
+              className={inputClass("subdomain")}
             >
               <option value="">Select Subdomain</option>
               {subdomains
@@ -283,15 +305,16 @@ const AddCourseInfo = ({
             name="coachId"
             value={courseData.coachId ?? ""}
             onChange={handleChange}
-            onBlur={() => handleBlur('coachId')}
+            onBlur={() => handleBlur("coachId")}
             required
             disabled={loadingCoaches}
-            className={inputClass('coachId')}
+            className={inputClass("coachId")}
           >
             <option value="">Select Coach</option>
             {coaches.map((coach) => {
               const id = coach.id ?? coach.coach_id ?? coach._id;
-              const name = coach.name ?? coach.full_name ?? coach.coach_name ?? "Unknown";
+              const name =
+                coach.name ?? coach.full_name ?? coach.coach_name ?? "Unknown";
               return (
                 <option key={id} value={id}>
                   {name}
@@ -321,9 +344,9 @@ const AddCourseInfo = ({
             name="courseName"
             value={courseData.courseName ?? ""}
             onChange={handleChange}
-            onBlur={() => handleBlur('courseName')}
+            onBlur={() => handleBlur("courseName")}
             required
-            className={inputClass('courseName')}
+            className={inputClass("courseName")}
             placeholder="e.g., Advanced Mindfulness Meditation"
           />
           {errors.courseName && touched.courseName && (
@@ -346,9 +369,9 @@ const AddCourseInfo = ({
             name="targetedAudience"
             value={courseData.targetedAudience ?? ""}
             onChange={handleChange}
-            onBlur={() => handleBlur('targetedAudience')}
+            onBlur={() => handleBlur("targetedAudience")}
             required
-            className={inputClass('targetedAudience')}
+            className={inputClass("targetedAudience")}
             placeholder="e.g., Beginners, Working Professionals, Students"
           />
           {errors.targetedAudience && touched.targetedAudience && (
@@ -366,16 +389,19 @@ const AddCourseInfo = ({
               Learning Outcomes <span className="text-red-500">*</span>
             </div>
           </label>
-          <textarea
-            name="learningOutcome"
+
+          <RichTextEditor
             value={courseData.learningOutcome ?? ""}
-            onChange={handleChange}
-            onBlur={() => handleBlur('learningOutcome')}
-            required
-            rows={3}
-            className={inputClass('learningOutcome') + " resize-none"}
+            onChange={(value) => {
+              setCourseData({ ...courseData, learningOutcome: value });
+              if (errors.learningOutcome)
+                setErrors((p) => ({ ...p, learningOutcome: "" }));
+            }}
             placeholder="What will students learn from this course?"
+            error={!!errors.learningOutcome && touched.learningOutcome}
+            minHeight="100px"
           />
+
           {errors.learningOutcome && touched.learningOutcome && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
               {errors.learningOutcome}
@@ -391,23 +417,27 @@ const AddCourseInfo = ({
               Curriculum Description <span className="text-red-500">*</span>
             </div>
           </label>
-          <textarea
-            name="curriculumDesc"
-            value={courseData.curriculumDesc ?? ""}
-            onChange={handleChange}
-            onBlur={() => handleBlur('curriculumDesc')}
-            required
-            rows={4}
-            className={inputClass('curriculumDesc') + " resize-none"}
+
+          <RichTextEditor
+            value={courseData.courseOverview ?? ""}
+            onChange={(value) => {
+              setCourseData({ ...courseData, courseOverview: value });
+              if (errors.courseOverview)
+                setErrors((p) => ({ ...p, courseOverview: "" }));
+            }}
             placeholder="Provide a detailed overview of the course curriculum..."
+            error={!!errors.courseOverview && touched.courseOverview}
+            minHeight="120px"
           />
-          {errors.curriculumDesc && touched.curriculumDesc && (
+
+          {errors.courseOverview && touched.courseOverview && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.curriculumDesc}
+              {errors.courseOverview}
             </p>
           )}
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Minimum 20 characters. Current: {courseData.curriculumDesc?.length || 0}
+            Minimum 20 characters. Current:{" "}
+            {stripHtml(courseData.courseOverview)?.length || 0}
           </p>
         </div>
 
@@ -432,9 +462,9 @@ const AddCourseInfo = ({
                 name="courseDurationHours"
                 value={courseData.courseDurationHours ?? ""}
                 onChange={handleChange}
-                onBlur={() => handleBlur('courseDurationHours')}
+                onBlur={() => handleBlur("courseDurationHours")}
                 required
-                className={inputClass('courseDurationHours')}
+                className={inputClass("courseDurationHours")}
                 placeholder="e.g., 10"
               />
               {errors.courseDurationHours && touched.courseDurationHours && (
@@ -455,16 +485,17 @@ const AddCourseInfo = ({
                 name="courseDurationMinutes"
                 value={courseData.courseDurationMinutes ?? ""}
                 onChange={handleChange}
-                onBlur={() => handleBlur('courseDurationMinutes')}
+                onBlur={() => handleBlur("courseDurationMinutes")}
                 required
-                className={inputClass('courseDurationMinutes')}
+                className={inputClass("courseDurationMinutes")}
                 placeholder="e.g., 30"
               />
-              {errors.courseDurationMinutes && touched.courseDurationMinutes && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {errors.courseDurationMinutes}
-                </p>
-              )}
+              {errors.courseDurationMinutes &&
+                touched.courseDurationMinutes && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.courseDurationMinutes}
+                  </p>
+                )}
             </div>
           </div>
         </div>
@@ -491,9 +522,9 @@ const AddCourseInfo = ({
             name="videoTitle"
             value={courseData.videoTitle ?? ""}
             onChange={handleChange}
-            onBlur={() => handleBlur('videoTitle')}
+            onBlur={() => handleBlur("videoTitle")}
             required
-            className={inputClass('videoTitle')}
+            className={inputClass("videoTitle")}
             placeholder="e.g., Course Introduction & Overview"
           />
           {errors.videoTitle && touched.videoTitle && (
@@ -508,16 +539,18 @@ const AddCourseInfo = ({
           <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
             Video Description <span className="text-red-500">*</span>
           </label>
-          <textarea
-            name="videoDesc"
+
+          <RichTextEditor
             value={courseData.videoDesc ?? ""}
-            onChange={handleChange}
-            onBlur={() => handleBlur('videoDesc')}
-            required
-            rows={3}
-            className={inputClass('videoDesc') + " resize-none"}
+            onChange={(value) => {
+              setCourseData({ ...courseData, videoDesc: value });
+              if (errors.videoDesc) setErrors((p) => ({ ...p, videoDesc: "" }));
+            }}
             placeholder="Briefly describe what this introduction video covers..."
+            error={!!errors.videoDesc && touched.videoDesc}
+            minHeight="100px"
           />
+
           {errors.videoDesc && touched.videoDesc && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
               {errors.videoDesc}
@@ -571,15 +604,23 @@ const AddCourseInfo = ({
         </h4>
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Required fields completed:</span>
-            <span className={`font-medium ${Object.keys(errors).length === 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-              {Object.keys(errors).length === 0 ? 'All good' : `${Object.keys(errors).length} error(s)`}
+            <span className="text-gray-600 dark:text-gray-400">
+              Required fields completed:
+            </span>
+            <span
+              className={`font-medium ${Object.keys(errors).length === 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+            >
+              {Object.keys(errors).length === 0
+                ? "All good"
+                : `${Object.keys(errors).length} error(s)`}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Fields with errors:</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              Fields with errors:
+            </span>
             <span className="font-medium text-gray-900 dark:text-gray-100">
-              {Object.keys(errors).filter(key => errors[key]).length}
+              {Object.keys(errors).filter((key) => errors[key]).length}
             </span>
           </div>
         </div>

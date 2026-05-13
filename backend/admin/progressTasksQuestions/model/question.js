@@ -22,6 +22,15 @@ import {
   QUESTION_UPDATED_SUCCESS,
   SOMETHING_WENT_WRONG,
   NO_RECORD_FOUND,
+  MESSAGE_FOUND,
+  MESSAGE_NOT_FOUND,
+  PRACTICE_MESSAGE_ADDED_FAILED,
+  PRACTICE_MESSAGE_ADDED_SUCCESS,
+  PRACTICE_MESSAGE_NOT_FOUND,
+  PRACTICE_MESSAGE_UPDATED_FAILED,
+  PRACTICE_MESSAGE_UPDATED_SUCCESS,
+  PRACTICE_MESSAGE_DELETED_FAILED,
+  PRACTICE_MESSAGE_DELETED_SUCCESS,
 } from "../messages/question.js";
 
 import {
@@ -268,6 +277,257 @@ export const deleteProgressTasksQuestionModel = async (req, res) => {
     );
   } catch (err) {
     console.error("Progress Tracking Delete Question Error:", err);
+    return error(
+      res,
+      HTTP_INTERNAL_SERVER_ERROR,
+      APP_RESPONSE_CODE_ERROR,
+      SOMETHING_WENT_WRONG,
+      null,
+    );
+  }
+};
+
+// practice messages models
+export const getProgressPracticeMessageModel = async (req, res) => {
+  try {
+    const message_id = parseInt(req.params.message_id);
+    if (isNaN(message_id)) {
+      return error(
+        res,
+        HTTP_BAD_REQUEST,
+        APP_RESPONSE_CODE_ERROR,
+        INVALID_QUESTION_ID,
+        null,
+      );
+    }
+    const message = await getProgressPracticeMessageService(message_id);
+    if (!message) {
+      return error(
+        res,
+        HTTP_NOT_FOUND,
+        APP_RESPONSE_CODE_ERROR,
+        MESSAGE_NOT_FOUND,
+        null,
+      );
+    }
+    return success(
+      res,
+      HTTP_OK,
+      APP_RESPONSE_CODE_SUCCESS,
+      MESSAGE_FOUND,
+      message,
+    );
+  } catch (err) {
+    console.error("Get Progress Practice Message Error:", err);
+    return error(
+      res,
+      HTTP_INTERNAL_SERVER_ERROR,
+      APP_RESPONSE_CODE_ERROR,
+      SOMETHING_WENT_WRONG,
+      null,
+    );
+  }
+};
+
+export const getAllProgressPracticeMessagesModel = async (req, res) => {
+  try {
+    const courseId = Number(req.params.courseId);
+    const weekNo = Number(req.params.weekNo);
+
+    const response = await getProgressPracticeMessageService(courseId, weekNo);
+
+    if (!response) {
+      return error(
+        res,
+        HTTP_NOT_FOUND,
+        APP_RESPONSE_CODE_ERROR,
+        MESSAGE_NOT_FOUND,
+        null,
+      );
+    }
+
+    return success(
+      res,
+      HTTP_OK,
+      APP_RESPONSE_CODE_SUCCESS,
+      MESSAGE_FOUND,
+      response,
+    );
+  } catch (err) {
+    console.error("Get Progress Practice Message Error:", err);
+    return error(
+      res,
+      HTTP_INTERNAL_SERVER_ERROR,
+      APP_RESPONSE_CODE_ERROR,
+      SOMETHING_WENT_WRONG,
+      null,
+    );
+  }
+};
+
+export const postProgressPracticeMessageModel = async (req, res) => {
+  try {
+    const practiceMessages = req.body;
+    const { courseId } = req.params;
+
+    const results = await Promise.all(
+      practiceMessages.map(
+        ({ week_no, themes, weekly_target, outcomes, completed_messages }) =>
+          postProgressPracticeMessageService(
+            week_no,
+            Number(courseId),
+            themes,
+            weekly_target,
+            outcomes,
+            completed_messages,
+          ),
+      ),
+    );
+
+    if (!results || results.length === 0) {
+      return error(
+        res,
+        HTTP_BAD_REQUEST,
+        APP_RESPONSE_CODE_ERROR,
+        PRACTICE_MESSAGE_ADDED_FAILED,
+        null,
+      );
+    }
+
+    return success(
+      res,
+      HTTP_CREATED,
+      APP_RESPONSE_CODE_SUCCESS,
+      PRACTICE_MESSAGE_ADDED_SUCCESS,
+      results,
+    );
+  } catch (err) {
+    console.error("Practice Message Error:", err);
+
+    return error(
+      res,
+      HTTP_INTERNAL_SERVER_ERROR,
+      APP_RESPONSE_CODE_ERROR,
+      SOMETHING_WENT_WRONG,
+      null,
+    );
+  }
+};
+
+export const updateProgressPracticeMessageModel = async (req, res) => {
+  try {
+    const { courseId, weekNo } = req.params;
+
+    const { week_no, themes, weekly_target, outcomes, completed_messages } =
+      req.body;
+
+    // ----------------------------------------------
+    // Check if practice message exists
+    // ----------------------------------------------
+    const existingPracticeMessage = await getProgressPracticeMessageService(
+      Number(courseId),
+      Number(weekNo),
+    );
+
+    if (!existingPracticeMessage) {
+      return error(
+        res,
+        HTTP_NOT_FOUND,
+        APP_RESPONSE_CODE_ERROR,
+        PRACTICE_MESSAGE_NOT_FOUND,
+        null,
+      );
+    }
+
+    const result = await updateProgressPracticeMessageService(
+      week_no,
+      Number(courseId),
+      themes,
+      weekly_target,
+      outcomes,
+      completed_messages,
+    );
+
+    if (!result) {
+      return error(
+        res,
+        HTTP_BAD_REQUEST,
+        APP_RESPONSE_CODE_ERROR,
+        PRACTICE_MESSAGE_UPDATED_FAILED,
+        null,
+      );
+    }
+
+    return success(
+      res,
+      HTTP_OK,
+      APP_RESPONSE_CODE_SUCCESS,
+      PRACTICE_MESSAGE_UPDATED_SUCCESS,
+      result,
+    );
+  } catch (err) {
+    console.error("Update Practice Message Error:", err);
+
+    return error(
+      res,
+      HTTP_INTERNAL_SERVER_ERROR,
+      APP_RESPONSE_CODE_ERROR,
+      SOMETHING_WENT_WRONG,
+      null,
+    );
+  }
+};
+
+export const deleteProgressPracticeMessageModel = async (req, res) => {
+  try {
+    const { courseId, weekNo } = req.params;
+
+    // ----------------------------------------------
+    // Check if practice message exists
+    // ----------------------------------------------
+    const existingPracticeMessage = await getProgressPracticeMessageService(
+      Number(courseId),
+      Number(weekNo),
+    );
+
+    if (!existingPracticeMessage) {
+      return error(
+        res,
+        HTTP_NOT_FOUND,
+        APP_RESPONSE_CODE_ERROR,
+        PRACTICE_MESSAGE_NOT_FOUND,
+        null,
+      );
+    }
+
+    // ----------------------------------------------
+    // Soft delete DB record
+    // ----------------------------------------------
+    const response = await deleteProgressPracticeMessageService(
+      Number(courseId),
+      Number(weekNo),
+    );
+
+    if (!response) {
+      return error(
+        res,
+        HTTP_BAD_REQUEST,
+        APP_RESPONSE_CODE_ERROR,
+        PRACTICE_MESSAGE_DELETED_FAILED,
+        null,
+      );
+    }
+
+    return success(
+      res,
+      HTTP_OK,
+      APP_RESPONSE_CODE_SUCCESS,
+      PRACTICE_MESSAGE_DELETED_SUCCESS,
+      response,
+    );
+  } catch (err) {
+    console.error("Progress Practice Message Delete Error:", err);
+
     return error(
       res,
       HTTP_INTERNAL_SERVER_ERROR,

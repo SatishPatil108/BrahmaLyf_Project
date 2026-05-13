@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import FileUploaderWithPreview from "@/components/FileUploaderWithPreview/FileUploaderWithPreview";
 import YouTubeUrlInput from "@/components/videoUrlValidator/YouTubeUrlInput";
 import { Plus, Trash2, AlertCircle, FileVideo, Image } from "lucide-react";
+import { stripHtml } from "@/components/RichTextEditor/stripHtml";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 
 const AddCourseCurriculum = ({
   curriculums = [],
@@ -45,9 +47,10 @@ const AddCourseCurriculum = ({
       errors.title = "Title must be at least 3 characters";
     }
 
-    if (!curriculum.description?.trim()) {
+    const plainDesc = stripHtml(curriculum.description);
+    if (!plainDesc?.trim()) {
       errors.description = "Description is required";
-    } else if (curriculum.description.trim().length < 10) {
+    } else if (plainDesc.trim().length < 10) {
       errors.description = "Description must be at least 10 characters";
     }
 
@@ -125,6 +128,20 @@ const AddCourseCurriculum = ({
       setFormErrors((prev) => ({
         ...prev,
         [index]: { ...prev[index], thumbnail_file: "" },
+      }));
+    }
+  };
+
+  const handleDescriptionChange = (index, value) => {
+    const updated = [...localCurriculums];
+    updated[index].description = value;
+    setLocalCurriculums(updated);
+    setCurriculum(updated);
+
+    if (formErrors[index]?.description) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [index]: { ...prev[index], description: "" },
       }));
     }
   };
@@ -383,25 +400,16 @@ const AddCourseCurriculum = ({
                   Description
                   <span className="text-red-500 ml-1">*</span>
                 </label>
-                <textarea
-                  data-curriculum={index}
-                  name="description"
+                <RichTextEditor
+                  key={index}
                   value={curriculum.description}
-                  onChange={(e) => handleChange(index, e)}
-                  onBlur={() => handleBlur(index, "description")}
-                  rows={3}
-                  className={`
-                    w-full px-4 py-2.5 rounded-lg border text-sm resize-none
-                    focus:outline-none focus:ring-2 focus:ring-offset-0
-                    ${
-                      formErrors[index]?.description &&
-                      touched[index]?.description
-                        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
-                    }
-                    text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
-                  `}
+                  onChange={(value) => handleDescriptionChange(index, value)}
                   placeholder="Describe what will be covered in this curriculum item..."
+                  error={
+                    !!formErrors[index]?.description &&
+                    !!touched[index]?.description
+                  }
+                  minHeight="100px"
                 />
                 {formErrors[index]?.description &&
                   touched[index]?.description && (
@@ -411,7 +419,7 @@ const AddCourseCurriculum = ({
                   )}
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Minimum 10 characters. Current:{" "}
-                  {curriculum.description?.length || 0}
+                  {stripHtml(curriculum.description)?.length || 0}
                 </p>
               </div>
 

@@ -12,6 +12,9 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
+import { stripHtml } from "@/components/RichTextEditor/stripHtml";
+import { cleanHtml } from "@/components/RichTextEditor/cleanHtml";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 
 const EditCourseCurriculum = ({
   curriculumDetails,
@@ -105,8 +108,9 @@ const EditCourseCurriculum = ({
         break;
 
       case "description":
-        if (!value?.trim()) error = "Description is required";
-        else if (value.trim().length < 10)
+        const plain = stripHtml(value).trim();
+        if (!plain) error = "Description is required";
+        else if (plain.length < 10)
           error = "Description must be at least 10 characters";
         break;
 
@@ -193,7 +197,7 @@ const EditCourseCurriculum = ({
       const formData = new FormData();
       formData.append("week_no", curriculumData.week_no);
       formData.append("title", curriculumData.title.trim());
-      formData.append("description", curriculumData.description.trim());
+      formData.append("description", cleanHtml(curriculumData.description));
       formData.append("video_url", curriculumData.video_url.trim());
 
       if (isEditing) {
@@ -220,6 +224,14 @@ const EditCourseCurriculum = ({
         err.message || "Failed to save curriculum. Please try again.",
       );
     }
+  };
+
+  const handleDescriptionChange = (value) => {
+    setCurriculumData((prev) => ({ ...prev, description: value }));
+    if (formErrors.description) {
+      setFormErrors((prev) => ({ ...prev, description: "" }));
+    }
+    setApiError(null);
   };
 
   const inputClass = (fieldName) => `
@@ -364,15 +376,13 @@ const EditCourseCurriculum = ({
               Description <span className="text-red-500 ml-1">*</span>
             </div>
           </label>
-          <textarea
-            name="description"
-            value={curriculumData.description || ""}
-            onChange={handleInputChange}
-            onBlur={() => handleBlur("description")}
-            rows={4}
-            className={inputClass("description") + " resize-none"}
-            required
+          <RichTextEditor
+            key={curriculumDetails?.id ?? "new"}
+            value={curriculumData.description ?? ""}
+            onChange={handleDescriptionChange}
             placeholder="Describe what will be covered in this module..."
+            error={!!formErrors.description && !!touched.description}
+            minHeight="120px"
           />
           {formErrors.description && touched.description && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -381,10 +391,9 @@ const EditCourseCurriculum = ({
           )}
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             Minimum 10 characters. Current:{" "}
-            {curriculumData.description?.length || 0}
+            {stripHtml(curriculumData.description)?.length || 0}
           </p>
         </div>
-
         {/* Video URL */}
         <div>
           <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
@@ -477,7 +486,7 @@ const EditCourseCurriculum = ({
                 Description Length:
               </span>
               <span className="font-medium text-gray-900 dark:text-gray-100">
-                {curriculumData.description?.length || 0} characters
+                {stripHtml(curriculumData.description)?.length || 0} characters{" "}
               </span>
             </div>
           </div>

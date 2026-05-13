@@ -8,7 +8,7 @@ cron.schedule("0 0 * * 1", async () => {
   try {
     const coursesResult = await pool.query(`
       SELECT DISTINCT course_id
-      FROM bm.progress_tracking_questions
+      FROM bm.progress_practice_questions
       WHERE status = 1
     `);
 
@@ -30,7 +30,7 @@ cron.schedule("0 0 * * 1", async () => {
 
         const maxWeekResult = await client.query(
           `SELECT MAX(week_no) as max_week
-           FROM bm.progress_tracking_questions
+           FROM bm.progress_practice_questions
            WHERE course_id = $1 AND status = 1`,
           [course_id],
         );
@@ -44,7 +44,7 @@ cron.schedule("0 0 * * 1", async () => {
 
         const questionsResult = await client.query(
           `SELECT day_no
-           FROM bm.progress_tracking_questions
+           FROM bm.progress_practice_questions
            WHERE course_id = $1
            AND week_no = $2
            AND status = 1`,

@@ -93,3 +93,84 @@ export const updateProgressTasksQuestionValidator = (req, res, next) => {
 
   next();
 };
+
+export const postProgressPracticeMessageValidator = (req, res, next) => {
+  const itemSchema = joi.object({
+    week_no: joi.number().integer().min(1).max(52).required(),
+    course_id: joi.number().integer().required(),
+    themes: joi.string().trim().min(1).required(),
+    weekly_target: joi.string().trim().min(1).required(),
+    outcomes: joi.string().trim().min(1).required(),
+    completed_messages: joi.string().trim().min(1).required(),
+  });
+
+  const schema = joi.array().items(itemSchema).min(1).required();
+
+  const { error } = schema.validate(req.body);
+
+  if (error) {
+    console.error(error);
+    return _error(
+      res,
+      HTTP_BAD_REQUEST,
+      APP_RESPONSE_CODE_ERROR,
+      INVALID_REQUEST_PARAMETER,
+      null,
+    );
+  }
+
+  next();
+};
+
+export const updateProgressPracticeMessageValidator = (req, res, next) => {
+  const paramsSchema = joi.object({
+    courseId: joi.number().integer().required(),
+    weekNo: joi.number().integer().min(1).max(52).required(),
+  });
+
+  const bodySchema = joi.object({
+    themes: joi.string().trim().min(1).required(),
+    weekly_target: joi.string().trim().min(1).required(),
+    outcomes: joi.string().trim().min(1).required(),
+    completed_messages: joi.string().trim().min(1).required(),
+  });
+
+  const { error: paramsError } = paramsSchema.validate(req.params, {
+    convert: true,
+  });
+
+  if (paramsError) {
+    console.error("Params Error:", paramsError.message);
+
+    return _error(
+      res,
+      HTTP_BAD_REQUEST,
+      APP_RESPONSE_CODE_ERROR,
+      INVALID_REQUEST_PARAMETER,
+      null,
+    );
+  }
+
+  const body = Array.isArray(req.body) ? req.body[0] : req.body;
+
+  const { error: bodyError } = bodySchema.validate(body, {
+    convert: true,
+    abortEarly: false,
+  });
+
+  if (bodyError) {
+    console.error("Body Error:", bodyError.details);
+
+    return _error(
+      res,
+      HTTP_BAD_REQUEST,
+      APP_RESPONSE_CODE_ERROR,
+      INVALID_REQUEST_PARAMETER,
+      null,
+    );
+  }
+
+  req.body = body;
+
+  next();
+};

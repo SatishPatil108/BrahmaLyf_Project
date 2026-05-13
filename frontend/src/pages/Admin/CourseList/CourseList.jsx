@@ -221,9 +221,12 @@ const CourseList = () => {
                           Course Overview
                         </h3>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3">
-                        {course.curriculum_description}
-                      </p>
+                      <p
+                        className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3"
+                        dangerouslySetInnerHTML={{
+                          __html: course.learning_outcomes,
+                        }}
+                      />
                     </div>
 
                     {/* Course Stats */}

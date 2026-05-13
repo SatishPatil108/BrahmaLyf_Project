@@ -24,6 +24,7 @@ import DailyShortCard from "./DailyShortCard";
 
 import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 import { stripHtml } from "@/components/RichTextEditor/stripHtml";
+import { cleanHtml } from "@/components/RichTextEditor/cleanHtml";
 
 // ── Stat Card ──
 const StatCard = ({ label, value, icon: Icon, color }) => (
@@ -160,7 +161,7 @@ const ShortsList = () => {
     if (!validate()) return;
     const fd = new FormData();
     fd.append("video_title", shortName);
-    fd.append("video_description", shortInfo); // This now contains HTML from RichTextEditor
+    fd.append("video_description", cleanHtml(shortInfo));
     fd.append("domain_id", shortCategory);
     fd.append("video_file", shortVideoUrl);
     if (shortThumbnailFile && typeof shortThumbnailFile === "object")
@@ -481,6 +482,7 @@ const ShortsList = () => {
                 Description <span className="text-rose-500">*</span>
               </label>
               <RichTextEditor
+                key={editingShortId ?? "new"}
                 value={shortInfo}
                 onChange={(value) => {
                   setShortInfo(value);

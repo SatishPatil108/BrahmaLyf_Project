@@ -11,6 +11,8 @@ import usePagination from "@/hooks";
 import Pagination from "@/components/Pagination/Pagination";
 import { useLocation } from "react-router-dom";
 import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
+import { stripHtml } from "@/components/RichTextEditor/stripHtml";
+import { cleanHtml } from "@/components/RichTextEditor/cleanHtml";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL_IMG;
 
@@ -179,7 +181,9 @@ const CoachesList = () => {
     formData.append("domain_id", coachForm.domainId);
     formData.append("subdomain_id", coachForm.subdomainId);
     formData.append("professional_title", coachForm.professionalTitle.trim());
-    formData.append("bio", coachForm.bio.trim());
+
+    formData.append("bio", cleanHtml(coachForm.bio));
+
     if (typeof coachForm.profilePicture === "object") {
       formData.append("profile_picture", coachForm.profilePicture);
     }
@@ -537,11 +541,13 @@ const CoachesList = () => {
                 <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                   Biography
                 </label>
+
                 <RichTextEditor
+                  key={editingCoach?.coach_id ?? "new"}
                   value={coachForm.bio}
                   onChange={handleBioChange}
                   placeholder="Tell us about the coach's background, expertise, and achievements..."
-                  minHeight="200px"
+                  minHeight="100px"
                 />
               </div>
 

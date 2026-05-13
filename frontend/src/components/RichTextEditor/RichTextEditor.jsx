@@ -10,6 +10,8 @@ const RichTextEditor = ({
 }) => {
   const editorRef = useRef(null);
   const savedRangeRef = useRef(null);
+  const isInternalChange = useRef(false);
+
   const [isFocused, setIsFocused] = useState(false);
   const [linkPopover, setLinkPopover] = useState(false);
   const [imgPopover, setImgPopover] = useState(false);
@@ -20,10 +22,13 @@ const RichTextEditor = ({
   // Sync external value into editor (avoid cursor jump)
   useEffect(() => {
     const el = editorRef.current;
-    if (el && el.innerHTML !== value) {
-      el.innerHTML = value || "";
-      setCharCount((el.innerText || "").length);
+    if (!el) return;
+    if (isInternalChange.current) {
+      isInternalChange.current = false;
+      return;
     }
+    el.innerHTML = value || "";
+    setCharCount((el.innerText || "").length);
   }, [value]);
 
   const saveSelection = useCallback(() => {
@@ -45,7 +50,12 @@ const RichTextEditor = ({
     const el = editorRef.current;
     if (!el) return;
     setCharCount((el.innerText || "").length);
-    if (onChange) onChange(el.innerHTML);
+    if (onChange) {
+      // Strip inline styles before firing onChange
+      el.querySelectorAll("*").forEach((node) => node.removeAttribute("style"));
+      isInternalChange.current = true;
+      onChange(el.innerHTML);
+    }
   }, [onChange]);
 
   const exec = useCallback(

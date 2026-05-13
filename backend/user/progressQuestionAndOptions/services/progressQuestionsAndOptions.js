@@ -66,8 +66,8 @@ export const getQuestionsWithOptionsService = async (courseId) => {
         o.id AS option_id,
         o.options AS option_text,
         o.option_order
-      FROM bm.progress_tracking_questions q
-      LEFT JOIN bm.progress_tracking_options o 
+      FROM bm.progress_practice_questions q
+      LEFT JOIN bm.progress_practice_options o 
         ON q.id = o.question_id
       WHERE q.week_no = $1 
         AND q.course_id = $2
@@ -150,8 +150,8 @@ export const getUserTasksWeekQuestionsService = async (courseId, weekNo) => {
         o.id AS option_id,
         o.options AS option_text,
         o.option_order
-      FROM bm.progress_tracking_questions q
-      LEFT JOIN bm.progress_tracking_options o
+      FROM bm.progress_practice_questions q
+      LEFT JOIN bm.progress_practice_options o
         ON q.id = o.question_id
       WHERE q.week_no = $1
         AND q.course_id = $2
@@ -206,7 +206,7 @@ export const getUserTasksWeekQuestionsService = async (courseId, weekNo) => {
     return {
       courseId,
       weekNo,
-      totalRecords: questions.length, 
+      totalRecords: questions.length,
       questions,
     };
   } catch (error) {
@@ -214,7 +214,6 @@ export const getUserTasksWeekQuestionsService = async (courseId, weekNo) => {
     throw error;
   }
 };
-
 
 // get user response service
 export const getUserResponseService = (userId, courseId) => {

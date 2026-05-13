@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { 
-  BookOpen, 
-  Users, 
-  Target, 
-  Clock, 
-  Video, 
+import {
+  BookOpen,
+  Users,
+  Target,
+  Clock,
+  Video,
   User,
   Globe,
   Layers,
   FileText,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
 } from "lucide-react";
 import CustomDrawer from "@/components/CustomDrawer";
 import CustomButton from "@/components/CustomButton";
@@ -19,9 +19,13 @@ import useDomainData from "./useDomainData";
 import { fetchCoachesDropdownAPI } from "@/store/feature/admin";
 import FileUploaderWithPreview from "@/components/FileUploaderWithPreview/FileUploaderWithPreview";
 import YouTubeUrlInput from "@/components/videoUrlValidator/YouTubeUrlInput";
+import { stripHtml } from "@/components/RichTextEditor/stripHtml";
+import { cleanHtml } from "@/components/RichTextEditor/cleanHtml";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 
 const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
-  const { domainsDetails, subdomainsDetails, fetchSubdomains } = useDomainData();
+  const { domainsDetails, subdomainsDetails, fetchSubdomains } =
+    useDomainData();
   const domains = domainsDetails.domains || [];
   const subdomains = subdomainsDetails.subdomains || [];
   const coachesList = useSelector((state) => state.admin.coachesList || []);
@@ -46,8 +50,12 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
         learning_outcomes: courseDetails?.learning_outcomes || "",
         curriculum_description: courseDetails?.curriculum_description || "",
         coach_id: courseDetails?.coach_id || "",
-        durationHours: String(parseInt(courseDetails?.duration?.split(" ")[0]) || ""),
-        durationMinutes: String(parseInt(courseDetails?.duration?.split(" ")[1]) || ""),
+        durationHours: String(
+          parseInt(courseDetails?.duration?.split(" ")[0]) || "",
+        ),
+        durationMinutes: String(
+          parseInt(courseDetails?.duration?.split(" ")[1]) || "",
+        ),
       });
 
       setIntroVideoData({
@@ -71,10 +79,10 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
   const handleCourseDataChange = (e) => {
     const { name, value } = e.target;
     setCourseData((prev) => ({ ...prev, [name]: value }));
-    
+
     // Clear error when user starts typing
     if (formErrors[name] && touched[name]) {
-      setFormErrors(prev => ({ ...prev, [name]: '' }));
+      setFormErrors((prev) => ({ ...prev, [name]: "" }));
     }
     setApiError(null);
   };
@@ -82,7 +90,7 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
   // Handle intro video field changes
   const handleIntroVideoDataChange = (e) => {
     const { name, value, files } = e.target;
-    
+
     if (name === "thumbnail_file") {
       setIntroVideoData((prev) => ({ ...prev, [name]: files[0] }));
     } else {
@@ -94,141 +102,164 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
       fetchSubdomains(value);
       setIntroVideoData((prev) => ({ ...prev, subdomain_id: "" }));
     }
-    
+
     // Clear error when user starts typing
     if (formErrors[name] && touched[name]) {
-      setFormErrors(prev => ({ ...prev, [name]: '' }));
+      setFormErrors((prev) => ({ ...prev, [name]: "" }));
     }
     setApiError(null);
   };
 
-  const handleBlur = (field, section = 'course') => {
-    setTouched(prev => ({ ...prev, [section === 'intro' ? `intro_${field}` : field]: true }));
+  const handleBlur = (field, section = "course") => {
+    setTouched((prev) => ({
+      ...prev,
+      [section === "intro" ? `intro_${field}` : field]: true,
+    }));
     validateField(field, section);
   };
 
-  const validateField = (field, section = 'course') => {
-    const value = section === 'intro' ? introVideoData[field] : courseData[field];
-    let error = '';
+  const validateField = (field, section = "course") => {
+    const value =
+      section === "intro" ? introVideoData[field] : courseData[field];
+    let error = "";
 
     switch (field) {
-      case 'course_name':
+      case "course_name":
         if (!value?.trim()) error = "Course name is required";
-        else if (value.trim().length < 3) error = "Course name must be at least 3 characters";
+        else if (value.trim().length < 3)
+          error = "Course name must be at least 3 characters";
         break;
-        
-      case 'coach_id':
+
+      case "coach_id":
         if (!value) error = "Please select a coach";
         break;
-        
-      case 'target_audience':
+
+      case "target_audience":
         if (!value?.trim()) error = "Target audience is required";
         break;
-        
-      case 'learning_outcomes':
-        if (!value?.trim()) error = "Learning outcomes are required";
+
+      case "learning_outcomes":
+        if (!stripHtml(value).trim()) error = "Learning outcomes are required";
         break;
-        
-      case 'curriculum_description':
-        if (!value?.trim()) error = "Curriculum description is required";
-        else if (value.trim().length < 20) error = "Please provide a more detailed description (minimum 20 characters)";
+
+      case "curriculum_description":
+        const plain = stripHtml(value).trim();
+        if (!plain) error = "Curriculum description is required";
+        else if (plain.length < 20)
+          error =
+            "Please provide a more detailed description (minimum 20 characters)";
         break;
-        
-      case 'durationHours':
+
+      case "durationHours":
         if (!value?.toString().trim()) error = "Hours are required";
-        else if (isNaN(value) || parseInt(value) < 0) error = "Please enter a valid number";
+        else if (isNaN(value) || parseInt(value) < 0)
+          error = "Please enter a valid number";
         break;
-        
-      case 'durationMinutes':
+
+      case "durationMinutes":
         if (!value?.toString().trim()) error = "Minutes are required";
-        else if (isNaN(value) || parseInt(value) < 0 || parseInt(value) > 59) error = "Please enter a valid number between 0-59";
+        else if (isNaN(value) || parseInt(value) < 0 || parseInt(value) > 59)
+          error = "Please enter a valid number between 0-59";
         break;
-        
-      case 'domain_id':
+
+      case "domain_id":
         if (!value) error = "Please select a domain";
         break;
-        
-      case 'subdomain_id':
+
+      case "subdomain_id":
         if (!value) error = "Please select a subdomain";
         break;
-        
-      case 'title':
+
+      case "title":
         if (!value?.trim()) error = "Video title is required";
         break;
-        
-      case 'description':
-        if (!value?.trim()) error = "Video description is required";
+
+      case "description":
+        if (!stripHtml(value).trim()) error = "Video description is required";
         break;
-        
-      case 'video_url':
+
+      case "video_url":
         if (!value?.trim()) error = "Video URL is required";
         break;
     }
 
     if (error) {
-      setFormErrors(prev => ({ ...prev, [section === 'intro' ? `intro_${field}` : field]: error }));
+      setFormErrors((prev) => ({
+        ...prev,
+        [section === "intro" ? `intro_${field}` : field]: error,
+      }));
     }
   };
 
   const validateForm = () => {
     const errors = {};
-    
+
     // Course data validation
     if (!courseData.course_name?.trim()) {
       errors.course_name = "Course name is required";
     }
-    
+
     if (!courseData.coach_id) {
       errors.coach_id = "Please select a coach";
     }
-    
+
     if (!courseData.target_audience?.trim()) {
       errors.target_audience = "Target audience is required";
     }
-    
-    if (!courseData.learning_outcomes?.trim()) {
+
+    if (!stripHtml(courseData.learning_outcomes).trim()) {
       errors.learning_outcomes = "Learning outcomes are required";
     }
-    
-    if (!courseData.curriculum_description?.trim()) {
+
+    if (!stripHtml(courseData.curriculum_description).trim()) {
       errors.curriculum_description = "Curriculum description is required";
-    } else if (courseData.curriculum_description.trim().length < 20) {
-      errors.curriculum_description = "Please provide a more detailed description (minimum 20 characters)";
+    } else if (
+      stripHtml(courseData.curriculum_description).trim().length < 20
+    ) {
+      errors.curriculum_description =
+        "Please provide a more detailed description (minimum 20 characters)";
     }
-    
+
     if (!courseData.durationHours?.toString().trim()) {
       errors.durationHours = "Hours are required";
-    } else if (isNaN(courseData.durationHours) || parseInt(courseData.durationHours) < 0) {
+    } else if (
+      isNaN(courseData.durationHours) ||
+      parseInt(courseData.durationHours) < 0
+    ) {
       errors.durationHours = "Please enter a valid number";
     }
-    
+
     if (!courseData.durationMinutes?.toString().trim()) {
       errors.durationMinutes = "Minutes are required";
-    } else if (isNaN(courseData.durationMinutes) || parseInt(courseData.durationMinutes) < 0 || parseInt(courseData.durationMinutes) > 59) {
+    } else if (
+      isNaN(courseData.durationMinutes) ||
+      parseInt(courseData.durationMinutes) < 0 ||
+      parseInt(courseData.durationMinutes) > 59
+    ) {
       errors.durationMinutes = "Please enter a valid number between 0-59";
     }
-    
+
     // Intro video validation
     if (!introVideoData.domain_id) {
       errors.intro_domain_id = "Please select a domain";
     }
-    
+
     if (!introVideoData.subdomain_id) {
       errors.intro_subdomain_id = "Please select a subdomain";
     }
-    
+
     if (!introVideoData.title?.trim()) {
       errors.intro_title = "Video title is required";
     }
-    
-    if (!introVideoData.description?.trim()) {
+
+    if (!stripHtml(introVideoData.description).trim()) {
       errors.intro_description = "Video description is required";
     }
-    
+
     if (!introVideoData.video_url?.trim()) {
       errors.intro_video_url = "Video URL is required";
     }
-    
+
     return errors;
   };
 
@@ -236,30 +267,41 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
   const handleSave = async () => {
     // Mark all fields as touched
     const allFields = [
-      'course_name', 'coach_id', 'target_audience', 'learning_outcomes',
-      'curriculum_description', 'durationHours', 'durationMinutes',
-      'domain_id', 'subdomain_id', 'title', 'description', 'video_url'
+      "course_name",
+      "coach_id",
+      "target_audience",
+      "learning_outcomes",
+      "curriculum_description",
+      "durationHours",
+      "durationMinutes",
+      "domain_id",
+      "subdomain_id",
+      "title",
+      "description",
+      "video_url",
     ];
-    
+
     const newTouched = {};
-    allFields.forEach(field => {
-      if (field.includes('intro_')) {
+    allFields.forEach((field) => {
+      if (field.includes("intro_")) {
         newTouched[field] = true;
       } else {
         newTouched[field] = true;
       }
     });
     setTouched(newTouched);
-    
+
     const errors = validateForm();
     setFormErrors(errors);
-    
+
     if (Object.keys(errors).length > 0) {
       // Scroll to first error
       const firstErrorField = Object.keys(errors)[0];
-      const errorElement = document.querySelector(`[name="${firstErrorField.replace('intro_', '')}"]`);
+      const errorElement = document.querySelector(
+        `[name="${firstErrorField.replace("intro_", "")}"]`,
+      );
       if (errorElement) {
-        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
         errorElement.focus();
       }
       return;
@@ -270,17 +312,26 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
     // --- Append Course Info ---
     formData.append("course_name", courseData.course_name.trim());
     formData.append("target_audience", courseData.target_audience.trim());
-    formData.append("learning_outcomes", courseData.learning_outcomes.trim());
-    formData.append("curriculum_description", courseData.curriculum_description.trim());
+    formData.append(
+      "learning_outcomes",
+      cleanHtml(courseData.learning_outcomes),
+    );
+    formData.append(
+      "curriculum_description",
+      cleanHtml(courseData.curriculum_description),
+    );
     formData.append("coach_id", courseData.coach_id);
-    formData.append("duration", `${courseData.durationHours || 0}h ${courseData.durationMinutes || 0}m`);
+    formData.append(
+      "duration",
+      `${courseData.durationHours || 0}h ${courseData.durationMinutes || 0}m`,
+    );
 
     // --- Append Intro Video Info ---
     formData.append("video_id", introVideoData.video_id);
     formData.append("domain_id", introVideoData.domain_id);
     formData.append("subdomain_id", introVideoData.subdomain_id);
     formData.append("title", introVideoData.title.trim());
-    formData.append("description", introVideoData.description.trim());
+    formData.append("description", cleanHtml(introVideoData.description));
     formData.append("video_url", introVideoData.video_url.trim());
 
     if (introVideoData.thumbnail_file instanceof File) {
@@ -297,9 +348,10 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
   const inputClass = (fieldName) => `
     w-full px-4 py-2.5 rounded-lg border text-sm
     focus:outline-none focus:ring-2 focus:ring-offset-0
-    ${formErrors[fieldName] && touched[fieldName]
-      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500'
-      : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500'
+    ${
+      formErrors[fieldName] && touched[fieldName]
+        ? "border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500 focus:border-red-500"
+        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
     }
     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
     disabled:opacity-60 disabled:cursor-not-allowed
@@ -326,16 +378,10 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
             )}
           </div>
           <div className="flex gap-3">
-            <CustomButton
-              onClick={onClose}
-              variant="outline"
-            >
+            <CustomButton onClick={onClose} variant="outline">
               Cancel
             </CustomButton>
-            <CustomButton
-              onClick={handleSave}
-              variant="primary"
-            >
+            <CustomButton onClick={handleSave} variant="primary">
               Save Changes
             </CustomButton>
           </div>
@@ -384,8 +430,8 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
                 name="domain_id"
                 value={introVideoData?.domain_id || ""}
                 onChange={handleIntroVideoDataChange}
-                onBlur={() => handleBlur('domain_id', 'intro')}
-                className={inputClass('intro_domain_id')}
+                onBlur={() => handleBlur("domain_id", "intro")}
+                className={inputClass("intro_domain_id")}
                 required
               >
                 <option value="">Select Domain</option>
@@ -413,8 +459,8 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
                 name="subdomain_id"
                 value={introVideoData?.subdomain_id || ""}
                 onChange={handleIntroVideoDataChange}
-                onBlur={() => handleBlur('subdomain_id', 'intro')}
-                className={inputClass('intro_subdomain_id')}
+                onBlur={() => handleBlur("subdomain_id", "intro")}
+                className={inputClass("intro_subdomain_id")}
                 required
                 disabled={!introVideoData.domain_id || subdomains.length === 0}
               >
@@ -456,14 +502,18 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
               name="coach_id"
               value={courseData.coach_id || ""}
               onChange={handleCourseDataChange}
-              onBlur={() => handleBlur('coach_id')}
-              className={inputClass('coach_id')}
+              onBlur={() => handleBlur("coach_id")}
+              className={inputClass("coach_id")}
               required
             >
               <option value="">Select Coach</option>
               {coachesList.map((coach) => {
                 const id = coach.id ?? coach.coach_id ?? coach._id;
-                const name = coach.name ?? coach.full_name ?? coach.coach_name ?? "Unknown";
+                const name =
+                  coach.name ??
+                  coach.full_name ??
+                  coach.coach_name ??
+                  "Unknown";
                 return (
                   <option key={id} value={id}>
                     {name}
@@ -488,8 +538,8 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
               name="course_name"
               value={courseData.course_name || ""}
               onChange={handleCourseDataChange}
-              onBlur={() => handleBlur('course_name')}
-              className={inputClass('course_name')}
+              onBlur={() => handleBlur("course_name")}
+              className={inputClass("course_name")}
               required
               placeholder="e.g., Advanced Mindfulness Meditation"
             />
@@ -512,9 +562,9 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
               name="target_audience"
               value={courseData.target_audience || ""}
               onChange={handleCourseDataChange}
-              onBlur={() => handleBlur('target_audience')}
+              onBlur={() => handleBlur("target_audience")}
               rows={3}
-              className={inputClass('target_audience') + " resize-none"}
+              className={inputClass("target_audience") + " resize-none"}
               required
               placeholder="Who is this course designed for?"
             />
@@ -533,15 +583,23 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
                 Learning Outcomes <span className="text-red-500 ml-1">*</span>
               </div>
             </label>
-            <textarea
-              name="learning_outcomes"
-              value={courseData.learning_outcomes || ""}
-              onChange={handleCourseDataChange}
-              onBlur={() => handleBlur('learning_outcomes')}
-              rows={3}
-              className={inputClass('learning_outcomes') + " resize-none"}
-              required
+
+            <RichTextEditor
+              key={`learning_outcomes_${courseDetails?.course_id}`}
+              value={courseData.learning_outcomes ?? ""}
+              onChange={(value) => {
+                setCourseData((prev) => ({
+                  ...prev,
+                  learning_outcomes: value,
+                }));
+                if (formErrors.learning_outcomes)
+                  setFormErrors((p) => ({ ...p, learning_outcomes: "" }));
+              }}
               placeholder="What will students learn from this course?"
+              error={
+                !!formErrors.learning_outcomes && !!touched.learning_outcomes
+              }
+              minHeight="100px"
             />
             {formErrors.learning_outcomes && touched.learning_outcomes && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -558,23 +616,33 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
                 Course Overview <span className="text-red-500 ml-1">*</span>
               </div>
             </label>
-            <textarea
-              name="curriculum_description"
-              value={courseData.curriculum_description || ""}
-              onChange={handleCourseDataChange}
-              onBlur={() => handleBlur('curriculum_description')}
-              rows={4}
-              className={inputClass('curriculum_description') + " resize-none"}
-              required
+            <RichTextEditor
+              key={`curriculum_description_${courseDetails?.course_id}`}
+              value={courseData.curriculum_description ?? ""}
+              onChange={(value) => {
+                setCourseData((prev) => ({
+                  ...prev,
+                  curriculum_description: value,
+                }));
+                if (formErrors.curriculum_description)
+                  setFormErrors((p) => ({ ...p, curriculum_description: "" }));
+              }}
               placeholder="Provide a detailed overview of the course curriculum..."
+              error={
+                !!formErrors.curriculum_description &&
+                !!touched.curriculum_description
+              }
+              minHeight="120px"
             />
-            {formErrors.curriculum_description && touched.curriculum_description && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {formErrors.curriculum_description}
-              </p>
-            )}
+            {formErrors.curriculum_description &&
+              touched.curriculum_description && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {formErrors.curriculum_description}
+                </p>
+              )}
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Minimum 20 characters. Current: {courseData.curriculum_description?.length || 0}
+              Minimum 20 characters. Current:{" "}
+              {stripHtml(courseData.curriculum_description)?.length || 0}
             </p>
           </div>
 
@@ -599,8 +667,8 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
                   name="durationHours"
                   value={courseData.durationHours || ""}
                   onChange={handleCourseDataChange}
-                  onBlur={() => handleBlur('durationHours')}
-                  className={inputClass('durationHours')}
+                  onBlur={() => handleBlur("durationHours")}
+                  className={inputClass("durationHours")}
                   placeholder="e.g., 10"
                   required
                 />
@@ -622,8 +690,8 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
                   name="durationMinutes"
                   value={courseData.durationMinutes || ""}
                   onChange={handleCourseDataChange}
-                  onBlur={() => handleBlur('durationMinutes')}
-                  className={inputClass('durationMinutes')}
+                  onBlur={() => handleBlur("durationMinutes")}
+                  className={inputClass("durationMinutes")}
                   placeholder="e.g., 30"
                   required
                 />
@@ -658,8 +726,8 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
               name="title"
               value={introVideoData.title || ""}
               onChange={handleIntroVideoDataChange}
-              onBlur={() => handleBlur('title', 'intro')}
-              className={inputClass('intro_title')}
+              onBlur={() => handleBlur("title", "intro")}
+              className={inputClass("intro_title")}
               required
               placeholder="e.g., Course Introduction & Overview"
             />
@@ -675,15 +743,19 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
             <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
               Video Description <span className="text-red-500 ml-1">*</span>
             </label>
-            <textarea
-              name="description"
-              value={introVideoData.description || ""}
-              onChange={handleIntroVideoDataChange}
-              onBlur={() => handleBlur('description', 'intro')}
-              rows={3}
-              className={inputClass('intro_description') + " resize-none"}
-              required
+            <RichTextEditor
+              key={`intro_description_${courseDetails?.course_id}`}
+              value={introVideoData.description ?? ""}
+              onChange={(value) => {
+                setIntroVideoData((prev) => ({ ...prev, description: value }));
+                if (formErrors.intro_description)
+                  setFormErrors((p) => ({ ...p, intro_description: "" }));
+              }}
               placeholder="Briefly describe what this introduction video covers..."
+              error={
+                !!formErrors.intro_description && !!touched.intro_description
+              }
+              minHeight="100px"
             />
             {formErrors.intro_description && touched.intro_description && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -717,10 +789,20 @@ const EditCourse = ({ courseDetails, isDrawerOpen, onClose, onSubmit }) => {
               Video Thumbnail
             </label>
             <FileUploaderWithPreview
-              imageFile={typeof introVideoData.thumbnail_file === "object" ? introVideoData.thumbnail_file : null}
-              imageUrl={typeof introVideoData.thumbnail_file === "string" ? introVideoData.thumbnail_file : null}
+              imageFile={
+                typeof introVideoData.thumbnail_file === "object"
+                  ? introVideoData.thumbnail_file
+                  : null
+              }
+              imageUrl={
+                typeof introVideoData.thumbnail_file === "string"
+                  ? introVideoData.thumbnail_file
+                  : null
+              }
               setImageFile={(file) =>
-                handleIntroVideoDataChange({ target: { name: "thumbnail_file", files: [file] } })
+                handleIntroVideoDataChange({
+                  target: { name: "thumbnail_file", files: [file] },
+                })
               }
               name="thumbnail_file"
               label="Upload or update the video thumbnail"

@@ -44,6 +44,10 @@ import {
   updateProgressToolsQuestionAPI,
   fetchProgressToolsQuestionsAPI,
   postProgressToolsQuestionAPI,
+  deleteProgressPracticeMessageAPI,
+  updateProgressPracticeMessageAPI,
+  fetchProgressPracticeMessagesAPI,
+  postProgressPracticeMessageAPI,
 } from "./adminThunk";
 
 const adminSlice = createSlice({
@@ -60,6 +64,7 @@ const adminSlice = createSlice({
     inquiriesDetails: { inquiries: [] },
     progressTasksQuestions: { questions: [] },
     progressToolsQuestions: { tools: [] },
+    progressPracticeMessages: { messages: [] },
     coachesList: [],
     courseDetails: null,
     loading: false,
@@ -348,7 +353,7 @@ const adminSlice = createSlice({
           );
       })
 
-      // progress tracking options
+      // progress tools questions
       .addCase(postProgressToolsQuestionAPI.fulfilled, (state, action) => {
         state.progressToolsQuestions.tools.unshift(action.payload);
       })
@@ -372,6 +377,30 @@ const adminSlice = createSlice({
             (o) => o.id !== action.payload.id,
           );
       })
+
+      // progress practice messages
+      .addCase(postProgressPracticeMessageAPI.fulfilled, (state, action) => {
+        state.progressPracticeMessages.messages.unshift(action.payload);
+      })
+
+      .addCase(fetchProgressPracticeMessagesAPI.fulfilled, (state, action) => {
+        state.progressPracticeMessages.messages = action.payload?.messages || [];
+      })
+
+      .addCase(updateProgressPracticeMessageAPI.fulfilled, (state, action) => {
+        state.progressPracticeMessages.messages = state.progressPracticeMessages.messages.map((message) => {
+          if (message.id === action.payload.id)
+            return { id: action.payload.id, ...action.payload };
+          return message;
+        });
+      })
+
+      .addCase(deleteProgressPracticeMessageAPI.fulfilled, (state, action) => {
+        state.progressPracticeMessages.messages = state.progressPracticeMessages.messages.filter(
+          (m) => m.id !== action.payload.id
+        );
+      })
+
 
       // ✅ Global matchers
       .addMatcher(

@@ -60,18 +60,11 @@ const DailyShortCard = ({
     domains.find((d) => d.domain_id === short.domain_id)?.domain_name ||
     null;
 
-  // Helper function to strip HTML for preview text
-  const stripHtml = (html) => {
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-  };
-
-  const plainDescription = stripHtml(description);
-  const descriptionPreview =
-    plainDescription.length > 60
-      ? plainDescription.substring(0, 60) + "..."
-      : plainDescription;
+  // const plainDescription = stripHtml(description);
+  // const descriptionPreview =
+  //   plainDescription.length > 60
+  //     ? plainDescription.substring(0, 60) + "..."
+  //     : plainDescription;
 
   return (
     <div
@@ -213,11 +206,13 @@ const DailyShortCard = ({
               </h3>
 
               {/* Description Preview - shows plain text preview */}
-              {descriptionPreview && (
-                <p className="text-white/70 text-xs mb-2 line-clamp-2">
-                  {descriptionPreview}
-                </p>
-              )}
+
+              <p
+                className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mt-1"
+                dangerouslySetInnerHTML={{
+                  __html: short.video_description || "",
+                }}
+              />
 
               {/* Domain pill - bottom left */}
               {domainName && (

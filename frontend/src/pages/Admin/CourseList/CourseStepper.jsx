@@ -11,6 +11,8 @@ import AddCourseInfo from "./AddCourseInfo";
 import AddCourseCurriculum from "./AddCourseCurriculum";
 import useDomainData from "./useDomainData";
 import { addNewCourseAPI } from "@/store/feature/admin";
+import { stripHtml } from "@/components/RichTextEditor/stripHtml";
+import { cleanHtml } from "@/components/RichTextEditor/cleanHtml";
 
 const steps = ["Course Information", "Curriculum Setup"];
 
@@ -33,7 +35,7 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
     courseName: "",
     targetedAudience: "",
     learningOutcome: "",
-    curriculumDesc: "",
+    courseOverview: "",
     courseDurationHours: "",
     courseDurationMinutes: "",
     videoTitle: "",
@@ -78,15 +80,17 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       errors.targetedAudience = "Target audience is required";
     }
 
-    if (!courseData.learningOutcome?.trim()) {
+    const plainLearningOutcome = stripHtml(courseData.learningOutcome);
+    if (!plainLearningOutcome?.trim()) {
       errors.learningOutcome = "Learning outcome is required";
     }
 
-    if (!courseData.curriculumDesc?.trim()) {
-      errors.curriculumDesc = "Curriculum description is required";
-    } else if (courseData.curriculumDesc.trim().length < 20) {
-      errors.curriculumDesc =
-        "Please provide a more detailed curriculum description (minimum 20 characters)";
+    const plainCourseOverview = stripHtml(courseData.courseOverview);
+    if (!plainCourseOverview?.trim()) {
+      errors.courseOverview = "Course overview is required";
+    } else if (plainCourseOverview.trim().length < 20) {
+      errors.courseOverview =
+        "Please provide a more detailed course overview (minimum 20 characters)";
     }
 
     if (!courseData.courseDurationHours?.toString().trim()) {
@@ -112,7 +116,8 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       errors.videoTitle = "Video title is required";
     }
 
-    if (!courseData.videoDesc?.trim()) {
+    const plainVideoDesc = stripHtml(courseData.videoDesc);
+    if (!plainVideoDesc?.trim()) {
       errors.videoDesc = "Video description is required";
     }
 
@@ -148,9 +153,9 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
         curriculumErrors.title = "Title must be at least 3 characters";
       }
 
-      if (!curriculum.description?.trim()) {
+      if (!stripHtml(curriculum.description)?.trim()) {
         curriculumErrors.description = "Description is required";
-      } else if (curriculum.description.trim().length < 10) {
+      } else if (stripHtml(curriculum.description).trim().length < 10) {
         curriculumErrors.description =
           "Description must be at least 10 characters";
       }
@@ -199,8 +204,6 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
       const errors = validateStep2();
       if (Object.keys(errors).length > 0) {
         setFormErrors({ step2: errors });
-
-        // Scroll to first curriculum with errors
         const firstErrorIndex = Object.keys(errors)[0];
         const errorElement = document.querySelector(
           `[data-curriculum-index="${firstErrorIndex}"]`,
@@ -211,28 +214,39 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
         return;
       }
 
-      // Submit the form
       try {
         setIsSubmitting(true);
 
         const formData = new FormData();
 
-        // Add course data
+        const richTextFields = [
+          "learningOutcome",
+          "courseOverview",
+          "videoDesc",
+        ];
+
+        const fieldNameMap = {
+          courseOverview: "curriculumDesc",
+        };
+
         Object.entries(courseData).forEach(([key, value]) => {
           if (value !== null && value !== undefined) {
-            const finalValue = typeof value === "string" ? value.trim() : value;
-
-            formData.append(key, finalValue);
+            const backendKey = fieldNameMap[key] ?? key;
+            if (richTextFields.includes(key)) {
+              formData.append(backendKey, cleanHtml(value));
+            } else {
+              const finalValue =
+                typeof value === "string" ? value.trim() : value;
+              formData.append(backendKey, finalValue);
+            }
           }
         });
 
-        // Add curriculum data
         curriculums.forEach((item, i) => {
           Object.entries(item).forEach(([key, value]) => {
             if (value !== null && value !== undefined) {
               const finalValue =
                 typeof value === "string" ? value.trim() : value;
-
               formData.append(`curriculums[${i}][${key}]`, finalValue);
             }
           });
@@ -244,8 +258,6 @@ const CourseStepper = ({ onClose, coaches = [], coachesLoading = false }) => {
         setApiError(
           err?.message || err?.data?.message || "Failed to create course",
         );
-
-        // Scroll to error
         const errorElement = document.getElementById("api-error-display");
         if (errorElement) {
           errorElement.scrollIntoView({ behavior: "smooth", block: "center" });

@@ -6,8 +6,8 @@ export const getProgressTasksQuestionService = (questionId) => {
       SELECT 
         q.*,
         o.options
-      FROM bm.progress_tracking_questions q
-      LEFT JOIN bm.progress_tracking_options o 
+      FROM bm.progress_practice_questions q
+      LEFT JOIN bm.progress_practice_options o 
         ON o.question_id = q.id
       WHERE q.id = $1
         AND q.status = 1
@@ -46,7 +46,7 @@ export const getAllProgressTasksQuestionsService = (
     // Count query — total questions for this course/week/day
     const countQuery = `
       SELECT COUNT(*) AS total_questions
-      FROM bm.progress_tracking_questions
+      FROM bm.progress_practice_questions
       WHERE status = 1
         AND course_id = $1
         AND week_no = $2
@@ -74,8 +74,8 @@ export const getAllProgressTasksQuestionsService = (
             q.day_no,
             q.course_id,
             o.options
-          FROM bm.progress_tracking_questions q
-          LEFT JOIN bm.progress_tracking_options o
+          FROM bm.progress_practice_questions q
+          LEFT JOIN bm.progress_practice_options o
             ON o.question_id = q.id
           WHERE q.status = 1
             AND q.course_id = $1
@@ -115,7 +115,7 @@ export const postProgressTasksQuestionService = (
   return new Promise((resolve, reject) => {
     // 1. Insert the question first
     const questionQuery = `
-      INSERT INTO bm.progress_tracking_questions (
+      INSERT INTO bm.progress_practice_questions (
         question_text,
         option_type,
         week_no,
@@ -150,7 +150,7 @@ export const postProgressTasksQuestionService = (
 
           try {
             const optionQuery = `
-            INSERT INTO bm.progress_tracking_options (
+            INSERT INTO bm.progress_practice_options (
             question_id,
             options,
             option_order,
@@ -199,7 +199,7 @@ export const updateProgressTasksQuestionService = (
   return new Promise((resolve, reject) => {
     // 1. Update the question
     const questionQuery = `
-      UPDATE bm.progress_tracking_questions
+      UPDATE bm.progress_practice_questions
       SET
         question_text = $1,
         option_type   = $2,
@@ -230,7 +230,7 @@ export const updateProgressTasksQuestionService = (
             // 3. Delete old options first
             await new Promise((res, rej) => {
               connection.query(
-                `DELETE FROM bm.progress_tracking_options WHERE question_id = $1`,
+                `DELETE FROM bm.progress_practice_options WHERE question_id = $1`,
                 [question_id],
                 (delErr) => {
                   if (delErr) return rej(delErr);
@@ -244,7 +244,7 @@ export const updateProgressTasksQuestionService = (
             if (filteredOptions.length > 0) {
               await new Promise((res, rej) => {
                 const optionQuery = `
-                 INSERT INTO bm.progress_tracking_options (
+                 INSERT INTO bm.progress_practice_options (
                  question_id,
                  options,
                  option_order,
@@ -274,7 +274,7 @@ export const updateProgressTasksQuestionService = (
         } else {
           // 5. If switched to Text (1) or Rating (5), delete any existing options
           connection.query(
-            `DELETE FROM bm.progress_tracking_options WHERE question_id = $1`,
+            `DELETE FROM bm.progress_practice_options WHERE question_id = $1`,
             [question_id],
             (delErr) => {
               if (delErr) return reject(delErr);
@@ -290,7 +290,7 @@ export const updateProgressTasksQuestionService = (
 export const deleteProgressTasksQuestionService = (questionId) => {
   return new Promise((resolve, reject) => {
     const query = `
-            UPDATE bm.progress_tracking_questions
+            UPDATE bm.progress_practice_questions
             SET 
                 status = 0,
                 updated_on = NOW()

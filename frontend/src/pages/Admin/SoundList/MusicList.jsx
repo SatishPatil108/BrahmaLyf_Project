@@ -19,6 +19,8 @@ import useMusicList from "./useMusicList";
 import usePagination from "@/hooks";
 import Pagination from "@/components/Pagination/Pagination";
 import useDomainData from "../CourseList/useDomainData";
+import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
+import { stripHtml } from "@/components/RichTextEditor/stripHtml";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL_IMG;
 
@@ -151,9 +153,10 @@ const MusicList = () => {
       newErrors.songName = "Song name is required.";
     }
 
-    if (!songInfo.trim()) {
+    const plainDescription = stripHtml(songInfo);
+    if (!plainDescription.trim()) {
       newErrors.songInfo = "Song information is required.";
-    } else if (songInfo.trim().length < 10) {
+    } else if (plainDescription.trim().length < 10) {
       newErrors.songInfo = "Song information must be at least 10 characters.";
     }
 
@@ -373,9 +376,12 @@ const MusicList = () => {
                         </button>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mt-1">
-                      {music.music_description}
-                    </p>
+                    <p
+                      className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mt-1"
+                      dangerouslySetInnerHTML={{
+                        __html: music.music_description,
+                      }}
+                    />
                     {/* Now Playing Indicator */}
                     {currentAudio === music.music_file &&
                       !audioRef.current?.paused && (
@@ -488,23 +494,18 @@ const MusicList = () => {
               <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
                 Song Description *
               </label>
-              <textarea
-                rows={4}
+
+              <RichTextEditor
+                key={editingSongId ?? "new"}
                 value={songInfo}
-                onChange={(e) => {
-                  setSongInfo(e.target.value);
+                onChange={(value) => {
+                  setSongInfo(value);
                   if (errors.songInfo)
                     setErrors((p) => ({ ...p, songInfo: null }));
                 }}
                 placeholder="Describe your song (genre, mood, purpose...)"
-                className={`w-full px-4 py-3 rounded-lg border shadow-sm text-gray-900 dark:text-gray-100
-                                    bg-white dark:bg-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2
-                                    transition-all duration-200 resize-none
-                                    ${
-                                      errors.songInfo
-                                        ? "border-red-300 dark:border-red-700 focus:ring-red-500 bg-red-50 dark:bg-red-900/20"
-                                        : "border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-transparent"
-                                    }`}
+                error={!!errors.songInfo}
+                minHeight="100px"
               />
               {errors.songInfo && (
                 <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">

@@ -1,5 +1,14 @@
 import React from "react";
-import { Mail, Phone, Award, User, Calendar, Briefcase, FileText, Award as Trophy } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  Award,
+  User,
+  Calendar,
+  Briefcase,
+  FileText,
+  Award as Trophy,
+} from "lucide-react";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL_IMG;
 
@@ -28,11 +37,20 @@ const CoachInfo = ({ coach }) => {
         <div className="relative">
           <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl">
             <img
-              src={coach.profile_image_url ? `${BASE_URL}${coach.profile_image_url}` : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(coach.name) + '&background=indigo&color=fff'}
+              src={
+                coach.profile_image_url
+                  ? `${BASE_URL}${coach.profile_image_url}`
+                  : "https://ui-avatars.com/api/?name=" +
+                    encodeURIComponent(coach.name) +
+                    "&background=indigo&color=fff"
+              }
               alt={coach.name}
               className="w-full h-full object-cover"
               onError={(e) => {
-                e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(coach.name) + '&background=indigo&color=fff';
+                e.target.src =
+                  "https://ui-avatars.com/api/?name=" +
+                  encodeURIComponent(coach.name) +
+                  "&background=indigo&color=fff";
               }}
             />
           </div>
@@ -54,7 +72,10 @@ const CoachInfo = ({ coach }) => {
           </div>
           <div className="flex items-center justify-center gap-4">
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              ID: <code className="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{coach.coach_id}</code>
+              ID:{" "}
+              <code className="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                {coach.coach_id}
+              </code>
             </span>
           </div>
         </div>
@@ -153,13 +174,14 @@ const CoachInfo = ({ coach }) => {
             </p>
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-900 rounded-lg p-4">
           {coach.bio ? (
             <div className="prose prose-sm max-w-none">
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
-                {coach.bio}
-              </p>
+              <p
+                className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line"
+                dangerouslySetInnerHTML={{ __html: coach.bio }}
+              />
             </div>
           ) : (
             <div className="text-center py-6">
@@ -177,7 +199,12 @@ const CoachInfo = ({ coach }) => {
             <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
               <span>Words: {coach.bio.split(/\s+/).length}</span>
               <span>Characters: {coach.bio.length}</span>
-              <span>Last updated: {coach.updated_at ? new Date(coach.updated_at).toLocaleDateString() : 'N/A'}</span>
+              <span>
+                Last updated:{" "}
+                {coach.updated_at
+                  ? new Date(coach.updated_at).toLocaleDateString()
+                  : "N/A"}
+              </span>
             </div>
           </div>
         )}
@@ -190,12 +217,14 @@ const CoachInfo = ({ coach }) => {
           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Status
           </h4>
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-            coach.is_active 
-              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
-          }`}>
-            {coach.is_active ? 'Active' : 'Inactive'}
+          <span
+            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+              coach.is_active
+                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
+            }`}
+          >
+            {coach.is_active ? "Active" : "Inactive"}
           </span>
         </div>
 
@@ -205,11 +234,13 @@ const CoachInfo = ({ coach }) => {
             Registration Date
           </h4>
           <p className="text-gray-900 dark:text-gray-100 text-sm">
-            {coach.created_at ? new Date(coach.created_at).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            }) : 'N/A'}
+            {coach.created_at
+              ? new Date(coach.created_at).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              : "N/A"}
           </p>
         </div>
       </div>
@@ -217,7 +248,10 @@ const CoachInfo = ({ coach }) => {
       {/* Footer Note */}
       <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-800">
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Coach ID: {coach.coach_id} • Last updated: {coach.updated_at ? new Date(coach.updated_at).toLocaleDateString() : 'N/A'}
+          Coach ID: {coach.coach_id} • Last updated:{" "}
+          {coach.updated_at
+            ? new Date(coach.updated_at).toLocaleDateString()
+            : "N/A"}
         </p>
       </div>
     </div>
