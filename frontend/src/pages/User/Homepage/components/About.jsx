@@ -24,19 +24,21 @@ function About() {
       text: "text-gray-100",
       mutedText: "text-gray-400",
       accent: "from-purple-600 to-pink-500",
-      accentText: "text-transparent bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text",
+      accentText:
+        "text-transparent bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text",
       cardBg: "bg-gray-800/50 backdrop-blur-sm border border-gray-700",
-      border: "border-gray-700"
+      border: "border-gray-700",
     },
     light: {
       bg: "bg-gradient-to-br from-gray-50 via-white to-gray-100",
       text: "text-gray-900",
       mutedText: "text-gray-600",
       accent: "from-purple-500 to-pink-400",
-      accentText: "text-transparent bg-gradient-to-r from-purple-500 to-pink-400 bg-clip-text",
+      accentText:
+        "text-transparent bg-gradient-to-r from-purple-500 to-pink-400 bg-clip-text",
       cardBg: "bg-white/70 backdrop-blur-sm border border-gray-200",
-      border: "border-gray-200"
-    }
+      border: "border-gray-200",
+    },
   };
 
   const colors = themeColors[theme] || themeColors.light;
@@ -45,21 +47,24 @@ function About() {
     {
       icon: Heart,
       title: "Heart",
-      description: "We put compassion and care into everything we create. Every course is designed with your personal growth in mind.",
-      color: "text-pink-500"
+      description:
+        "We put compassion and care into everything we create. Every course is designed with your personal growth in mind.",
+      color: "text-pink-500",
     },
     {
       icon: Brain,
       title: "Science",
-      description: "Our programs are backed by research and proven strategies, ensuring results that last and transform your daily life.",
-      color: "text-purple-500"
+      description:
+        "Our programs are backed by research and proven strategies, ensuring results that last and transform your daily life.",
+      color: "text-purple-500",
     },
     {
       icon: Target,
       title: "Results",
-      description: "We measure success by the transformation in your life — empowering you to achieve mental clarity, focus, and purpose.",
-      color: "text-teal-500"
-    }
+      description:
+        "We measure success by the transformation in your life — empowering you to achieve mental clarity, focus, and purpose.",
+      color: "text-teal-500",
+    },
   ];
 
   // Animation variants
@@ -69,9 +74,9 @@ function About() {
       opacity: 1,
       transition: {
         staggerChildren: 0.2,
-        delayChildren: 0.1
-      }
-    }
+        delayChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
@@ -81,9 +86,9 @@ function About() {
       y: 0,
       transition: {
         duration: 0.6,
-        ease: "easeOut"
-      }
-    }
+        ease: "easeOut",
+      },
+    },
   };
 
   const iconVariants = {
@@ -95,14 +100,16 @@ function About() {
         type: "spring",
         stiffness: 200,
         damping: 15,
-        delay: 0.2
-      }
-    }
+        delay: 0.2,
+      },
+    },
   };
 
   return (
     <>
-      <div className={`min-h-screen transition-colors duration-300 ${colors.bg}`}>
+      <div
+        className={`min-h-screen transition-colors duration-300 ${colors.bg}`}
+      >
         {/* Hero Section */}
         <motion.section
           className="px-4 sm:px-6 lg:px-8 py-12 sm:py-20"
@@ -111,7 +118,7 @@ function About() {
           variants={containerVariants}
         >
           <div className="max-w-6xl mx-auto text-center">
-            <motion.div 
+            <motion.div
               className="flex justify-center mb-6"
               variants={itemVariants}
             >
@@ -140,9 +147,9 @@ function About() {
               <span className={`font-semibold ${colors.accentText}`}>
                 BrahmaLYF
               </span>
-              , we believe everyone has the power to grow, heal, and transform. Our
-              platform connects you with world-class coaches and programs that empower you
-              to reach your highest potential.
+              , we believe everyone has the power to grow, heal, and transform.
+              Our platform connects you with world-class coaches and programs
+              that empower you to reach your highest potential.
             </motion.p>
           </div>
         </motion.section>
@@ -162,13 +169,17 @@ function About() {
                   viewport={{ once: true, amount: 0.2 }}
                   whileHover={{ scale: 1.02, y: -5 }}
                 >
-                  <div className={`p-3 rounded-xl w-fit mb-4 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                  <div
+                    className={`p-3 rounded-xl w-fit mb-4 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}
+                  >
                     <item.icon className={`w-6 h-6 ${item.color}`} />
                   </div>
                   <h3 className={`text-xl font-bold mb-3 ${colors.text}`}>
                     {item.title}
                   </h3>
-                  <p className={`text-base leading-relaxed ${colors.mutedText}`}>
+                  <p
+                    className={`text-base leading-relaxed ${colors.mutedText}`}
+                  >
                     {item.description}
                   </p>
                 </motion.div>
@@ -179,14 +190,13 @@ function About() {
             <div className="hidden md:block relative">
               <div className="grid grid-cols-3 gap-6 lg:gap-8">
                 {highlights.map((item, index) => {
-                  // Calculate initial position (all cards start at center position)
                   const centerIndex = 1;
-                  const initialX = (centerIndex - index) * 100; // percentage
-                  
+                  const initialX = (centerIndex - index) * 100; 
+
                   return (
                     <motion.div
                       key={index}
-                      className={`p-6 rounded-2xl ${colors.cardBg} col-span-1`}
+                      className={`p-5 lg:p-6 rounded-2xl ${colors.cardBg} col-span-1`}
                       initial={{
                         opacity: 0,
                         x: `${initialX}%`,
@@ -206,19 +216,23 @@ function About() {
                       }}
                       viewport={{ once: true, amount: 0.2 }}
                       whileHover={{
-                        scale: 1.05,
-                        y: -8,
+                        scale: 1.03,
+                        y: -6,
                         zIndex: 30,
-                        transition: { duration: 0.3 }
+                        transition: { duration: 0.3 },
                       }}
                     >
-                      <div className={`p-3 rounded-xl w-fit mb-4 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                      <div
+                        className={`p-3 rounded-xl w-fit mb-4 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}
+                      >
                         <item.icon className={`w-6 h-6 ${item.color}`} />
                       </div>
                       <h3 className={`text-xl font-bold mb-3 ${colors.text}`}>
                         {item.title}
                       </h3>
-                      <p className={`text-base leading-relaxed ${colors.mutedText}`}>
+                      <p
+                        className={`text-base leading-relaxed ${colors.mutedText}`}
+                      >
                         {item.description}
                       </p>
                     </motion.div>
@@ -245,15 +259,17 @@ function About() {
               Why We Started BrahmaLYF
             </motion.h2>
             <motion.div
-              className={`relative pl-6 sm:pl-8 border-l-2 ${theme === 'dark' ? 'border-purple-500' : 'border-purple-400'}`}
+              className={`relative pl-6 sm:pl-8 border-l-2 ${theme === "dark" ? "border-purple-500" : "border-purple-400"}`}
               variants={itemVariants}
             >
-              <p className={`text-lg sm:text-xl leading-relaxed text-left ${colors.mutedText}`}>
-                Our journey began with a vision — to create a safe space where people
-                can discover life-changing insights and connect with mentors who truly
-                care. We've helped thousands find their path, break through mental
-                barriers, and live their fullest lives. And we're just getting
-                started.
+              <p
+                className={`text-lg sm:text-xl leading-relaxed text-left ${colors.mutedText}`}
+              >
+                Our journey began with a vision — to create a safe space where
+                people can discover life-changing insights and connect with
+                mentors who truly care. We've helped thousands find their path,
+                break through mental barriers, and live their fullest lives. And
+                we're just getting started.
               </p>
             </motion.div>
           </div>
@@ -294,7 +310,11 @@ function About() {
                 <span>Explore Our Courses</span>
                 <motion.div
                   animate={{ x: [0, 5, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 1.5,
+                    ease: "easeInOut",
+                  }}
                 >
                   <ArrowRight className="w-5 h-5" />
                 </motion.div>

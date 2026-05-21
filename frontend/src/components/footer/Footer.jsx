@@ -200,21 +200,18 @@ function Footer() {
 
         {/* Bottom Bar - Compact and Clean */}
         <div className={`pt-6 border-t ${colors.border}`}>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 text-xs sm:text-sm">
             {/* Copyright */}
             <div
-              className={`${colors.mutedText} text-center sm:text-left order-2 sm:order-1`}
+              className={`${colors.mutedText} text-center lg:text-left order-2 lg:order-1`}
             >
-              <Link
-                to="/copyright"
-                // className="hover:text-blue-600 hover:underline transition-colors duration-200"
-              >
+              <Link to="/copyright">
                 © {currentYear} BrahmaLYF. All rights reserved.
               </Link>
             </div>
 
             {/* Legal Links */}
-            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 order-1 sm:order-2">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 order-1 lg:order-2">
               {[
                 "Terms",
                 "Privacy",
@@ -232,16 +229,18 @@ function Footer() {
               ))}
             </div>
 
-            {/* Made with love */}
+            {/* Powered by */}
             <div
-              className={`flex items-center gap-1.5 ${colors.mutedText} order-3`}
+              className={`flex items-center justify-center gap-1 sm:gap-1.5 ${colors.mutedText} order-3 shrink-0`}
             >
-              <span>powered by</span>
+              <span className="text-xs sm:text-sm whitespace-nowrap">
+                powered by
+              </span>
 
               <img
                 src={assets.aavidsoft_logo}
                 alt="AavidSoft Logo"
-                className="w-16 h-6 object-contain"
+                className="w-12 sm:w-14 md:w-16 lg:w-20 h-auto object-contain"
               />
             </div>
           </div>
