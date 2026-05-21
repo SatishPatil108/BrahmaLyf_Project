@@ -394,13 +394,7 @@ const FAQPage = () => {
                             theme === "dark" ? "text-gray-300" : "text-gray-600"
                           }`}
                         >
-                          <div
-                            className={`pl-4 border-l-2 ${
-                              theme === "dark"
-                                ? "border-purple-500"
-                                : "border-purple-400"
-                            }`}
-                          >
+                          <div>
                             <p
                               className="text-sm sm:text-base leading-relaxed whitespace-pre-line"
                               dangerouslySetInnerHTML={{

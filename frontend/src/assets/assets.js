@@ -7,6 +7,7 @@ import coach1 from '../assets/coach1.png'
 import loginbanner from '../assets/loginbannerimage.png'
 import music_thumbnail from '../assets/music_thumbnail.png'
 import logo from '../assets/logo.png'
+import aavidsoft_logo from '../assets/aavidsoft_logo.png'
 
 
 export const assets = {
@@ -19,4 +20,5 @@ export const assets = {
   loginbanner,
   music_thumbnail,
   logo,
+  aavidsoft_logo
 };

@@ -304,7 +304,7 @@ function About() {
         </motion.section>
 
         {/* footer for mobile only */}
-        <div className="block lg:hidden mb-20">
+        <div className="block lg:hidden">
           <Footer />
         </div>
       </div>

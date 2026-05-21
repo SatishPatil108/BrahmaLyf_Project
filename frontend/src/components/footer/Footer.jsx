@@ -1,6 +1,8 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
 import useFooter from "./useFooter";
+
+import { assets } from "../../assets/assets.js";
 import {
   Heart,
   Send,
@@ -234,9 +236,13 @@ function Footer() {
             <div
               className={`flex items-center gap-1.5 ${colors.mutedText} order-3`}
             >
-              Made with
-              <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 animate-pulse" />
-              by AAVID SOFT
+              <span>powered by</span>
+
+              <img
+                src={assets.aavidsoft_logo}
+                alt="AavidSoft Logo"
+                className="w-16 h-6 object-contain"
+              />
             </div>
           </div>
         </div>
