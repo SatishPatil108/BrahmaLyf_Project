@@ -802,9 +802,12 @@ const EnrolledCourseDetails = () => {
                       </div>
                     </div>
 
-                    <p className={`${textColor.secondary}`}>
-                      {moduleDetails.description}
-                    </p>
+                    <p
+                      className={`${textColor.secondary}`}
+                      dangerouslySetInnerHTML={{
+                        __html: moduleDetails.description,
+                      }}
+                    />
                   </div>
                 </div>
 

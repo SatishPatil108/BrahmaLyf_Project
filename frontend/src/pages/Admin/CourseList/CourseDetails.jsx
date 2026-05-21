@@ -154,28 +154,72 @@ const CourseDetails = () => {
     setTimeout(() => setDrawerItem(null), 300);
   };
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-          <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+  /* Loading State */
+  {
+    loading && (
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="relative mb-6">
+          <div className="w-16 h-16 rounded-full border-4 border-gray-200 dark:border-gray-700" />
+          <div className="absolute top-0 left-0 w-16 h-16 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
         </div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-          Failed to Load Course
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
-          {error.message || "An error occurred while loading course details"}
+        <p className="text-xl font-medium text-gray-600 dark:text-gray-400">
+          Loading course Details....
         </p>
-        <CustomButton
-          variant="outline"
-          className="mt-4"
-          onClick={() => window.location.reload()}
-        >
-          Try Again
-        </CustomButton>
+        <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+          Fetching course data from the server
+        </p>
       </div>
     );
   }
+
+  /* Error State */
+  {
+    error && !loading && (
+      <div className="mb-8 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-6">
+        <div className="flex items-start gap-4">
+          <AlertCircle className="w-6 h-6 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
+          <div>
+            <h3 className="text-lg font-semibold text-red-800 dark:text-red-400 mb-2">
+              Failed to Load Course details
+            </h3>
+            <p className="text-red-600 dark:text-red-500">
+              {error.message || "An error occurred while loading courses"}
+            </p>
+            <CustomButton
+              variant="outline"
+              className="mt-4"
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </CustomButton>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // if (error) {
+  //   return (
+  //     <div className="flex flex-col items-center justify-center min-h-[60vh]">
+  //       <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+  //         <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+  //       </div>
+  //       <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+  //         Failed to Load Course
+  //       </h2>
+  //       <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
+  //         {error.message || "An error occurred while loading course details"}
+  //       </p>
+  //       <CustomButton
+  //         variant="outline"
+  //         className="mt-4"
+  //         onClick={() => window.location.reload()}
+  //       >
+  //         Try Again
+  //       </CustomButton>
+  //     </div>
+  //   );
+  // }
 
   if (!courseDetails) {
     return (

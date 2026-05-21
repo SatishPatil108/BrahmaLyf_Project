@@ -60,12 +60,6 @@ const DailyShortCard = ({
     domains.find((d) => d.domain_id === short.domain_id)?.domain_name ||
     null;
 
-  // const plainDescription = stripHtml(description);
-  // const descriptionPreview =
-  //   plainDescription.length > 60
-  //     ? plainDescription.substring(0, 60) + "..."
-  //     : plainDescription;
-
   return (
     <div
       className="group relative flex flex-col"

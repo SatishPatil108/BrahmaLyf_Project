@@ -406,9 +406,10 @@ function QuestionCard({ question, index, theme, isLocked = true }) {
               className={`text-sm sm:text-base font-semibold ${colors.questionText} leading-relaxed ${
                 isLocked ? "opacity-80" : ""
               }`}
-            >
-              {question.question_text}
-            </p>
+              dangerouslySetInnerHTML={{
+                __html: question.question_text,
+              }}
+            />
             <span
               className={`inline-block text-xs ${colors.dayBadgeText} mt-1`}
             >

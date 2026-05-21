@@ -279,9 +279,10 @@ const CourseDetailsPage = () => {
                   style={{
                     color: theme === "dark" ? "#d1d5db" : "#374151",
                   }}
-                >
-                  {course?.curriculum_description}
-                </p>
+                  dangerouslySetInnerHTML={{
+                    __html: course?.curriculum_description,
+                  }}
+                />
               </div>
 
               {/* Video Player */}
@@ -610,9 +611,10 @@ const CourseDetailsPage = () => {
                   style={{
                     color: theme === "dark" ? "#d1d5db" : "#374151",
                   }}
-                >
-                  {course?.curriculum_description}
-                </p>
+                  dangerouslySetInnerHTML={{
+                    __html: course?.curriculum_description,
+                  }}
+                />
               </div>
             )}
 
@@ -695,9 +697,10 @@ const CourseDetailsPage = () => {
                   style={{
                     color: theme === "dark" ? "#d1d5db" : "#374151",
                   }}
-                >
-                  {course?.learning_outcomes}
-                </p>
+                  dangerouslySetInnerHTML={{
+                    __html: course?.learning_outcomes,
+                  }}
+                />
               </div>
             )}
 
@@ -738,9 +741,10 @@ const CourseDetailsPage = () => {
                   style={{
                     color: theme === "dark" ? "#d1d5db" : "#374151",
                   }}
-                >
-                  {course?.curriculum_description}
-                </p>
+                  dangerouslySetInnerHTML={{
+                    __html: course?.curriculum_description,
+                  }}
+                />
               </div>
             )}
 

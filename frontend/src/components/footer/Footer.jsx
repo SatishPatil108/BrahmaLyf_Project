@@ -1,7 +1,15 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
 import useFooter from "./useFooter";
-import { Heart, Send, Sparkles, ChevronRight, MapPin, Mail, Phone } from "lucide-react";
+import {
+  Heart,
+  Send,
+  Sparkles,
+  ChevronRight,
+  MapPin,
+  Mail,
+  Phone,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 function Footer() {
@@ -35,7 +43,9 @@ function Footer() {
                   <Sparkles className="w-5 h-5 text-white" />
                 </motion.div>
                 <div>
-                  <h2 className={`text-xl font-bold ${colors.accentText} group-hover:opacity-80 transition-opacity`}>
+                  <h2
+                    className={`text-xl font-bold ${colors.accentText} group-hover:opacity-80 transition-opacity`}
+                  >
                     BrahmaLYF
                   </h2>
                   <p className={`text-xs ${colors.mutedText}`}>
@@ -45,7 +55,9 @@ function Footer() {
               </div>
             </Link>
 
-            <p className={`text-sm leading-relaxed ${colors.mutedText} max-w-sm`}>
+            <p
+              className={`text-sm leading-relaxed ${colors.mutedText} max-w-sm`}
+            >
               Empowering individuals to grow, heal, and transform through
               world-class coaching and mindful programs.
             </p>
@@ -71,7 +83,9 @@ function Footer() {
 
           {/* Quick Links - Compact */}
           <div className="lg:col-span-2">
-            <h3 className={`text-sm font-semibold ${colors.text} mb-4 pt-3 uppercase tracking-wide`}>
+            <h3
+              className={`text-sm font-semibold ${colors.text} mb-4 pt-3 uppercase tracking-wide`}
+            >
               Quick Links
             </h3>
             <ul className="space-y-2">
@@ -95,7 +109,9 @@ function Footer() {
 
           {/* Programs - Compact */}
           <div className="lg:col-span-2">
-            <h3 className={`text-sm font-semibold ${colors.text} mb-4 pt-3 uppercase tracking-wide`}>
+            <h3
+              className={`text-sm font-semibold ${colors.text} mb-4 pt-3 uppercase tracking-wide`}
+            >
               Programs
             </h3>
             <ul className="space-y-2">
@@ -121,7 +137,9 @@ function Footer() {
           <div className="lg:col-span-4">
             <div className="space-y-6">
               <div>
-                <h3 className={`text-sm font-semibold ${colors.text} mb-4 uppercase tracking-wide`}>
+                <h3
+                  className={`text-sm font-semibold ${colors.text} mb-4 uppercase tracking-wide`}
+                >
                   <Send className={`w-4 h-4 ${colors.accentText}`} />
                   Newsletter
                 </h3>
@@ -167,7 +185,9 @@ function Footer() {
                     key={index}
                     className={`flex items-center gap-2 ${colors.mutedText}`}
                   >
-                    <item.icon className={`w-3.5 h-3.5 flex-shrink-0 ${colors.accentText}`} />
+                    <item.icon
+                      className={`w-3.5 h-3.5 flex-shrink-0 ${colors.accentText}`}
+                    />
                     <span className="text-xs">{item.text}</span>
                   </div>
                 ))}
@@ -180,13 +200,26 @@ function Footer() {
         <div className={`pt-6 border-t ${colors.border}`}>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm">
             {/* Copyright */}
-            <div className={`${colors.mutedText} text-center sm:text-left order-2 sm:order-1`}>
-              © {currentYear} BrahmaLYF. All rights reserved.
+            <div
+              className={`${colors.mutedText} text-center sm:text-left order-2 sm:order-1`}
+            >
+              <Link
+                to="/copyright"
+                // className="hover:text-blue-600 hover:underline transition-colors duration-200"
+              >
+                © {currentYear} BrahmaLYF. All rights reserved.
+              </Link>
             </div>
 
             {/* Legal Links */}
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 order-1 sm:order-2">
-              {["Terms", "Privacy", "Cookies"].map((item, index) => (
+              {[
+                "Terms",
+                "Privacy",
+                "Refund Cancellation Policy",
+                "Subscription Terms",
+                "Coaching Disclaimer",
+              ].map((item, index) => (
                 <Link
                   key={index}
                   to={`/${item.toLowerCase()}`}
@@ -198,7 +231,9 @@ function Footer() {
             </div>
 
             {/* Made with love */}
-            <div className={`flex items-center gap-1.5 ${colors.mutedText} order-3`}>
+            <div
+              className={`flex items-center gap-1.5 ${colors.mutedText} order-3`}
+            >
               Made with
               <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 animate-pulse" />
               by AAVID SOFT

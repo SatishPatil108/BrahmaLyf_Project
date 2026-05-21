@@ -35,7 +35,12 @@ import EditProfile from "@/pages/User/editProfile/EditProfile";
 import DailyShorts from "@/pages/User/Homepage/components/getAllDailyshorts/DailyShorts";
 import ShortVideoPlayer from "@/pages/User/Video/ShortVideoPlayer";
 import PersonalNotes from "@/pages/User/Notes/PersonalNotes";
-
+import TermsAndConditions from "@/pages/User/FooterLinks/Terms&condition/Termsandconditions";
+import PrivacyPolicy from "@/pages/User/FooterLinks/Privacy/PrivacyPolicy";
+import RefundCancellationPolicy from "@/pages/User/FooterLinks/RefundCancellationPolicy/RefundCancellationPolicy";
+import SubscriptionTerms from "@/pages/User/FooterLinks/SubscriptionTerms/SubscriptionTerms";
+import CoachingDisclaimer from "@/pages/User/FooterLinks/Coaching Disclaimar/CoachingDisclaimer";
+import CopyrightNotice from "@/pages/User/FooterLinks/CopyrightNotice/CopyrightNotice";
 
 const UserRoutes = () => {
   const { theme } = useTheme();
@@ -88,10 +93,11 @@ const UserRoutes = () => {
           />
           <Route path="/musics" element={<MusicList />} />
           <Route path="/music/:musicId" element={<MusicPlayer />} />
-          
           <Route path="/short-video" element={<DailyShorts />} />
-          <Route path="/short-video/:shortVideoId" element={<ShortVideoPlayer />} />
-          
+          <Route
+            path="/short-video/:shortVideoId"
+            element={<ShortVideoPlayer />}
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/logout" element={<UserLoggedOut />} />
@@ -116,6 +122,17 @@ const UserRoutes = () => {
           <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/faqs" element={<FAQPage />} />
           <Route path="/notes" element={<PersonalNotes />} />
+
+          
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route
+            path="/refund cancellation policy"
+            element={<RefundCancellationPolicy />}
+          />
+          <Route path="/subscription terms" element={<SubscriptionTerms />} />
+          <Route path="/coaching disclaimer" element={<CoachingDisclaimer />} />
+          <Route path="/copyright" element={<CopyrightNotice />} />
         </Routes>
 
         {/* Spacer for mobile bottom navigation */}

@@ -17,7 +17,7 @@ const CoachesInfoPage = () => {
   const { theme } = useTheme();
   const { videosDetails, loading, error } = useCoachesInfoPage(
     location.state?.subdomainId,
-    coachId
+    coachId,
   );
   const videos = videosDetails?.videos || [];
   const subdomainName = subdomain_name || "Programs";
@@ -82,7 +82,7 @@ const CoachesInfoPage = () => {
       >
         <div className="text-center">
           <div className="relative">
-            <div className="absolute inset-0 animate-ping    bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-20"></div>
+            <div className="absolute inset-0 animate-ping bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-20"></div>
             <div
               className={`animate-spin h-16 w-16 rounded-full border-[3px] ${
                 theme === "dark" ? "border-gray-700" : "border-gray-200"
@@ -392,7 +392,7 @@ const CoachesInfoPage = () => {
                       {video.title}
                       {/* Fade indicator */}
                       <span
-                        className={`pointer-events-none absolute bottom-0 left-0 right-0 h-6 ${ theme === "dark" ? "bg-l-to-t from-gray-800 to-transparent" : "bg-l-to-t from-white to-transparent" } group-hover:opacity-0 transition-opacity duration-300`}
+                        className={`pointer-events-none absolute bottom-0 left-0 right-0 h-6 ${theme === "dark" ? "bg-l-to-t from-gray-800 to-transparent" : "bg-l-to-t from-white to-transparent"} group-hover:opacity-0 transition-opacity duration-300`}
                       />
                     </h3>
 
@@ -400,9 +400,10 @@ const CoachesInfoPage = () => {
                       className={`text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-3 ${
                         theme === "dark" ? "text-gray-400" : "text-gray-600"
                       }`}
-                    >
-                      {video.description}
-                    </p>
+                      dangerouslySetInnerHTML={{
+                        __html: video.description,
+                      }}
+                    />
 
                     {/* Action Button */}
                     <button
@@ -427,8 +428,8 @@ const CoachesInfoPage = () => {
                     currentSlide === i
                       ? "w-6 sm:w-8    bg-gradient-to-r from-indigo-600 to-purple-600"
                       : theme === "dark"
-                      ? "w-1.5 sm:w-2 bg-gray-600 hover:bg-gray-500"
-                      : "w-1.5 sm:w-2 bg-gray-300 hover:bg-gray-400"
+                        ? "w-1.5 sm:w-2 bg-gray-600 hover:bg-gray-500"
+                        : "w-1.5 sm:w-2 bg-gray-300 hover:bg-gray-400"
                   }`}
                   aria-label={`Go to slide ${i + 1}`}
                 />

@@ -44,6 +44,7 @@ import { runTransaction } from "../../../../database/transaction.js";
 import removeFiles from "../../../../utils/removeFiles.js";
 import saveUploadedFile from "../../../../utils/uploadFile.js";
 
+
 export const postCourseModel = async (req, res) => {
   try {
     const createdOn = new Date();

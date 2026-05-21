@@ -9,7 +9,6 @@ import {
   LucideX,
   LucideSmartphone,
   LucideCalendar,
-  // LucideVenusMars,
   Sparkles,
   Brain,
   Eye,

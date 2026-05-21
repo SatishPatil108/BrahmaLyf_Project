@@ -1,6 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Play, Pause, SkipForward, SkipBack, Volume2, ChevronDown, X } from "lucide-react";
+import {
+  Play,
+  Pause,
+  SkipForward,
+  SkipBack,
+  Volume2,
+  ChevronDown,
+  X,
+} from "lucide-react";
 import useHomepage, { useMusicListPage } from "../Homepage/useHomepage";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -16,7 +24,9 @@ const MusicPlayer = () => {
   const progressBarRef = useRef(null);
   const volumeBarRef = useRef(null);
 
-  const music = musicsDetails?.musics.find(item => item.id === Number(musicId));
+  const music = musicsDetails?.musics.find(
+    (item) => item.id === Number(musicId),
+  );
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -35,13 +45,14 @@ const MusicPlayer = () => {
       text: "text-gray-100",
       mutedText: "text-gray-400",
       accent: "from-purple-600 to-pink-500",
-      accentText: "text-transparent bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text",
+      accentText:
+        "text-transparent bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text",
       iconColor: "text-purple-400",
       controlBg: "bg-gray-700/60 hover:bg-gray-700",
       progressBg: "bg-gray-700",
       sliderBg: "bg-gray-600",
       shadow: "shadow-2xl shadow-black/30",
-      accentColor: "#9333ea"
+      accentColor: "#9333ea",
     },
     light: {
       bg: "bg-gradient-to-br from-gray-50 via-white to-gray-100",
@@ -49,14 +60,15 @@ const MusicPlayer = () => {
       text: "text-gray-900",
       mutedText: "text-gray-600",
       accent: "from-purple-500 to-pink-400",
-      accentText: "text-transparent bg-gradient-to-r from-purple-500 to-pink-400 bg-clip-text",
+      accentText:
+        "text-transparent bg-gradient-to-r from-purple-500 to-pink-400 bg-clip-text",
       iconColor: "text-purple-600",
       controlBg: "bg-gray-100/80 hover:bg-gray-200",
       progressBg: "bg-gray-200",
       sliderBg: "bg-gray-300",
       shadow: "shadow-2xl shadow-gray-300/50",
-      accentColor: "#8b5cf6"
-    }
+      accentColor: "#8b5cf6",
+    },
   };
 
   const colors = themeColors[theme] || themeColors.light;
@@ -116,7 +128,9 @@ const MusicPlayer = () => {
   const formatTime = (time) => {
     if (isNaN(time)) return "0:00";
     const mins = Math.floor(time / 60);
-    const secs = Math.floor(time % 60).toString().padStart(2, "0");
+    const secs = Math.floor(time % 60)
+      .toString()
+      .padStart(2, "0");
     return `${mins}:${secs}`;
   };
 
@@ -127,7 +141,7 @@ const MusicPlayer = () => {
     if (isPlaying) {
       audio.pause();
     } else {
-      audio.play().catch(e => {
+      audio.play().catch((e) => {
         console.error("Error playing audio:", e);
         setIsPlaying(false);
       });
@@ -137,14 +151,17 @@ const MusicPlayer = () => {
 
   const rewind = () => {
     if (!audioRef.current) return;
-    audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10);
+    audioRef.current.currentTime = Math.max(
+      0,
+      audioRef.current.currentTime - 10,
+    );
   };
 
   const forward = () => {
     if (!audioRef.current) return;
     audioRef.current.currentTime = Math.min(
       audioRef.current.duration,
-      audioRef.current.currentTime + 10
+      audioRef.current.currentTime + 10,
     );
   };
 
@@ -195,7 +212,9 @@ const MusicPlayer = () => {
 
   if (!music) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${colors.bg}`}>
+      <div
+        className={`min-h-screen flex items-center justify-center ${colors.bg}`}
+      >
         <div className={`p-6 rounded-2xl ${colors.cardBg} ${colors.shadow}`}>
           <p className={`text-base ${colors.text}`}>Music not found...</p>
           <button
@@ -227,7 +246,11 @@ const MusicPlayer = () => {
           >
             <X className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.iconColor}`} />
           </button>
-          <h1 className={colors.accentText + " text-lg sm:text-xl md:text-2xl font-bold"}>
+          <h1
+            className={
+              colors.accentText + " text-lg sm:text-xl md:text-2xl font-bold"
+            }
+          >
             Now Playing
           </h1>
           <div className="w-8 sm:w-10" />
@@ -265,7 +288,9 @@ const MusicPlayer = () => {
 
         {/* Music Info */}
         <div className="text-center mb-6 sm:mb-7">
-          <h2 className={`text-xl sm:text-2xl md:text-3xl font-bold mb-1.5 ${colors.text}`}>
+          <h2
+            className={`text-xl sm:text-2xl md:text-3xl font-bold mb-1.5 ${colors.text}`}
+          >
             {music.music_title}
           </h2>
           <div className="flex items-center justify-center gap-2 mb-4 sm:mb-5">
@@ -285,7 +310,9 @@ const MusicPlayer = () => {
             } transition-all`}
             aria-label={showDesc ? "Hide description" : "Show description"}
           >
-            <span className={`text-xs sm:text-sm ${colors.text}`}>Description</span>
+            <span className={`text-xs sm:text-sm ${colors.text}`}>
+              Description
+            </span>
             <ChevronDown
               className={`w-3.5 h-3.5 transition-transform duration-300 ${
                 showDesc ? "rotate-180" : ""
@@ -298,9 +325,13 @@ const MusicPlayer = () => {
             <div
               className={`p-3 sm:p-4 rounded-lg ${colors.progressBg} animate-slideDown mb-4 sm:mb-5`}
             >
-              <p className={`text-xs sm:text-sm leading-relaxed ${colors.mutedText}`}>
-                {music.music_description || "No description available."}
-              </p>
+              <p
+                className={`text-xs sm:text-sm leading-relaxed ${colors.mutedText}`}
+                dangerouslySetInnerHTML={{
+                  __html:
+                    music.music_description || "No description available.",
+                }}
+              />
             </div>
           )}
         </div>
@@ -322,7 +353,7 @@ const MusicPlayer = () => {
             style={{
               background: `linear-gradient(to right, ${colors.accentColor} ${progress}%, ${
                 theme === "dark" ? "#374151" : "#e5e7eb"
-              } ${progress}%)`
+              } ${progress}%)`,
             }}
             aria-label="Progress"
           />
@@ -337,7 +368,9 @@ const MusicPlayer = () => {
               className={`p-3 sm:p-4 md:p-5 rounded-full ${colors.controlBg} transition-all hover:scale-110 active:scale-95 shadow-md`}
               aria-label="Rewind 10 seconds"
             >
-              <SkipBack className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${colors.iconColor}`} />
+              <SkipBack
+                className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${colors.iconColor}`}
+              />
             </button>
 
             <button
@@ -357,13 +390,17 @@ const MusicPlayer = () => {
               className={`p-3 sm:p-4 md:p-5 rounded-full ${colors.controlBg} transition-all hover:scale-110 active:scale-95 shadow-md`}
               aria-label="Forward 10 seconds"
             >
-              <SkipForward className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${colors.iconColor}`} />
+              <SkipForward
+                className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${colors.iconColor}`}
+              />
             </button>
           </div>
 
           {/* Volume Control */}
           <div className="flex items-center justify-center gap-3 sm:gap-4">
-            <Volume2 className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${colors.iconColor}`} />
+            <Volume2
+              className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${colors.iconColor}`}
+            />
             <input
               ref={volumeBarRef}
               type="range"
@@ -376,11 +413,13 @@ const MusicPlayer = () => {
               style={{
                 background: `linear-gradient(to right, ${colors.accentColor} ${volume * 100}%, ${
                   theme === "dark" ? "#374151" : "#e5e7eb"
-                } ${volume * 100}%)`
+                } ${volume * 100}%)`,
               }}
               aria-label="Volume"
             />
-            <span className={`text-xs sm:text-sm font-medium ${colors.text} min-w-8 sm:min-w-10`}>
+            <span
+              className={`text-xs sm:text-sm font-medium ${colors.text} min-w-8 sm:min-w-10`}
+            >
               {Math.round(volume * 100)}%
             </span>
           </div>

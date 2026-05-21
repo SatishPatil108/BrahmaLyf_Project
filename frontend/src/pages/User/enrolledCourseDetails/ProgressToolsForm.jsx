@@ -27,6 +27,7 @@ import {
 } from "@/store/feature/user/userSlice";
 
 import RichTextEditor from "@/components/RichTextEditor/RichTextEditorWithLock";
+import RichTextEditorWithLock from "@/components/RichTextEditor/RichTextEditorWithLock";
 
 if (
   typeof document !== "undefined" &&

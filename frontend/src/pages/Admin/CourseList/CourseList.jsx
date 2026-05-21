@@ -116,7 +116,7 @@ const CourseList = () => {
               <div className="absolute top-0 left-0 w-16 h-16 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
             </div>
             <p className="text-xl font-medium text-gray-600 dark:text-gray-400">
-              Loading courses...
+              Loading courses....
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
               Fetching course data from the server
