@@ -44,7 +44,7 @@ export default function RefundCancellationPolicy() {
                   className="text-orange-600 dark:text-orange-400"
                 />
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+              <h1 className="lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white text-2xl">
                 Refund & Cancellation Policy
               </h1>
             </div>
@@ -154,109 +154,6 @@ export default function RefundCancellationPolicy() {
               )}
             </div>
           ))}
-        </div>
-
-        {/* Important Notice Box */}
-        <div className="mb-8 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-6">
-          <div className="flex items-start gap-3">
-            <AlertCircle
-              size={20}
-              className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5"
-            />
-            <div>
-              <h3 className="font-semibold text-amber-800 dark:text-amber-300 mb-1">
-                Important Notice
-              </h3>
-              <p className="text-sm text-amber-700 dark:text-amber-400">
-                Refund processing times may vary depending on your payment
-                provider. Please allow 5-10 business days for the refund to
-                reflect in your account after approval.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Acceptance Checkboxes */}
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/30 p-6 shadow-sm sm:p-8 mb-8">
-          <h2 className="mb-6 text-xl font-semibold text-slate-900 dark:text-white">
-            Your Agreement
-          </h2>
-
-          <div className="space-y-5">
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={acceptedRefund}
-                onChange={(e) => setAcceptedRefund(e.target.checked)}
-                className="mt-1 h-5 w-5 rounded border-slate-300 dark:border-slate-600 text-orange-600 focus:ring-orange-500 cursor-pointer"
-              />
-              <span className="text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                I have read and agree to the{" "}
-                <span className="font-semibold">Refund Policy</span> outlined
-                above
-              </span>
-            </label>
-
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={acceptedCancellation}
-                onChange={(e) => setAcceptedCancellation(e.target.checked)}
-                className="mt-1 h-5 w-5 rounded border-slate-300 dark:border-slate-600 text-orange-600 focus:ring-orange-500 cursor-pointer"
-              />
-              <span className="text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                I understand and accept the{" "}
-                <span className="font-semibold">Cancellation Terms</span>{" "}
-                including notice periods and applicable fees
-              </span>
-            </label>
-
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={acceptedTerms}
-                onChange={(e) => setAcceptedTerms(e.target.checked)}
-                className="mt-1 h-5 w-5 rounded border-slate-300 dark:border-slate-600 text-orange-600 focus:ring-orange-500 cursor-pointer"
-              />
-              <span className="text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                I acknowledge that certain services may be non-refundable as
-                specified in this policy
-              </span>
-            </label>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button
-            disabled={!isAllAccepted}
-            className={`flex-1 rounded-xl px-8 py-3.5 font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
-              isAllAccepted
-                ? "bg-orange-600 text-white hover:bg-orange-700 shadow-lg hover:shadow-xl active:scale-[0.98]"
-                : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed"
-            }`}
-          >
-            <Check size={20} />
-            Accept & Continue
-          </button>
-
-          <button className="flex-1 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-8 py-3.5 font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            Decline
-          </button>
-        </div>
-
-        {/* Footer Note */}
-        <div className="mt-10 mb-24 rounded-xl bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 p-6 text-center">
-          <p className="text-sm text-slate-700 dark:text-slate-300">
-            For any questions regarding refunds or cancellations, please contact
-            our support team at{" "}
-            <a
-              href="mailto:support@brahmalyf.com"
-              className="text-orange-600 dark:text-orange-400 font-semibold hover:underline"
-            >
-              support@brahmalyf.com
-            </a>
-          </p>
         </div>
       </main>
     </div>

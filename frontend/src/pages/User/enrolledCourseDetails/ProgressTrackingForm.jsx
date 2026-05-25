@@ -678,10 +678,11 @@ const QuestionCard = ({
         <div className="flex-1 pr-20">
           <p
             className={`text-sm font-medium ${textColor.primary} leading-relaxed`}
-          >
-            {question_text}
-            {!isSubmitted && <span className="text-red-500 ml-1">*</span>}
-          </p>
+            dangerouslySetInnerHTML={{
+              __html: question_text,
+            }}
+          />
+          {!isSubmitted && <span className="text-red-500 ml-1">*</span>}
           <span
             className={`text-xs mt-1 inline-block px-2 py-0.5 rounded-full ${
               theme === "dark"

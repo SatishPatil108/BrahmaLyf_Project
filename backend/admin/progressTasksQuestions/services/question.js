@@ -362,7 +362,6 @@ export const getAllProgressPracticeMessagesService = (course_id, week_no) => {
           q.themes,
           q.weekly_target,
           q.outcomes,
-          q.completed_messages,
           q.outcome_order
         FROM bm.progress_practice_messages q
         WHERE q.status = 1
@@ -392,7 +391,6 @@ export const postProgressPracticeMessageService = (
   themes,
   weekly_target,
   outcomes,
-  completed_messages,
   outcome_order = 1,
 ) => {
   return new Promise((resolve, reject) => {
@@ -403,27 +401,18 @@ export const postProgressPracticeMessageService = (
         themes,
         weekly_target,
         outcomes,
-        completed_messages,
         outcome_order,
         created_on,
         updated_on,
         status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), 1)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW(), 1)
       RETURNING *;
     `;
 
     connection.query(
       messageQuery,
-      [
-        week_no,
-        course_id,
-        themes,
-        weekly_target,
-        outcomes,
-        completed_messages,
-        outcome_order,
-      ],
+      [week_no, course_id, themes, weekly_target, outcomes, outcome_order],
       (err, result) => {
         if (err) return reject(err);
         resolve(result.rows?.[0] || null);
@@ -440,7 +429,6 @@ export const updateProgressPracticeMessageService = (
   themes,
   weekly_target,
   outcomes,
-  completed_messages,
   outcome_order = 1,
 ) => {
   return new Promise((resolve, reject) => {
@@ -452,8 +440,7 @@ export const updateProgressPracticeMessageService = (
         themes = $4,
         weekly_target = $5,
         outcomes = $6,
-        completed_messages = $7,
-        outcome_order = $8,
+        outcome_order = $7,
         updated_on = NOW()
       WHERE id = $1
       RETURNING *;
@@ -468,7 +455,6 @@ export const updateProgressPracticeMessageService = (
         themes,
         weekly_target,
         outcomes,
-        completed_messages,
         outcome_order,
       ],
       (err, result) => {
@@ -478,10 +464,159 @@ export const updateProgressPracticeMessageService = (
     );
   });
 };
+
 export const deleteProgressPracticeMessageService = (messageId) => {
   return new Promise((resolve, reject) => {
     const query = `
             UPDATE bm.progress_practice_messages
+            SET 
+                status = 0,
+                updated_on = NOW()
+            WHERE id = $1
+            RETURNING *;
+        `;
+    connection.query(query, [messageId], (err, result) => {
+      if (err) return reject(err);
+      resolve(result.rows?.[0] || null);
+    });
+  });
+};
+
+// services for completed message
+export const getCompletedMessageService = (messageId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT 
+        *
+      FROM bm.completion_messages
+      WHERE id = $1
+        AND status = 1
+      LIMIT 1;
+    `;
+
+    connection.query(query, [messageId], (err, result) => {
+      if (err) {
+        console.error("Error fetching progress message:", err);
+        return reject(err);
+      }
+      resolve(result.rows?.[0] || null);
+    });
+  });
+};
+
+// Get All Completed Messages
+export const getAllCompletedMessagesService = (course_id, week_no, day_no) => {
+  return new Promise((resolve, reject) => {
+    course_id = parseInt(course_id, 10);
+    week_no = parseInt(week_no, 10);
+    day_no = parseInt(day_no, 10);
+
+    if (!course_id || course_id < 1)
+      return reject({ message: "Invalid course_id" });
+    if (!week_no || week_no < 1) return reject({ message: "Invalid week_no" });
+    if (!day_no || day_no < 1) return reject({ message: "Invalid day_no" });
+
+    const dataQuery = `
+      SELECT
+        q.id AS message_id,
+        q.course_id,
+        q.week_no,
+        q.day_no,
+        q.completed_message
+      FROM bm.completion_messages q
+      WHERE q.status = 1
+        AND q.course_id = $1
+        AND q.week_no = $2
+        AND q.day_no = $3
+      ORDER BY q.id ASC
+    `;
+
+    connection.query(
+      dataQuery,
+      [course_id, week_no, day_no],
+      (err, dataResult) => {
+        if (err) return reject(err);
+
+        resolve({
+          course_id,
+          week_no,
+          day_no,
+          messages: dataResult.rows || [],
+        });
+      },
+    );
+  });
+};
+
+// Create Completed Message
+export const postCompletedMessageService = (
+  course_id,
+  week_no,
+  day_no,
+  completed_message,
+) => {
+  return new Promise((resolve, reject) => {
+    const messageQuery = `
+      INSERT INTO bm.completion_messages (
+        course_id,
+        week_no,
+        day_no,
+        completed_message,
+        created_on,
+        updated_on,
+        status
+      )
+      VALUES ($1, $2, $3, $4, NOW(), NOW(), 1)
+      RETURNING *;
+    `;
+
+    connection.query(
+      messageQuery,
+      [course_id, week_no, day_no, completed_message],
+      (err, result) => {
+        if (err) return reject(err);
+        resolve(result.rows?.[0] || null);
+      },
+    );
+  });
+};
+
+// Update Completed Message
+export const updateCompletedMessageService = (
+  message_id,
+  course_id,
+  week_no,
+  day_no,
+  completed_message,
+) => {
+  return new Promise((resolve, reject) => {
+    const messageQuery = `
+      UPDATE bm.completion_messages
+      SET
+        course_id = $2,
+        week_no = $3,
+        day_no = $4,
+        completed_message = $5,
+        updated_on = NOW()
+      WHERE id = $1
+      RETURNING *;
+    `;
+
+    connection.query(
+      messageQuery,
+      [message_id, course_id, week_no, day_no, completed_message],
+      (err, result) => {
+        if (err) return reject(err);
+        resolve(result.rows?.[0] || null);
+      },
+    );
+  });
+};
+
+export const deleteCompletedMessageService = (messageId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+            UPDATE bm.completion_messages
             SET 
                 status = 0,
                 updated_on = NOW()

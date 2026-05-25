@@ -628,11 +628,13 @@ const ToolsQuestionCard = ({
         </span>
         <div className="flex-1 pr-32">
           <p
-            className={`text-sm font-medium ${textColor.primary} leading-relaxed`}
-          >
-            {question_text}
+            className={`text-sm font-medium ${textColor.primary} leading-relaxed`}          
+            dangerouslySetInnerHTML=
+            {{
+              __html: question_text,
+            }}             
+            />
             {!isSubmitted && <span className="text-red-500 ml-1">*</span>}
-          </p>
         </div>
       </div>
 

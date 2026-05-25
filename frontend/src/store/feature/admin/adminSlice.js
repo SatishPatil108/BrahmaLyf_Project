@@ -48,6 +48,10 @@ import {
   updateProgressPracticeMessageAPI,
   fetchProgressPracticeMessagesAPI,
   postProgressPracticeMessageAPI,
+  postCompletedMessageAPI,
+  fetchCompletedMessagesAPI,
+  updateCompletedMessageAPI,
+  deleteCompletedMessageAPI,
 } from "./adminThunk";
 
 const adminSlice = createSlice({
@@ -65,6 +69,7 @@ const adminSlice = createSlice({
     progressTasksQuestions: { questions: [] },
     progressToolsQuestions: { tools: [] },
     progressPracticeMessages: { messages: [] },
+    completedMessages: { messages: [] },
     coachesList: [],
     courseDetails: null,
     loading: false,
@@ -439,6 +444,37 @@ const adminSlice = createSlice({
         state.loading = false;
         state.progressPracticeMessages.messages =
           state.progressPracticeMessages.messages.filter(
+            (m) => m.id !== action.payload.id,
+          );
+      })
+
+
+      //  completed messages API
+      .addCase(postCompletedMessageAPI.fulfilled, (state, action) => {
+        state.loading = false;
+        state.completedMessages.messages.unshift(action.payload);
+      })
+
+      .addCase(fetchCompletedMessagesAPI.fulfilled, (state, action) => {
+        state.loading = false;
+        state.completedMessages.messages =
+          action.payload?.messages || [];
+      })
+
+      .addCase(updateCompletedMessageAPI.fulfilled, (state, action) => {
+        state.loading = false;
+        state.completedMessages.messages =
+          state.completedMessages.messages.map((message) => {
+            if (message.id === action.payload.id)
+              return { id: action.payload.id, ...action.payload };
+            return message;
+          });
+      })
+
+      .addCase(deleteCompletedMessageAPI.fulfilled, (state, action) => {
+        state.loading = false;
+        state.completedMessages.messages =
+          state.completedMessages.messages.filter(
             (m) => m.id !== action.payload.id,
           );
       })

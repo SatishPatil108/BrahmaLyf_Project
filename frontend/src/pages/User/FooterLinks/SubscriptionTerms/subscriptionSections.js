@@ -41,7 +41,7 @@ const subscriptionSections = [
   {
     id: "subscription-validity",
     title: "5. Subscription Validity",
-    icon: "clock",
+    icon: "access",
     content: `The subscription remains valid for **one year from the date of activation/payment confirmation**, unless otherwise stated on the Platform.`,
   },
   {

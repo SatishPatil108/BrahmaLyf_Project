@@ -32,61 +32,37 @@ import {
   PRACTICE_MESSAGE_DELETED_FAILED,
   PRACTICE_MESSAGE_DELETED_SUCCESS,
   ALL_MESSAGE_LIST,
+  COMPLETED_MESSAGE_NOT_FOUND,
+  COMPLETED_MESSAGE_ADDED_FAILED,
+  COMPLETED_MESSAGE_ADDED_SUCCESS,
+  COMPLETED_MESSAGE_UPDATED_FAILED,
+  COMPLETED_MESSAGE_UPDATED_SUCCESS,
+  COMPLETED_MESSAGE_DELETED_FAILED,
+  COMPLETED_MESSAGE_DELETED_SUCCESS,
+  INVALID_MESSAGE_ID,
 } from "../messages/question.js";
 
 import {
+  deleteCompletedMessageService,
   deleteProgressPracticeMessageService,
   deleteProgressTasksQuestionService,
+
+  getAllCompletedMessagesService,
   getAllProgressPracticeMessagesService,
   getAllProgressTasksQuestionsService,
+
+  getCompletedMessageService,
   getProgressPracticeMessageService,
   getProgressTasksQuestionService,
+
+  postCompletedMessageService,
   postProgressPracticeMessageService,
   postProgressTasksQuestionService,
+
+  updateCompletedMessageService,
   updateProgressPracticeMessageService,
   updateProgressTasksQuestionService,
 } from "../services/question.js";
-
-export const getProgressTasksQuestionModel = async (req, res) => {
-  try {
-    const question_id = parseInt(req.params.question_id);
-    if (isNaN(question_id)) {
-      return error(
-        res,
-        HTTP_BAD_REQUEST,
-        APP_RESPONSE_CODE_ERROR,
-        INVALID_QUESTION_ID,
-        null,
-      );
-    }
-    const question = await getProgressTasksQuestionService(question_id);
-    if (!question) {
-      return error(
-        res,
-        HTTP_NOT_FOUND,
-        APP_RESPONSE_CODE_ERROR,
-        QUESTION_NOT_FOUND,
-        null,
-      );
-    }
-    return success(
-      res,
-      HTTP_OK,
-      APP_RESPONSE_CODE_SUCCESS,
-      QUESTION_FOUND,
-      question,
-    );
-  } catch (err) {
-    console.error("Get Progress Tracking Question Error:", err);
-    return error(
-      res,
-      HTTP_INTERNAL_SERVER_ERROR,
-      APP_RESPONSE_CODE_ERROR,
-      SOMETHING_WENT_WRONG,
-      null,
-    );
-  }
-};
 
 export const getAllProgressTasksQuestionsModel = async (req, res) => {
   try {
@@ -294,46 +270,6 @@ export const deleteProgressTasksQuestionModel = async (req, res) => {
 };
 
 // practice messages models
-export const getProgressPracticeMessageModel = async (req, res) => {
-  try {
-    const message_id = parseInt(req.params.message_id);
-    if (isNaN(message_id)) {
-      return error(
-        res,
-        HTTP_BAD_REQUEST,
-        APP_RESPONSE_CODE_ERROR,
-        INVALID_QUESTION_ID,
-        null,
-      );
-    }
-    const message = await getProgressPracticeMessageService(message_id);
-    if (!message) {
-      return error(
-        res,
-        HTTP_NOT_FOUND,
-        APP_RESPONSE_CODE_ERROR,
-        MESSAGE_NOT_FOUND,
-        null,
-      );
-    }
-    return success(
-      res,
-      HTTP_OK,
-      APP_RESPONSE_CODE_SUCCESS,
-      MESSAGE_FOUND,
-      message,
-    );
-  } catch (err) {
-    console.error("Get Progress Practice Message Error:", err);
-    return error(
-      res,
-      HTTP_INTERNAL_SERVER_ERROR,
-      APP_RESPONSE_CODE_ERROR,
-      SOMETHING_WENT_WRONG,
-      null,
-    );
-  }
-};
 
 export const getAllProgressPracticeMessagesModel = async (req, res) => {
   try {
@@ -381,21 +317,13 @@ export const postProgressPracticeMessageModel = async (req, res) => {
 
     const results = await Promise.all(
       practiceMessages.map(
-        ({
-          week_no,
-          themes,
-          weekly_target,
-          outcomes,
-          completed_messages,
-          outcome_order = 1,
-        }) =>
+        ({ week_no, themes, weekly_target, outcomes, outcome_order = 1 }) =>
           postProgressPracticeMessageService(
             week_no,
             Number(courseId),
             themes,
             weekly_target,
             outcomes,
-            completed_messages,
             outcome_order,
           ),
       ),
@@ -433,21 +361,20 @@ export const postProgressPracticeMessageModel = async (req, res) => {
 
 export const updateProgressPracticeMessageModel = async (req, res) => {
   try {
-    const { courseId, weekNo } = req.params;
+    const { courseId, messageId } = req.params;
 
     const {
       week_no,
       themes,
       weekly_target,
       outcomes,
-      completed_messages,
       outcome_order = 1,
     } = req.body;
 
     // Check if practice message exists
     const existingPracticeMessage = await getProgressPracticeMessageService(
       Number(courseId),
-      Number(weekNo),
+      Number(messageId),
     );
 
     if (!existingPracticeMessage) {
@@ -467,7 +394,6 @@ export const updateProgressPracticeMessageModel = async (req, res) => {
       themes,
       weekly_target,
       outcomes,
-      completed_messages,
       outcome_order,
     );
 
@@ -503,14 +429,13 @@ export const updateProgressPracticeMessageModel = async (req, res) => {
 
 export const deleteProgressPracticeMessageModel = async (req, res) => {
   try {
-    const { courseId, weekNo } = req.params;
+    const { messageId } = req.params;
 
     // ----------------------------------------------
     // Check if practice message exists
     // ----------------------------------------------
     const existingPracticeMessage = await getProgressPracticeMessageService(
-      Number(courseId),
-      Number(weekNo),
+      Number(messageId),
     );
 
     if (!existingPracticeMessage) {
@@ -527,8 +452,7 @@ export const deleteProgressPracticeMessageModel = async (req, res) => {
     // Soft delete DB record
     // ----------------------------------------------
     const response = await deleteProgressPracticeMessageService(
-      Number(courseId),
-      Number(weekNo),
+      Number(messageId),
     );
 
     if (!response) {
@@ -550,6 +474,206 @@ export const deleteProgressPracticeMessageModel = async (req, res) => {
     );
   } catch (err) {
     console.error("Progress Practice Message Delete Error:", err);
+
+    return error(
+      res,
+      HTTP_INTERNAL_SERVER_ERROR,
+      APP_RESPONSE_CODE_ERROR,
+      SOMETHING_WENT_WRONG,
+      null,
+    );
+  }
+};
+
+// models for completed message
+export const postCompletedMessageModel = async (req, res) => {
+  try {
+    const { week_no, day_no, completed_message } = req.body;
+    const { courseId } = req.params;
+
+    const results = await postCompletedMessageService(
+      Number(courseId),
+      week_no,
+      day_no,
+      completed_message,
+    );
+
+    if (!results) {
+      return error(
+        res,
+        HTTP_BAD_REQUEST,
+        APP_RESPONSE_CODE_ERROR,
+        COMPLETED_MESSAGE_ADDED_FAILED,
+        null,
+      );
+    }
+
+    return success(
+      res,
+      HTTP_CREATED,
+      APP_RESPONSE_CODE_SUCCESS,
+      COMPLETED_MESSAGE_ADDED_SUCCESS,
+      results,
+    );
+  } catch (err) {
+    console.error("Completed Message Error:", err);
+
+    return error(
+      res,
+      HTTP_INTERNAL_SERVER_ERROR,
+      APP_RESPONSE_CODE_ERROR,
+      SOMETHING_WENT_WRONG,
+      null,
+    );
+  }
+};
+
+export const getAllCompletedMessagesModel = async (req, res) => {
+  try {
+    const courseId = Number(req.query.courseId);
+    const weekNo = Number(req.query.weekNo);
+    const dayNo = Number(req.query.dayNo);
+
+    const response = await getAllCompletedMessagesService(
+      courseId,
+      weekNo,
+      dayNo,
+    );
+
+    if (!response) {
+      return error(
+        res,
+        HTTP_NOT_FOUND,
+        APP_RESPONSE_CODE_ERROR,
+        MESSAGE_NOT_FOUND,
+        null,
+      );
+    }
+
+    return success(
+      res,
+      HTTP_OK,
+      APP_RESPONSE_CODE_SUCCESS,
+      ALL_MESSAGE_LIST,
+      response,
+    );
+  } catch (err) {
+    console.error("Get Completed Message Error:", err);
+    return error(
+      res,
+      HTTP_INTERNAL_SERVER_ERROR,
+      APP_RESPONSE_CODE_ERROR,
+      SOMETHING_WENT_WRONG,
+      null,
+    );
+  }
+};
+
+export const updateCompletedMessageModel = async (req, res) => {
+  try {
+    const { courseId, messageId } = req.params;
+
+    const { week_no, day_no, completed_message } = req.body;
+
+    // Check if completed message exists
+    const existingCompletedMessage = await getCompletedMessageService(
+      Number(courseId),
+      Number(messageId),
+    );
+
+    if (!existingCompletedMessage) {
+      return error(
+        res,
+        HTTP_NOT_FOUND,
+        APP_RESPONSE_CODE_ERROR,
+        COMPLETED_MESSAGE_NOT_FOUND,
+        null,
+      );
+    }
+
+    const result = await updateCompletedMessageService(
+      existingCompletedMessage.id,
+      Number(courseId),
+      week_no,
+      day_no,
+      completed_message,
+    );
+
+    if (!result) {
+      return error(
+        res,
+        HTTP_BAD_REQUEST,
+        APP_RESPONSE_CODE_ERROR,
+        COMPLETED_MESSAGE_UPDATED_FAILED,
+        null,
+      );
+    }
+
+    return success(
+      res,
+      HTTP_OK,
+      APP_RESPONSE_CODE_SUCCESS,
+      COMPLETED_MESSAGE_UPDATED_SUCCESS,
+      result,
+    );
+  } catch (err) {
+    console.error("Update Completed Message Error:", err);
+
+    return error(
+      res,
+      HTTP_INTERNAL_SERVER_ERROR,
+      APP_RESPONSE_CODE_ERROR,
+      SOMETHING_WENT_WRONG,
+      null,
+    );
+  }
+};
+
+export const deleteCompletedMessageModel = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+
+    // ----------------------------------------------
+    // Check if completed message exists
+    // ----------------------------------------------
+    const existingCompletedMessage = await getCompletedMessageService(
+      Number(messageId),
+    );
+
+    if (!existingCompletedMessage) {
+      return error(
+        res,
+        HTTP_NOT_FOUND,
+        APP_RESPONSE_CODE_ERROR,
+        COMPLETED_MESSAGE_NOT_FOUND,
+        null,
+      );
+    }
+
+    // ----------------------------------------------
+    // Soft delete DB record
+    // ----------------------------------------------
+    const response = await deleteCompletedMessageService(Number(messageId));
+
+    if (!response) {
+      return error(
+        res,
+        HTTP_BAD_REQUEST,
+        APP_RESPONSE_CODE_ERROR,
+        COMPLETED_MESSAGE_DELETED_FAILED,
+        null,
+      );
+    }
+
+    return success(
+      res,
+      HTTP_OK,
+      APP_RESPONSE_CODE_SUCCESS,
+      COMPLETED_MESSAGE_DELETED_SUCCESS,
+      response,
+    );
+  } catch (err) {
+    console.error("Progress Completed Message Delete Error:", err);
 
     return error(
       res,

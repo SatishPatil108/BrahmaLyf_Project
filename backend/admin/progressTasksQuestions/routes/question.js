@@ -3,17 +3,22 @@ import {
   postProgressTasksQuestionController,
   updateProgressTasksQuestionController,
   deleteProgressTasksQuestionController,
-  getProgressTasksQuestionController,
   getAllProgressTasksQuestionsController,
   getAllProgressPracticeMessagesController,
   updateProgressPracticeMessageController,
   postProgressPracticeMessageController,
   deleteProgressPracticeMessageController,
+  getAllCompletedMessagesController,
+  postCompletedMessageController,
+  updateCompletedMessageController,
+  deleteCompletedMessageController,
 } from "../controller/question.js";
 
 import {
+  postCompletedMessageValidator,
   postProgressPracticeMessageValidator,
   postProgressTasksQuestionValidator,
+  updateCompletedMessageValidator,
   updateProgressPracticeMessageValidator,
   updateProgressTasksQuestionValidator,
 } from "../middleware/question.js";
@@ -39,27 +44,15 @@ export default (app) => {
     getAllProgressTasksQuestionsController,
   );
 
-  app.get(
-    "/apis/admin/progress-tasks/questions/:question_id",
-    verifyAdminToken,
-    getProgressTasksQuestionController,
-  );
-
   app.delete(
     "/apis/admin/progress-tasks/questions/:question_id",
     verifyAdminToken,
     deleteProgressTasksQuestionController,
   );
 
-  // Additional routes for progress practice messages can be added here following the same pattern
+  // Additional routes for progress practice messages
   app.get(
     "/apis/admin/progress-practice/message",
-    verifyAdminToken,
-    getAllProgressPracticeMessagesController,
-  );
-
-  app.get(
-    "/apis/admin/progress-practice/message/:message_id",
     verifyAdminToken,
     getAllProgressPracticeMessagesController,
   );
@@ -72,15 +65,43 @@ export default (app) => {
   );
 
   app.put(
-    "/apis/admin/progress-practice/message/:courseId/:weekNo",
+    "/apis/admin/progress-practice/message/:courseId/:messageId",
     verifyAdminToken,
     updateProgressPracticeMessageValidator,
     updateProgressPracticeMessageController,
   );
 
   app.delete(
-    "/apis/admin/progress-practice/message/:courseId/:weekNo",
+    "/apis/admin/progress-practice/message/:messageId",
     verifyAdminToken,
     deleteProgressPracticeMessageController,
+  );
+
+  // routes for completed messages
+
+  app.get(
+    "/apis/admin/completed/message",
+    verifyAdminToken,
+    getAllCompletedMessagesController,
+  );
+
+  app.post(
+    "/apis/admin/completed/message/:courseId",
+    verifyAdminToken,
+    postCompletedMessageValidator,
+    postCompletedMessageController,
+  );
+
+  app.put(
+    "/apis/admin/completed/message/:courseId/:messageId",
+    verifyAdminToken,
+    updateCompletedMessageValidator,
+    updateCompletedMessageController,
+  );
+
+  app.delete(
+    "/apis/admin/completed/message/:messageId",
+    verifyAdminToken,
+    deleteCompletedMessageController,
   );
 };

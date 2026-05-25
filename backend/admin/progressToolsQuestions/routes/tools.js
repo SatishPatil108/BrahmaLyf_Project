@@ -1,6 +1,5 @@
 import verifyAdminToken from "../../middleware/verifyAdminToken.js";
 import {
-  getProgressToolsQuestionController,
   getAllProgressToolsQuestionsController,
   postProgressToolsQuestionController,
   updateProgressToolsQuestionController,
@@ -31,12 +30,6 @@ export default (app) => {
     "/apis/admin/progress-tools/questions",
     verifyAdminToken,
     getAllProgressToolsQuestionsController,
-  );
-
-  app.get(
-    "/apis/admin/progress-tools/questions/:tools_question_id",
-    verifyAdminToken,
-    getProgressToolsQuestionController,
   );
 
   app.delete(

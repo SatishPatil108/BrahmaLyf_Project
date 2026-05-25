@@ -503,7 +503,7 @@ const ProgressToolsQuestionDetails = ({ isOpen, onClose }) => {
                       text-gray-700 dark:text-gray-300 text-sm font-medium shadow-sm
                       focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition-all duration-200"
                   >
-                    {[...Array(52)].map((_, i) => (
+                    {[...Array(53)].map((_, i) => (
                       <option key={i + 1} value={i + 1}>
                         Week {i + 1}
                       </option>

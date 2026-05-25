@@ -42,7 +42,7 @@ export default function CopyrightNotice() {
               <div className="p-2 bg-purple-100 rounded-xl">
                 <Copyright size={28} className="text-purple-600" />
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              <h1 className="lg:text-3xl font-bold tracking-tight text-slate-900 text-2xl">
                 Copyright & IP Notice
               </h1>
             </div>
@@ -198,126 +198,7 @@ export default function CopyrightNotice() {
               )}
             </div>
           ))}
-        </div>
-
-        {/* Warning Box */}
-        <div className="mb-8 rounded-xl border border-red-200 bg-red-50 p-6">
-          <div className="flex items-start gap-3">
-            <AlertCircle
-              size={20}
-              className="text-red-600 flex-shrink-0 mt-0.5"
-            />
-            <div>
-              <h3 className="font-semibold text-red-800 mb-1">
-                Important Warning
-              </h3>
-              <p className="text-sm text-red-700">
-                Unauthorized use, reproduction, or distribution of our
-                intellectual property may result in legal action. All content is
-                protected under copyright laws.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Acceptance Checkboxes */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 mb-8">
-          <h2 className="mb-6 text-xl font-semibold text-slate-900">
-            Your Acknowledgment
-          </h2>
-
-          <div className="space-y-5">
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={acceptedOwnership}
-                onChange={(e) => setAcceptedOwnership(e.target.checked)}
-                className="mt-1 h-5 w-5 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
-              />
-              <span className="text-slate-700 group-hover:text-slate-900 transition-colors">
-                I acknowledge that all content on BrahmaLYF is the{" "}
-                <span className="font-semibold">intellectual property</span> of
-                BrahmaLYF and its licensors
-              </span>
-            </label>
-
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={acceptedLicense}
-                onChange={(e) => setAcceptedLicense(e.target.checked)}
-                className="mt-1 h-5 w-5 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
-              />
-              <span className="text-slate-700 group-hover:text-slate-900 transition-colors">
-                I understand that I am granted a{" "}
-                <span className="font-semibold">
-                  limited, personal, non-commercial license
-                </span>{" "}
-                for private use only
-              </span>
-            </label>
-
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={acceptedProhibited}
-                onChange={(e) => setAcceptedProhibited(e.target.checked)}
-                className="mt-1 h-5 w-5 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
-              />
-              <span className="text-slate-700 group-hover:text-slate-900 transition-colors">
-                I agree not to{" "}
-                <span className="font-semibold">
-                  copy, share, distribute, or reproduce
-                </span>{" "}
-                any content without written permission
-              </span>
-            </label>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button
-            disabled={!isAllAccepted}
-            className={`flex-1 rounded-xl px-8 py-3.5 font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
-              isAllAccepted
-                ? "bg-purple-600 text-white hover:bg-purple-700 shadow-lg hover:shadow-xl active:scale-[0.98]"
-                : "bg-slate-100 text-slate-400 cursor-not-allowed"
-            }`}
-          >
-            <Check size={20} />I Accept & Agree
-          </button>
-
-          <button className="flex-1 rounded-xl border border-slate-300 bg-white px-8 py-3.5 font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-            Decline
-          </button>
-        </div>
-
-        {/* Contact Card */}
-        <div className="mt-10 mb-24 rounded-xl bg-purple-50 border border-purple-200 p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Mail size={20} className="text-purple-600" />
-              </div>
-              <div>
-                <p className="text-sm text-purple-700 font-medium">
-                  Report Copyright Infringement
-                </p>
-                <p className="text-slate-600 text-sm">
-                  To report suspected unauthorized use of our content
-                </p>
-              </div>
-            </div>
-            <a
-              href="mailto:brahma.lyf@gmail.com"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-            >
-              <Mail size={16} />
-              brahma.lyf@gmail.com
-            </a>
-          </div>
-        </div>
+        </div>           
       </main>
     </div>
   );

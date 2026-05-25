@@ -93,19 +93,6 @@ const ViewMessageDrawer = ({ isOpen, onClose, message }) => {
           </div>
         </div>
 
-        {/* Completed Messages */}
-        <div className="border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
-          <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <span className="w-1 h-6 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></span>
-            Completed Messages
-          </h5>
-          <div className="prose dark:prose-invert max-w-none">
-            <div
-              dangerouslySetInnerHTML={{ __html: message.completed_messages }}
-            />
-          </div>
-        </div>
-
         {/* Metadata */}
         <div className="border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
           <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
@@ -209,30 +196,6 @@ const FormFields = ({
       </p>
     </div>
 
-    {/* Completed Messages */}
-    <div>
-      <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
-        Completed Messages <span className="text-red-500">*</span>
-      </label>
-      <RichTextEditor
-        value={messageData.completed_messages}
-        onChange={handleRichTextChange("completed_messages")}
-        placeholder="What messages or feedback have been completed this week?"
-        error={!!errors.completed_messages}
-        minHeight="150px"
-      />
-      {errors.completed_messages && (
-        <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
-          {errors.completed_messages}
-        </p>
-      )}
-      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-        Tip: Summarize completed progress messages and feedback (5-5000
-        characters)
-      </p>
-    </div>
-
     {/* Week */}
     <div>
       <label className="block font-medium mb-2 text-gray-800 dark:text-gray-100">
@@ -266,7 +229,7 @@ const FormFields = ({
     </div>
 
     {/* Action Buttons */}
-    <div className="sticky bottom-0 pt-6 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 -mx-6 px-6">
+    <div className="bottom-0 pt-6 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 -mx-6 px-6">
       <div className="flex justify-end gap-3">
         <CustomButton
           type="button"
@@ -328,7 +291,6 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
     themes: "",
     weekly_target: "",
     outcomes: "",
-    completed_messages: "",
     outcome_order: 1,
   });
 
@@ -380,7 +342,6 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
       themes: "",
       weekly_target: "",
       outcomes: "",
-      completed_messages: "",
       outcome_order: messages.length + 1,
     });
     setErrors({});
@@ -397,7 +358,6 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
       themes: message.themes,
       weekly_target: message.weekly_target,
       outcomes: message.outcomes,
-      completed_messages: message.completed_messages,
       outcome_order: message.outcome_order || 1,
     });
     clearMessage();
@@ -441,16 +401,7 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
       newErrors.outcomes = "Outcomes should not exceed 5000 characters";
     }
 
-    const plainCompletedMessages = cleanHtml(messageData.completed_messages);
-    if (!messageData.completed_messages?.trim()) {
-      newErrors.completed_messages = "Completed messages is required";
-    } else if (plainCompletedMessages.length < 5) {
-      newErrors.completed_messages =
-        "Completed messages should be at least 5 characters";
-    } else if (plainCompletedMessages.length > 5000) {
-      newErrors.completed_messages =
-        "Completed messages should not exceed 5000 characters";
-    }
+     
 
     if (!messageData.week_no) {
       newErrors.week_no = "Week number is required";
@@ -478,7 +429,6 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
       themes: messageData.themes.trim(),
       weekly_target: messageData.weekly_target.trim(),
       outcomes: messageData.outcomes.trim(),
-      completed_messages: messageData.completed_messages.trim(),
       outcome_order: 1,
     };
 
@@ -578,11 +528,11 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
                   onChange={(e) =>
                     handleWeekFilterChange(Number(e.target.value))
                   }
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800
+                  className="w-3/6 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800
                     text-gray-700 dark:text-gray-300 text-sm font-medium shadow-sm
                     focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition-all duration-200"
                 >
-                  {[...Array(52)].map((_, i) => (
+                  {[...Array(53)].map((_, i) => (
                     <option key={i + 1} value={i + 1}>
                       Week {i + 1}
                     </option>

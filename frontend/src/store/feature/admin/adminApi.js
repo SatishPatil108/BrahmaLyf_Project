@@ -513,7 +513,7 @@ export const deleteProgressToolsQuestion = async (tools_question_id) => {
   });
 };
 
-// add progress practice message
+// add progress practice weekly message
 export const postProgressPracticeMessage = async ({
   courseId,
   messageData,
@@ -555,9 +555,57 @@ export const updateProgressPracticeMessage = async ({
 };
 
 // delete progress practice message
-export const deleteProgressPracticeMessage = async (courseId, messageId) => {
+export const deleteProgressPracticeMessage = async (messageId) => {
   return await makeRequest({
-    service: `admin/progress-practice/message/${courseId}/${messageId}`,
+    service: `admin/progress-practice/message/${messageId}`,
+    method: API_METHODS.DELETE,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// post completed message
+export const postCompletedMessage = async ({ courseId, messageData }) => {
+  return await makeRequest({
+    service: `admin/completed/message/${courseId}`,
+    method: API_METHODS.POST,
+    data: messageData,
+    authRequired: true,
+    tokenType: "admin",
+    contentType: "application/json",
+  });
+};
+
+// fetch completed message
+export const fetchCompletedMessage = async ({ courseId, weekNo, dayNo }) => {
+  return await makeRequest({
+    service: `admin/completed/message?courseId=${courseId}&weekNo=${weekNo}&dayNo=${dayNo}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// update completed message
+export const updateCompletedMessage = async ({
+  courseId,
+  messageId,
+  messageData,
+}) => {
+  return await makeRequest({
+    service: `admin/completed/message/${courseId}/${messageId}`,
+    method: API_METHODS.PUT,
+    data: messageData,
+    authRequired: true,
+    tokenType: "admin",
+    contentType: "application/json",
+  });
+};
+
+// delete completed message
+export const deleteCompletedMessage = async (messageId) => {
+  return await makeRequest({
+    service: `admin/completed/message/${messageId}`,
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "admin",

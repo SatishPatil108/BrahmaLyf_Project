@@ -42,7 +42,7 @@ export default function CoachingDisclaimer() {
               <div className="p-2 bg-amber-100 rounded-xl">
                 <Shield size={28} className="text-amber-600" />
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              <h1 className="lg:text-4xl font-bold tracking-tight text-slate-900 text-2xl">
                 Coaching Disclaimer
               </h1>
             </div>
@@ -145,87 +145,6 @@ export default function CoachingDisclaimer() {
               )}
             </div>
           ))}
-        </div>
-
-        {/* Acceptance Checkboxes */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 mb-8">
-          <h2 className="mb-6 text-xl font-semibold text-slate-900">
-            Your Acknowledgment
-          </h2>
-
-          <div className="space-y-5">
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={acceptedDisclaimer}
-                onChange={(e) => setAcceptedDisclaimer(e.target.checked)}
-                className="mt-1 h-5 w-5 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
-              />
-              <span className="text-slate-700 group-hover:text-slate-900 transition-colors">
-                I understand that BrahmaLYF is a{" "}
-                <span className="font-semibold">
-                  coaching and guidance platform only
-                </span>
-                , not a medical or therapeutic service
-              </span>
-            </label>
-
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={acceptedResponsibility}
-                onChange={(e) => setAcceptedResponsibility(e.target.checked)}
-                className="mt-1 h-5 w-5 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
-              />
-              <span className="text-slate-700 group-hover:text-slate-900 transition-colors">
-                I acknowledge that my use of the Platform and application of any
-                guidance is{" "}
-                <span className="font-semibold">
-                  at my own discretion and responsibility
-                </span>
-              </span>
-            </label>
-
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={acceptedAgeRestriction}
-                onChange={(e) => setAcceptedAgeRestriction(e.target.checked)}
-                className="mt-1 h-5 w-5 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
-              />
-              <span className="text-slate-700 group-hover:text-slate-900 transition-colors">
-                I confirm that I am{" "}
-                <span className="font-semibold">18 years of age or older</span>
-              </span>
-            </label>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button
-            disabled={!isAllAccepted}
-            className={`flex-1 rounded-xl px-8 py-3.5 font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
-              isAllAccepted
-                ? "bg-amber-600 text-white hover:bg-amber-700 shadow-lg hover:shadow-xl active:scale-[0.98]"
-                : "bg-slate-100 text-slate-400 cursor-not-allowed"
-            }`}
-          >
-            <Check size={20} />I Understand & Accept
-          </button>
-
-          <button className="flex-1 rounded-xl border border-slate-300 bg-white px-8 py-3.5 font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-            Decline
-          </button>
-        </div>
-
-        {/* Footer Note */}
-        <div className="mt-10 mb-24 rounded-xl bg-amber-50 border border-amber-200 p-6 text-center">
-          <p className="text-sm text-slate-700">
-            This disclaimer is an integral part of using BrahmaLYF. By
-            accepting, you confirm that you have read, understood, and agree to
-            all the terms outlined in this Coaching Disclaimer.
-          </p>
         </div>
       </main>
     </div>

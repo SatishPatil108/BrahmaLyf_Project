@@ -27,11 +27,6 @@ const useProgressTaskDetails = (courseId, weekNo, dayNo) => {
 
   const clearMessage = useCallback(() => setActionMessage(null), []);
 
-  // Fetch courses
-  useEffect(() => {
-    dispatch(fetchAllCoursesAPI({ pageNo: 1, pageSize: 10 }));
-  }, [dispatch]);
-
   // Fetch questions based on courseId, weekNo, and dayNo
   useEffect(() => {
     if (courseId && weekNo && dayNo) {

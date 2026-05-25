@@ -51,6 +51,10 @@ import {
   updateProgressPracticeMessage,
   fetchProgressPracticeMessages,
   postProgressPracticeMessage,
+  postCompletedMessage,
+  updateCompletedMessage,
+  deleteCompletedMessage,
+  fetchCompletedMessage,
 } from "./adminApi";
 
 export const getAdminDashboardData = createAsyncThunk(
@@ -603,7 +607,7 @@ export const deleteShortVideoAPI = createAsyncThunk(
 
 // fetch progress tools question by week no and day no
 export const fetchProgressTasksQuestionsAPI = createAsyncThunk(
-  "admin/get/progress-tasks/questions",
+  "admin/fetchProgressTasksQuestions",
   async ({ courseId, weekNo, dayNo }, thunkAPI) => {
     try {
       const response = await fetchProgressTasksQuestions({
@@ -693,7 +697,7 @@ export const postProgressToolsQuestionAPI = createAsyncThunk(
 
 // fetch progress tools question by week no and day no
 export const fetchProgressToolsQuestionsAPI = createAsyncThunk(
-  "admin/get/progress-tools/questions",
+  "admin/fetchProgressToolsQuestions",
   async ({ courseId, weekNo, dayNo }, thunkAPI) => {
     try {
       const response = await fetchProgressToolsQuestions({
@@ -764,7 +768,7 @@ export const postProgressPracticeMessageAPI = createAsyncThunk(
 
 // fetch progress messages question by week no and course id
 export const fetchProgressPracticeMessagesAPI = createAsyncThunk(
-  "admin/get/progress-messages",
+  "admin/fetchProgressPracticeMessages",
   async ({ courseId, weekNo }, thunkAPI) => {
     try {
       const response = await fetchProgressPracticeMessages({
@@ -810,6 +814,78 @@ export const deleteProgressPracticeMessageAPI = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to delete progress messages",
+      );
+    }
+  },
+);
+
+// post completed messages question
+export const postCompletedMessageAPI = createAsyncThunk(
+  "admin/postCompletedMessage",
+  async ({ courseId, messageData }, thunkAPI) => {
+    try {
+      const response = await postCompletedMessage({ courseId, messageData });
+
+      return response.data;
+    } catch (error) {
+      console.error(error);
+
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to add completed messages",
+      );
+    }
+  },
+);
+
+// fetch completed messages question by weekNo,dayNo and course id
+export const fetchCompletedMessagesAPI = createAsyncThunk(
+  "admin/fetchCompletedMessages",
+  async ({ courseId, weekNo, dayNo }, thunkAPI) => {
+    try {
+      const response = await fetchCompletedMessage({
+        courseId,
+        weekNo,
+        dayNo,
+      });
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch completed messages",
+      );
+    }
+  },
+);
+
+// update completed messages question
+export const updateCompletedMessageAPI = createAsyncThunk(
+  "admin/updateCompletedMessage",
+  async ({ courseId, messageId, messageData }, thunkAPI) => {
+    try {
+      const response = await updateCompletedMessage({
+        courseId,
+        messageId,
+        messageData,
+      });
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to update completed messages",
+      );
+    }
+  },
+);
+
+// delete completed messages question
+export const deleteCompletedMessageAPI = createAsyncThunk(
+  "admin/deleteCompletedMessage",
+  async (messageId, thunkAPI) => {
+    try {
+      await deleteCompletedMessage(messageId);
+      return messageId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to delete completed messages",
       );
     }
   },

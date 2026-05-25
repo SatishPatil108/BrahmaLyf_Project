@@ -31,51 +31,6 @@ import {
   updateProgressToolsQuestionService,
 } from "../services/tools.js";
 
-// ✅ Get single tool question
-export const getProgressToolsQuestionModel = async (req, res) => {
-  try {
-    const tools_question_id = parseInt(req.params.tools_question_id);
-
-    if (isNaN(tools_question_id)) {
-      return error(
-        res,
-        HTTP_BAD_REQUEST,
-        APP_RESPONSE_CODE_ERROR,
-        INVALID_QUESTION_ID,
-        null,
-      );
-    }
-
-    const question = await getProgressToolsQuestionService(tools_question_id);
-
-    if (!question) {
-      return error(
-        res,
-        HTTP_NOT_FOUND,
-        APP_RESPONSE_CODE_ERROR,
-        QUESTION_NOT_FOUND,
-        null,
-      );
-    }
-
-    return success(
-      res,
-      HTTP_OK,
-      APP_RESPONSE_CODE_SUCCESS,
-      QUESTION_FOUND,
-      question,
-    );
-  } catch (err) {
-    console.error("Get Tools Question Error:", err);
-    return error(
-      res,
-      HTTP_INTERNAL_SERVER_ERROR,
-      APP_RESPONSE_CODE_ERROR,
-      SOMETHING_WENT_WRONG,
-      null,
-    );
-  }
-};
 
 // ✅ Get all tool questions
 export const getAllProgressToolsQuestionsModel = async (req, res) => {

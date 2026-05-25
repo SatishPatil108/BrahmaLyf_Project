@@ -237,11 +237,17 @@ function Footer() {
                 powered by
               </span>
 
-              <img
-                src={assets.aavidsoft_logo}
-                alt="AavidSoft Logo"
-                className="w-12 sm:w-14 md:w-16 lg:w-20 h-auto object-contain"
-              />
+              <a
+                href="https://aavidsoft.in"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src={assets.aavidsoft_logo}
+                  alt="AavidSoft Logo"
+                  className="w-12 sm:w-14 md:w-16 lg:w-20 h-auto object-contain cursor-pointer"
+                />
+              </a>
             </div>
           </div>
         </div>
