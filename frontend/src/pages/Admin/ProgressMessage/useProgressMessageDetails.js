@@ -24,7 +24,7 @@ const useProgressMessageDetails = (courseId, weekNo) => {
 
   const clearMessage = useCallback(() => setActionMessage(null), []);
 
-  // Fetch questions based on courseId, weekNo
+  // Fetch questions based on courseId, weekNo, dayNo
   useEffect(() => {
     if (courseId && weekNo) {
       dispatch(
