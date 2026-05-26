@@ -1,5 +1,5 @@
-import { runToolsQuestionsCronForCourse } from "../../../../commons/AddToolsQuestionCorn.js";
-import { runTrackingQuestionsCronForCourse } from "../../../../commons/AddTrackingQuestionCorn.js";
+import runToolsQuestionsCronForCourse from "../../../../commons/AddToolsQuestionCorn.js";
+import runTrackingQuestionsCronForCourse from "../../../../commons/AddTrackingQuestionCorn.js";
 import {
   error,
   HTTP_OK,

@@ -30,9 +30,10 @@ import { clearUserError } from "@/store/feature/user/userSlice";
 import { useTheme } from "@/contexts/ThemeContext";
 import FeedbackForm from "@/pages/User/FeedbackForm/FeedbackForm.jsx";
 import { useYouTubeEmbedUrl } from "@/hooks/useYouTubeEmbedUrl";
-import ProgressTrackingForm from "./ProgressTrackingForm";
 import useUserProgressDetails from "./useUserProgressDetails";
 import ProgressToolsForm from "./ProgressToolsForm";
+import CourseInfoContent from "./CourseInfoContent";
+import ProgressPracticeForm from "./ProgressPracticeForm";
 
 const EnrolledCourseDetails = () => {
   const { courseId } = useParams();
@@ -402,11 +403,10 @@ const EnrolledCourseDetails = () => {
     <div
       className={`min-h-screen ${bgColor.tertiary} transition-colors duration-300`}
     >
-      {/* Mobile Header */}
-      <div
-        className={`lg:hidden border-b  ${borderColor.primary} ${bgColor.primary}`}
-      >
-        <div className="px-4 py-3">
+      {/* Header - Responsive */}
+      <div className={`border-b ${borderColor.primary} ${bgColor.primary}`}>
+        {/* Mobile Header (lg and below) */}
+        <div className="lg:hidden px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
@@ -457,13 +457,9 @@ const EnrolledCourseDetails = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Desktop Header */}
-      <div
-        className={`hidden lg:block border-b ${borderColor.primary} ${bgColor.primary}`}
-      >
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        {/* Desktop Header (lg and above) */}
+        <div className="hidden lg:block max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className={`text-xl font-bold ${textColor.primary}`}>
@@ -512,7 +508,7 @@ const EnrolledCourseDetails = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-0 py-6">
         <div className="flex flex-col lg:flex-row gap-4">
-          {/* Mobile Course Info Panel */}
+          {/* Course Info Panel - Responsive (shows on mobile when toggled, always shows on desktop when toggled) */}
           {showCourseInfo && (
             <div
               className={`lg:hidden rounded-xl shadow-lg mb-4 ${borderColor.primary} border ${bgColor.primary}`}
@@ -529,46 +525,16 @@ const EnrolledCourseDetails = () => {
                     <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   </button>
                 </div>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      <h4 className={`font-medium ${textColor.primary}`}>
-                        Learning Outcomes
-                      </h4>
-                    </div>
-                    <p className={`text-sm ${textColor.secondary} pl-6`}>
-                      {enrolledCourseDetails.learning_outcomes}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-green-600 dark:text-green-400" />
-                      <h4 className={`font-medium ${textColor.primary}`}>
-                        Target Audience
-                      </h4>
-                    </div>
-                    <p className={`text-sm ${textColor.secondary} pl-6`}>
-                      {enrolledCourseDetails.target_audience}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <GraduationCap className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                      <h4 className={`font-medium ${textColor.primary}`}>
-                        Course Overview
-                      </h4>
-                    </div>
-                    <p className={`text-sm ${textColor.secondary} pl-6`}>
-                      {enrolledCourseDetails.curriculum_description}
-                    </p>
-                  </div>
-                </div>
+                <CourseInfoContent
+                  enrolledCourseDetails={enrolledCourseDetails}
+                  textColor={textColor}
+                  theme={theme}
+                />
               </div>
             </div>
           )}
 
-          {/* Mobile Feedback Panel */}
+          {/* Feedback Panel - Responsive */}
           {showFeedback && (
             <div
               className={`lg:hidden rounded-xl shadow-lg mb-4 ${borderColor.primary} border ${bgColor.primary}`}
@@ -595,26 +561,26 @@ const EnrolledCourseDetails = () => {
             </div>
           )}
 
-          {/* Left Sidebar - Course Index (W3Schools Style) */}
+          {/* Left Sidebar - Course Index */}
           <div
             className={`
-            ${
-              sidebarOpen
-                ? "fixed inset-0 z-50 bg-black bg-opacity-50 lg:static lg:bg-transparent"
-                : "hidden lg:block"
-            }
-          `}
+          ${
+            sidebarOpen
+              ? "fixed inset-0 z-50 bg-black bg-opacity-50 lg:static lg:bg-transparent"
+              : "hidden lg:block"
+          }
+        `}
           >
             <div
               className={`
-              ${
-                sidebarOpen
-                  ? "absolute inset-y-0 left-0 w-4/5 max-w-sm lg:relative min-w-[280px] w-[320px] max-w-[350px]"
-                  : "lg:relative min-w-[280px] w-[320px] max-w-[350px]"
-              }
-              ${bgColor.primary} ${borderColor.primary}
-              border rounded-xl lg:rounded-xl shadow-sm h-full lg:h-[calc(100vh-8rem)] overflow-hidden flex flex-col
-            `}
+            ${
+              sidebarOpen
+                ? "absolute inset-y-0 left-0 max-w-sm lg:relative min-w-[280px] w-[320px]"
+                : "lg:relative min-w-[280px] w-[320px] max-w-[350px]"
+            }
+            ${bgColor.primary} ${borderColor.primary}
+            border rounded-xl lg:rounded-xl shadow-sm h-full lg:h-[calc(100vh-8rem)] overflow-hidden flex flex-col
+          `}
             >
               {/* Sidebar Header */}
               <div
@@ -743,7 +709,7 @@ const EnrolledCourseDetails = () => {
                     </div>
                   )}
 
-                  <div className="p-4 lg:p-6">
+                  <div className="p-6 lg:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -811,45 +777,7 @@ const EnrolledCourseDetails = () => {
                   </div>
                 </div>
 
-                {/* Mobile Progress Panel — shown after video */}
-                <div
-                  className={`lg:hidden rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm ${bgColor.primary}`}
-                >
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className={`text-lg font-bold ${textColor.primary}`}>
-                      Today's Task
-                    </h3>
-                  </div>
-                  <ProgressTrackingForm
-                    theme={theme}
-                    courseId={Number(courseId)}
-                    isLoading={progressLoading}
-                    error={progressError}
-                    weekData={weekData}
-                    onSubmitSuccess={handleProgressSubmitSuccess}
-                  />
-                </div>
-
-                {/* Mobile Tools panel */}
-                <div
-                  className={`lg:hidden rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm ${bgColor.primary}`}
-                >
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className={`text-lg font-bold ${textColor.primary}`}>
-                      Today's Tools
-                    </h3>
-                  </div>
-                  <ProgressToolsForm
-                    theme={theme}
-                    courseId={Number(courseId)}
-                    isLoading={progressLoading}
-                    error={progressError}
-                    weekData={weekData}
-                    onSubmitSuccess={handleProgressSubmitSuccess}
-                  />
-                </div>
-
-                {/* Course Information Panel (Desktop) */}
+                {/* Course Information Panel */}
                 {showCourseInfo && (
                   <div
                     className={`hidden lg:block rounded-xl p-6 mb-6 ${borderColor.primary} border ${bgColor.primary} shadow-sm`}
@@ -865,82 +793,26 @@ const EnrolledCourseDetails = () => {
                         <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                       </button>
                     </div>
-
-                    <div className="grid md:grid-cols-3 gap-6">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`p-2 rounded-lg ${
-                              theme === "dark"
-                                ? "bg-blue-900/30"
-                                : "bg-blue-100"
-                            }`}
-                          >
-                            <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                          </div>
-                          <h4 className={`font-bold ${textColor.primary}`}>
-                            Learning Outcomes
-                          </h4>
-                        </div>
-                        <p className={`text-sm ${textColor.secondary}`}>
-                          {enrolledCourseDetails.learning_outcomes}
-                        </p>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`p-2 rounded-lg ${
-                              theme === "dark"
-                                ? "bg-green-900/30"
-                                : "bg-green-100"
-                            }`}
-                          >
-                            <Users className="w-5 h-5 text-green-600 dark:text-green-400" />
-                          </div>
-                          <h4 className={`font-bold ${textColor.primary}`}>
-                            Target Audience
-                          </h4>
-                        </div>
-                        <p className={`text-sm ${textColor.secondary}`}>
-                          {enrolledCourseDetails.target_audience}
-                        </p>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`p-2 rounded-lg ${
-                              theme === "dark"
-                                ? "bg-purple-900/30"
-                                : "bg-purple-100"
-                            }`}
-                          >
-                            <GraduationCap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                          </div>
-                          <h4 className={`font-bold ${textColor.primary}`}>
-                            Course Overview
-                          </h4>
-                        </div>
-                        <p className={`text-sm ${textColor.secondary}`}>
-                          {enrolledCourseDetails.curriculum_description}
-                        </p>
-                      </div>
-                    </div>
+                    <CourseInfoContent
+                      enrolledCourseDetails={enrolledCourseDetails}
+                      textColor={textColor}
+                      theme={theme}
+                    />
                   </div>
                 )}
 
-                {/* ── Desktop Progress Panel — switch to conditional render ────────── */}
-
+                {/* Progress Panel */}
                 <div
-                  className={`hidden lg:block rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm ${bgColor.primary}`}
+                  className={`rounded-xl p-4 md:p-6 mb-6 `}
                 >
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className={`text-lg font-bold ${textColor.primary}`}>
+                  <div className="flex justify-center mb-6">
+                    <h3
+                      className={`text-base md:text-lg font-bold ${textColor.primary}`}
+                    >
                       Today's Task
                     </h3>
                   </div>
-                  <ProgressTrackingForm
+                  <ProgressPracticeForm
                     theme={theme}
                     courseId={Number(courseId)}
                     isLoading={progressLoading}
@@ -950,12 +822,14 @@ const EnrolledCourseDetails = () => {
                   />
                 </div>
 
-                {/* Desktop Tools Panel  */}
+                {/* Tools Panel - Responsive */}
                 <div
-                  className={`hidden lg:block rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm ${bgColor.primary}`}
+                  className={`rounded-xl p-4 md:p-6 mb-6`}
                 >
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className={`text-lg font-bold ${textColor.primary}`}>
+                  <div className="flex  justify-center mb-6">
+                    <h3
+                      className={`text-base md:text-lg font-bold ${textColor.primary}`}
+                    >
                       Today's Tools
                     </h3>
                   </div>
@@ -969,10 +843,10 @@ const EnrolledCourseDetails = () => {
                   />
                 </div>
 
-                {/* Feedback Panel (Desktop) */}
+                {/* Feedback Panel */}
                 {showFeedback && (
                   <div
-                    className={`hidden lg:block rounded-xl p-6 mb-6 ${borderColor.primary} border shadow-sm`}
+                    className={`hidden lg:block rounded-xl p-6 mb-6 ${borderColor.primary}`}
                   >
                     <div className="flex items-center justify-between mb-6">
                       <h3 className={`text-lg font-bold ${textColor.primary}`}>
@@ -980,9 +854,9 @@ const EnrolledCourseDetails = () => {
                       </h3>
                       <button
                         onClick={() => setShowFeedback(false)}
-                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
                       >
-                        <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                        <X className="w-5 h-5 text-gray-600 dark:text-gray-400 " />
                       </button>
                     </div>
                     <FeedbackForm

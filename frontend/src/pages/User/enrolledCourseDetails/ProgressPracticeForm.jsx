@@ -25,8 +25,6 @@ import {
   markScopedDayCompleted,
   markQuestionSubmitted,
 } from "@/store/feature/user/userSlice";
-import RichTextEditor from "@/components/RichTextEditor/RichTextEditorWithLock";
-import RichTextEditorWithLock from "@/components/RichTextEditor/RichTextEditorWithLock";
 
 if (
   typeof document !== "undefined" &&
@@ -45,11 +43,15 @@ if (
     }
     .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
     .animate-fadeOut { animation: fadeOut 0.5s ease-out forwards; }
+
+    /* Hide scrollbar */
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   `;
   document.head.appendChild(style);
 }
 
-const ProgressTrackingForm = ({
+const ProgressPracticeForm = ({
   courseId,
   theme = "light",
   onSubmitSuccess,
@@ -144,22 +146,18 @@ const ProgressTrackingForm = ({
   // Handle showing completion card and then showing filled form
   useEffect(() => {
     if (allCompleted && !showCompletionCard && !showCompletedForm) {
-      // Clear any existing timeout
       if (completionTimeoutRef.current) {
         clearTimeout(completionTimeoutRef.current);
       }
 
-      // Show completion card
       setShowCompletionCard(true);
 
-      // After 4.5 seconds, hide completion card and show filled form
       completionTimeoutRef.current = setTimeout(() => {
         setShowCompletionCard(false);
         setShowCompletedForm(true);
       }, 4500);
     }
 
-    // Cleanup timeout on unmount or when allCompleted becomes false
     return () => {
       if (completionTimeoutRef.current) {
         clearTimeout(completionTimeoutRef.current);
@@ -226,7 +224,6 @@ const ProgressTrackingForm = ({
         }),
       ).unwrap();
 
-      // Persist to Redux
       dispatch(
         markQuestionSubmitted({
           courseId,
@@ -234,10 +231,8 @@ const ProgressTrackingForm = ({
         }),
       );
 
-      // Force refresh answers from server
       await forceRefreshAnswers();
 
-      // Check if all questions in this day are now done
       const dayQuestions = allQuestions.filter((q) => q.day_no === dayNo);
       const updatedSubmitted = {
         ...reduxSubmittedQuestions,
@@ -367,7 +362,7 @@ const ProgressTrackingForm = ({
       );
     });
 
-  // Completed form — show all submitted answers with edit support
+  // Completed form — show all submitted answers (locked, no edit)
   if (allCompleted && showCompletedForm) {
     return (
       <div className="w-full max-w-3xl mx-auto">
@@ -376,7 +371,6 @@ const ProgressTrackingForm = ({
         >
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
           <div className="p-4 sm:p-6 md:p-8">
-            {/* Header */}
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div
@@ -404,7 +398,6 @@ const ProgressTrackingForm = ({
               </div>
             </div>
 
-            {/* Progress Bar - 100% */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-1.5">
                 <span className={`text-xs font-medium ${textColor.muted}`}>
@@ -422,8 +415,7 @@ const ProgressTrackingForm = ({
               </div>
             </div>
 
-            {/* Questions */}
-            <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2">
+            <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2 scrollbar-hide">
               {renderDays(true)}
             </div>
 
@@ -448,7 +440,6 @@ const ProgressTrackingForm = ({
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
 
         <div className="p-4 sm:p-6 md:p-8">
-          {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-3">
               <div
@@ -476,7 +467,6 @@ const ProgressTrackingForm = ({
             </span>
           </div>
 
-          {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-1.5">
               <span className={`text-xs font-medium ${textColor.muted}`}>
@@ -498,8 +488,7 @@ const ProgressTrackingForm = ({
             </div>
           </div>
 
-          {/* Questions with Vertical Scroll */}
-          <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2">
+          <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2 scrollbar-hide">
             {Object.keys(questionsByDay).map((dayNo) => {
               const day = questionsByDay[dayNo];
               const dayQuestions = day.questions;
@@ -510,7 +499,6 @@ const ProgressTrackingForm = ({
 
               return (
                 <div key={dayNo} className="mb-4">
-                  {/* Day Header */}
                   <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-emerald-200 dark:border-emerald-800">
                     <div
                       className={`px-3 py-1 rounded-full text-sm font-semibold ${
@@ -529,7 +517,6 @@ const ProgressTrackingForm = ({
                     )}
                   </div>
 
-                  {/* Day's Questions */}
                   <div className="flex flex-col gap-5">
                     {dayQuestions.map((question, idx) => (
                       <QuestionCard
@@ -567,7 +554,6 @@ const ProgressTrackingForm = ({
             )}
           </div>
 
-          {/* Footer */}
           <div className={`mt-6 pt-4 border-t ${borderColor.primary}`}>
             <p className={`text-xs ${textColor.muted} text-center`}>
               Your responses are saved securely and used to track your learning
@@ -580,7 +566,7 @@ const ProgressTrackingForm = ({
   );
 };
 
-// QuestionCard component remains the same as your existing one
+// QuestionCard component - NO EDIT capability, completely locked after submission
 const QuestionCard = ({
   question,
   index,
@@ -640,21 +626,24 @@ const QuestionCard = ({
     6: "Progress Bar",
   };
 
+  // Locked style for submitted questions - completely disabled, no edit button
   const lockedOverlay = isSubmitted
     ? theme === "dark"
-      ? "border-emerald-700 bg-emerald-900/10 opacity-80"
-      : "border-emerald-300 bg-emerald-50/50 opacity-80"
+      ? "border-emerald-700 bg-emerald-900/10"
+      : "border-emerald-300 bg-emerald-50/50"
     : "";
 
   return (
     <div
-      className={`relative overflow-hidden rounded-xl p-4 sm:p-5 border transition-all duration-200
+      className={`relative overflow-hidden rounded-xl p-4 sm:p-5 border transition-all duration-200 
       ${isSubmitted ? lockedOverlay : `${borderColor.secondary} ${bgColor.secondary}`}`}
     >
+      {/* Left accent bar for submitted questions */}
       {isSubmitted && (
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-l-xl" />
       )}
 
+      {/* Submitted badge - NO edit button */}
       {isSubmitted && (
         <div
           className={`absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
@@ -668,16 +657,23 @@ const QuestionCard = ({
         </div>
       )}
 
+      {/* Question number and text */}
       <div className="flex items-start gap-3 mb-4 pl-1">
         <span
           className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
-          ${isSubmitted ? "bg-emerald-500 text-white" : theme === "dark" ? "bg-gray-700 text-gray-400" : "bg-gray-200 text-gray-600"}`}
+          ${
+            isSubmitted
+              ? "bg-emerald-500 text-white"
+              : theme === "dark"
+                ? "bg-gray-700 text-gray-400"
+                : "bg-gray-200 text-gray-600"
+          }`}
         >
           {isSubmitted ? "✓" : index + 1}
         </span>
-        <div className="flex-1 pr-20">
+        <div className="flex-1 min-w-0">
           <p
-            className={`text-sm font-medium ${textColor.primary} leading-relaxed`}
+            className={`text-xs sm:text-sm font-medium ${textColor.primary} leading-relaxed`}
             dangerouslySetInnerHTML={{
               __html: question_text,
             }}
@@ -695,15 +691,22 @@ const QuestionCard = ({
         </div>
       </div>
 
-      <div className="pl-9">
+      {/* Answer input area - completely disabled when submitted */}
+      <div className="pl-1">
         {option_type === 1 && (
-          <RichTextEditorWithLock
+          <textarea
             value={currentAnswer || ""}
-            onChange={(val) => onText(id, val)}
-            isSubmitted={isSubmitted}
-            bgColor={bgColor}
-            textColor={textColor}
-            borderColor={borderColor}
+            onChange={(e) => onText(id, e.target.value)}
+            disabled={isSubmitted}
+            className={`w-full h-40 px-4 py-2.5 rounded-lg text-sm border transition-all duration-150
+              ${bgColor.primary} ${textColor.primary} ${borderColor.secondary}
+              focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+              ${isSubmitted ? "cursor-not-allowed opacity-60" : "cursor-pointer"}
+              ${currentAnswer && !isSubmitted ? (theme === "dark" ? "border-emerald-600" : "border-emerald-400") : ""}`}
+            placeholder={
+              isSubmitted ? "Answer submitted" : "Enter your answer..."
+            }
+            readOnly={isSubmitted}
           />
         )}
 
@@ -733,8 +736,11 @@ const QuestionCard = ({
                     className="accent-emerald-600 w-4 h-4 shrink-0"
                   />
                   <span className="text-sm flex-1">{opt.text}</span>
-                  {currentAnswer === opt.id && (
+                  {currentAnswer === opt.id && !isSubmitted && (
                     <ChevronRight className="w-4 h-4 text-emerald-500" />
+                  )}
+                  {currentAnswer === opt.id && isSubmitted && (
+                    <CheckCircle className="w-4 h-4 text-emerald-500" />
                   )}
                 </label>
               ))}
@@ -751,7 +757,7 @@ const QuestionCard = ({
               ${bgColor.primary} ${textColor.primary} ${borderColor.secondary}
               focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
               ${isSubmitted ? "cursor-not-allowed opacity-60" : "cursor-pointer"}
-              ${currentAnswer ? (theme === "dark" ? "border-emerald-600" : "border-emerald-400") : ""}`}
+              ${currentAnswer && !isSubmitted ? (theme === "dark" ? "border-emerald-600" : "border-emerald-400") : ""}`}
           >
             <option value="">— Select an option —</option>
             {optionList.map((opt) => (
@@ -765,7 +771,7 @@ const QuestionCard = ({
         {option_type === 4 && (
           <div className="w-full">
             <p className={`text-xs ${textColor.muted} mb-2`}>
-              Select all that apply
+              {isSubmitted ? "Selected answers:" : "Select all that apply"}
             </p>
             <div className="flex flex-col gap-2">
               {optionList.map((opt) => {
@@ -812,7 +818,7 @@ const QuestionCard = ({
                   <button
                     key={star}
                     type="button"
-                    onClick={() => onRating(id, star)}
+                    onClick={() => !isSubmitted && onRating(id, star)}
                     onMouseEnter={() =>
                       !isSubmitted &&
                       setHoverRating((prev) => ({ ...prev, [id]: star }))
@@ -899,7 +905,6 @@ const QuestionCard = ({
 
             return (
               <div className="flex flex-col gap-3 w-full">
-                {/* Bar row */}
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
@@ -913,7 +918,6 @@ const QuestionCard = ({
                     −
                   </button>
 
-                  {/* Clickable progress bar */}
                   <div
                     onClick={handleBarClick}
                     className={`flex-1 h-2 rounded-full bg-gray-100 dark:bg-gray-800
@@ -949,7 +953,6 @@ const QuestionCard = ({
                   </span>
                 </div>
 
-                {/* Badge */}
                 <span
                   className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border self-start
                 ${
@@ -969,6 +972,7 @@ const QuestionCard = ({
             );
           })()}
 
+        {/* Submit button - only shown for unanswered questions */}
         {!isSubmitted && (
           <div className="mt-4 flex justify-end">
             <button
@@ -1002,4 +1006,4 @@ const QuestionCard = ({
   );
 };
 
-export default ProgressTrackingForm;
+export default ProgressPracticeForm;

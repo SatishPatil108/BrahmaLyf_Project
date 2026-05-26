@@ -94,6 +94,7 @@ const ProgressTasksQuestionDetails = ({ isOpen, onClose }) => {
   // ── Message Form Data ──
   const [messageFormData, setMessageFormData] = useState({
     message_id: null,
+    short_intro: "",
     completed_message: "",
     week_no: weekNo,
     day_no: dayNo,
@@ -142,11 +143,19 @@ const ProgressTasksQuestionDetails = ({ isOpen, onClose }) => {
     }));
   };
 
-  // ── Message Rich Text Handler ──
-  const handleMessageRichTextChange = (value) => {
-    setMessageFormData((prev) => ({ ...prev, completed_message: value }));
-    if (errors.completed_message)
-      setErrors((prev) => ({ ...prev, completed_message: undefined }));
+  // ── Common Text Change Handler ──
+  const handleTextChange = (field, value) => {
+    setMessageFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: undefined,
+      }));
+    }
   };
 
   // ── Reset ──
@@ -165,6 +174,7 @@ const ProgressTasksQuestionDetails = ({ isOpen, onClose }) => {
     setIsEditing(false);
     setMessageFormData({
       message_id: null,
+      short_intro: "",
       completed_message: "",
       week_no: weekNo,
       day_no: dayNo,
@@ -179,6 +189,7 @@ const ProgressTasksQuestionDetails = ({ isOpen, onClose }) => {
     setIsEditing(true);
     setMessageFormData({
       message_id: completedMessage.message_id,
+      short_intro: completedMessage.short_intro,
       completed_message: completedMessage.completed_message,
       week_no: completedMessage.week_no,
       day_no: completedMessage.day_no,
@@ -229,9 +240,15 @@ const ProgressTasksQuestionDetails = ({ isOpen, onClose }) => {
   // ── Validate Message ──
   const validateMessageForm = () => {
     const newErrors = {};
-    const plain = cleanHtml(messageFormData.completed_message);
-    if (!messageFormData.completed_message?.trim())
+
+    const plainShortIntro = cleanHtml(messageFormData.short_intro);
+    if (!plainShortIntro?.trim())
+      newErrors.short_intro = "Short intro is required";
+
+    const plainCompletedMessage = cleanHtml(messageFormData.completed_message);
+    if (!plainCompletedMessage?.trim())
       newErrors.completed_message = "Message is required";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -270,10 +287,12 @@ const ProgressTasksQuestionDetails = ({ isOpen, onClose }) => {
     e.preventDefault();
     if (!validateMessageForm() || !courseId) return;
     const payload = {
+      short_intro: messageFormData.short_intro.trim(),
       completed_message: messageFormData.completed_message.trim(),
       week_no: Number(messageFormData.week_no),
       day_no: Number(messageFormData.day_no),
     };
+
     try {
       if (isEditing)
         await updateCompletedMessage(
@@ -441,59 +460,85 @@ const ProgressTasksQuestionDetails = ({ isOpen, onClose }) => {
 
             {/* ── Completed Message Section ─────────────────────────────────── */}
             {isLoadingMessage ? (
-              <div className="h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
+              <div className="h-40 rounded-2xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
             ) : completedMessage ? (
-              // Saved message card — hides the Add button
-              <div className="rounded-2xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <MessageSquare className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <div className="relative rounded-2xl backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border border-gray-200 dark:border-gray-800 shadow-lg overflow-hidden">
+                {/* Animated gradient border */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                <div className="relative p-5">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg">
+                        <MessageSquare className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                          Daily Message and Short Intro
+                        </h3>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1 uppercase tracking-wide">
-                        Completed Message
-                      </p>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={openEditMessageForm}
+                        className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all"
+                      >
+                        <SquarePen className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteMessage(completedMessage.message_id);
+                        }}
+                        disabled={isSubmittingMessage}
+                        className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all disabled:opacity-50"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {completedMessage.completed_message && (
+                    <div className="mb-4 p-3 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800">
+                      <div className="flex items-start gap-2">
+                        <span className="text-lg">📝</span>
+                        <div
+                          className="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200"
+                          dangerouslySetInnerHTML={{
+                            __html: completedMessage.completed_message,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="relative">
+                    <div className="absolute -left-1 top-0 bottom-0 w-1 bg-gradient-to-b from-green-400 to-emerald-500 rounded-full" />
+                    <div className="pl-4">
+                      <span className="text-lg font-medium text-gray-800 dark:text-gray-200">
+                        Short Intro
+                      </span>
                       <div
-                        className="text-sm text-gray-800 dark:text-gray-200 line-clamp-3 prose prose-sm dark:prose-invert max-w-none"
+                        className="text-gray-700 dark:text-gray-300 prose prose-sm dark:prose-invert max-w-none"
                         dangerouslySetInnerHTML={{
-                          __html: completedMessage.completed_message,
+                          __html: completedMessage.short_intro,
                         }}
                       />
                     </div>
                   </div>
-                  {/* Edit / Delete */}
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <button
-                      onClick={openEditMessageForm}
-                      className="p-2 rounded-lg bg-white dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 border border-gray-200 dark:border-gray-700 transition-all"
-                      title="Edit Message"
-                    >
-                      <SquarePen className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteMessage(completedMessage.message_id);
-                      }}
-                      disabled={isSubmittingMessage}
-                      className="p-2 rounded-lg bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 border border-gray-200 dark:border-gray-700 transition-all disabled:opacity-50"
-                      title="Delete Message"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
-                    </button>
-                  </div>
                 </div>
               </div>
             ) : (
-              // Show button only when no message exists for this week/day
               <CustomButton
                 onClick={openAddMessageForm}
                 variant="outline"
-                className="w-full px-6 py-3 rounded-xl border-2 border-dashed border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-300"
+                className="w-full py-2 rounded-2xl border-2 border-dashed border-green-300 dark:border-green-700 hover:border-green-400 dark:hover:border-green-600 bg-gradient-to-r from-green-50/50 to-transparent dark:from-green-900/10"
               >
-                <MessageSquare className="w-5 h-5 mr-2" />
-                Add Completed Message
+                <MessageSquare className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
+                <span className="text-green-700 dark:text-green-400 font-medium">
+                  Add Short Intro and Message
+                </span>
               </CustomButton>
             )}
 
@@ -614,8 +659,8 @@ const ProgressTasksQuestionDetails = ({ isOpen, onClose }) => {
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                 {isMessageMode
                   ? isEditing
-                    ? "Edit Completed Message"
-                    : "Add Completed Message"
+                    ? "Edit Intro and Message"
+                    : "Add Intro and Message"
                   : isEditing
                     ? "Edit Question"
                     : "Add New Question"}
@@ -675,21 +720,33 @@ const ProgressTasksQuestionDetails = ({ isOpen, onClose }) => {
           <form onSubmit={handleMessageSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Short Intro <span className="text-red-500">*</span>
+              </label>
+              <RichTextEditor
+                value={messageFormData.short_intro}
+                onChange={(value) => handleTextChange("short_intro", value)}
+              />
+              {errors.short_intro && (
+                <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" /> {errors.short_intro}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Completed Message <span className="text-red-500">*</span>
               </label>
               <RichTextEditor
                 value={messageFormData.completed_message}
-                onChange={handleMessageRichTextChange}
+                onChange={(value) =>
+                  handleTextChange("completed_message", value)
+                }
               />
               {errors.completed_message && (
                 <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" /> {errors.completed_message}
                 </p>
               )}
-              <p className="mt-1 text-xs text-gray-400 text-right">
-                {cleanHtml(messageFormData.completed_message).length} / 1000
-                characters
-              </p>
             </div>
 
             <div className="flex gap-3 pt-2">

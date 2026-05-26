@@ -81,26 +81,39 @@ const FeedbackForm = ({ courseId, enrollmentId, theme, onSuccess }) => {
       4: { text: "Very Good", emoji: "😊", color: "text-blue-500" },
       5: { text: "Excellent", emoji: "🌟", color: "text-green-500" },
     };
-    return labels[rating] || { text: "Select rating", emoji: "⭐", color: textColor.muted };
+    return (
+      labels[rating] || {
+        text: "Select rating",
+        emoji: "⭐",
+        color: textColor.muted,
+      }
+    );
   };
 
   const ratingInfo = getRatingLabel();
 
   if (isSubmitted) {
     return (
-      <div className={`${bgColor.card} rounded-xl p-6 md:p-8 text-center animate-fadeIn`}>
-        <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-          <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
+      <div
+        className={`${bgColor.card} rounded-xl p-6 md:p-8 text-center animate-fadeIn`}
+      >
+        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+          <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-600 dark:text-green-400" />
         </div>
-        <h3 className={`text-xl font-bold ${textColor.primary} mb-2`}>
+        <h3
+          className={`text-lg sm:text-xl font-bold ${textColor.primary} mb-2`}
+        >
           Thank You for Your Feedback!
         </h3>
-        <p className={`${textColor.secondary} mb-4`}>
+        <p className={`text-sm sm:text-base ${textColor.secondary} mb-4`}>
           Your insights help us improve the learning experience.
         </p>
         <div className="flex items-center justify-center gap-1">
           {[...Array(rating)].map((_, i) => (
-            <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+            <Star
+              key={i}
+              className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400"
+            />
           ))}
         </div>
       </div>
@@ -108,12 +121,12 @@ const FeedbackForm = ({ courseId, enrollmentId, theme, onSuccess }) => {
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-full md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-4 md:px-0">
       <form
         onSubmit={handleSubmit}
         className={`
           relative overflow-hidden
-          ${bgColor.card} rounded-xl shadow-sm 
+          ${bgColor.card} rounded-lg sm:rounded-xl shadow-sm 
           border ${borderColor.primary}
           transition-all duration-300 hover:shadow-md
         `}
@@ -121,48 +134,60 @@ const FeedbackForm = ({ courseId, enrollmentId, theme, onSuccess }) => {
         {/* Decorative gradient line */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
 
-        <div className="p-4 sm:p-6 md:p-8">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-6">
+        <div className="p-4 sm:p-5 md:p-6 lg:p-8">
+          {/* Header - Responsive */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
             <div className="flex items-center gap-3">
-              <div className={`p-2.5 rounded-lg ${
-                theme === "dark" ? "bg-purple-900/30" : "bg-purple-100"
-              }`}>
-                <MessageSquare className={`w-5 h-5 ${
-                  theme === "dark" ? "text-purple-400" : "text-purple-600"
-                }`} />
+              <div
+                className={`p-2 sm:p-2.5 rounded-lg ${
+                  theme === "dark" ? "bg-purple-900/30" : "bg-purple-100"
+                }`}
+              >
+                <MessageSquare
+                  className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                    theme === "dark" ? "text-purple-400" : "text-purple-600"
+                  }`}
+                />
               </div>
               <div>
-                <h2 className={`text-lg sm:text-xl font-bold ${textColor.primary}`}>
+                <h2
+                  className={`text-base sm:text-lg md:text-xl font-bold ${textColor.primary}`}
+                >
                   Share Your Experience
                 </h2>
-                <p className={`text-sm ${textColor.muted}`}>
+                <p className={`text-xs sm:text-sm ${textColor.muted}`}>
                   Your feedback helps us improve
                 </p>
               </div>
             </div>
-            
-            {/* Optional: Add course completion badge */}
-            <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
-              theme === "dark" ? "bg-green-900/30 text-green-400" : "bg-green-100 text-green-700"
-            }`}>
+
+            {/* Course completion badge - responsive */}
+            <span
+              className={`self-start sm:self-auto px-2 py-1 text-xs font-medium rounded-full ${
+                theme === "dark"
+                  ? "bg-green-900/30 text-green-400"
+                  : "bg-green-100 text-green-700"
+              }`}
+            >
               Course Completed
             </span>
           </div>
 
-          {/* Rating Section - Modern Redesign */}
-          <div className="mb-8">
-            <label className={`block text-sm font-medium ${textColor.secondary} mb-3`}>
+          {/* Rating Section - Responsive */}
+          <div className="mb-6 sm:mb-8">
+            <label
+              className={`block text-xs sm:text-sm font-medium ${textColor.secondary} mb-2 sm:mb-3`}
+            >
               How would you rate this course?
               <span className="text-red-500 ml-1">*</span>
             </label>
-            
+
             <div className="flex flex-col items-center">
-              {/* Interactive Stars - Responsive sizing */}
-              <div className="flex items-center justify-center gap-1 sm:gap-2 mb-4">
+              {/* Interactive Stars - Fully responsive sizing */}
+              <div className="flex items-center justify-center gap-1 sm:gap-1.5 md:gap-2 mb-3 sm:mb-4">
                 {[1, 2, 3, 4, 5].map((star) => {
                   const isFilled = star <= (hoverRating || rating);
-                  
+
                   return (
                     <button
                       key={star}
@@ -171,21 +196,22 @@ const FeedbackForm = ({ courseId, enrollmentId, theme, onSuccess }) => {
                       onMouseEnter={() => setHoverRating(star)}
                       onMouseLeave={() => setHoverRating(0)}
                       className={`
-                        relative p-1 rounded-lg transition-all duration-200
+                        relative p-0.5 sm:p-1 rounded-lg transition-all duration-200
                         ${bgColor.hover} focus:outline-none focus:ring-2 
-                        focus:ring-blue-500 focus:ring-offset-2
+                        focus:ring-blue-500 focus:ring-offset-1 sm:focus:ring-offset-2
                         ${theme === "dark" ? "focus:ring-offset-gray-800" : "focus:ring-offset-white"}
                       `}
                     >
-                      <Star 
+                      <Star
                         className={`
-                          w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12
+                          w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12
                           transition-all duration-200
-                          ${isFilled 
-                            ? 'fill-yellow-400 text-yellow-400 scale-110' 
-                            : 'text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500'
+                          ${
+                            isFilled
+                              ? "fill-yellow-400 text-yellow-400 scale-105 sm:scale-110"
+                              : "text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500"
                           }
-                          ${hoverRating >= star ? 'animate-pulse' : ''}
+                          ${hoverRating >= star ? "animate-pulse" : ""}
                         `}
                       />
                     </button>
@@ -193,18 +219,20 @@ const FeedbackForm = ({ courseId, enrollmentId, theme, onSuccess }) => {
                 })}
               </div>
 
-              {/* Rating Label with Emoji */}
-              <div className="flex items-center gap-3">
-                <div className={`
-                  px-3 py-1.5 rounded-full text-sm font-medium
+              {/* Rating Label with Emoji - Responsive */}
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                <div
+                  className={`
+                  px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium
                   ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}
-                `}>
-                  <span className={ratingInfo.color}>
+                `}
+                >
+                  <span className={`${ratingInfo.color} text-xs sm:text-sm`}>
                     {ratingInfo.emoji} {ratingInfo.text}
                   </span>
                 </div>
                 {rating > 0 && (
-                  <span className={`text-sm ${textColor.muted}`}>
+                  <span className={`text-xs sm:text-sm ${textColor.muted}`}>
                     {rating}/5 stars
                   </span>
                 )}
@@ -212,54 +240,70 @@ const FeedbackForm = ({ courseId, enrollmentId, theme, onSuccess }) => {
             </div>
           </div>
 
-          {/* Comments Section - Redesigned */}
+          {/* Comments Section - Responsive */}
           <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <label className={`block text-sm font-medium ${textColor.secondary}`}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-2">
+              <label
+                className={`block text-xs sm:text-sm font-medium ${textColor.secondary}`}
+              >
                 Your Comments
                 <span className="text-red-500 ml-1">*</span>
               </label>
-              <span className={`
-                text-xs px-2 py-1 rounded-full
-                ${comments.length > 0 ? bgColor.secondary : ''}
+              <span
+                className={`
+                text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full w-fit
+                ${comments.length > 0 ? bgColor.secondary : ""}
                 ${textColor.muted}
-              `}>
+              `}
+              >
                 {comments.length}/500
               </span>
             </div>
-            
+
             <textarea
               value={comments}
               onChange={(e) => setComments(e.target.value.slice(0, 500))}
-              rows="4"
+              rows={4}
               placeholder="What did you think about the course content, instructor, and your overall learning experience?"
               className={`
-                w-full px-4 py-3 rounded-lg text-sm sm:text-base
+                w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base
                 transition-all duration-200
                 ${bgColor.secondary} ${textColor.primary}
                 border ${borderColor.secondary}
-                placeholder:text-sm placeholder:${textColor.muted}
+                placeholder:text-xs sm:placeholder:text-sm placeholder:${textColor.muted}
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                 resize-none
               `}
             />
 
-            {/* Quick feedback tags */}
-            <div className="flex flex-wrap gap-2 mt-3">
-              {["Excellent content", "Great instructor", "Well structured", "Practical examples", "Good pace", "Challenging"].map((tag) => (
+            {/* Quick feedback tags - Responsive grid */}
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-1.5 sm:gap-2 mt-3">
+              {[
+                "Excellent content",
+                "Great instructor",
+                "Well structured",
+                "Practical examples",
+                "Good pace",
+                "Challenging",
+              ].map((tag) => (
                 <button
                   key={tag}
                   type="button"
-                  onClick={() => setComments(prev => 
-                    prev.includes(tag) ? prev : prev + (prev ? `, ${tag}` : tag)
-                  )}
+                  onClick={() =>
+                    setComments((prev) =>
+                      prev.includes(tag)
+                        ? prev
+                        : prev + (prev ? `, ${tag}` : tag),
+                    )
+                  }
                   className={`
-                    px-3 py-1.5 text-xs sm:text-sm rounded-full
+                    px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full
                     transition-all duration-200
                     ${bgColor.secondary} ${textColor.secondary}
                     border ${borderColor.primary}
                     hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20
                     focus:outline-none focus:ring-2 focus:ring-blue-500
+                    whitespace-nowrap hover:text-gray-800 hover:font-semibold cursor-pointer
                   `}
                 >
                   + {tag}
@@ -268,24 +312,28 @@ const FeedbackForm = ({ courseId, enrollmentId, theme, onSuccess }) => {
             </div>
           </div>
 
-          {/* Submit Button - Redesigned */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
-            <p className={`text-xs ${textColor.muted} flex items-center gap-1`}>
+          {/* Submit Button - Responsive */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+            <p
+              className={`text-xs ${textColor.muted} flex items-center justify-center sm:justify-start gap-1`}
+            >
               <span className="text-red-500">*</span> Required fields
             </p>
-            
+
             <button
               type="submit"
               disabled={isSubmitting || rating === 0 || !comments.trim()}
               className={`
-                relative px-6 py-3 rounded-lg font-medium text-sm sm:text-base
+                relative px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-sm sm:text-base
                 transition-all duration-200
                 flex items-center justify-center gap-2
-                ${rating > 0 && comments.trim()
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg'
-                  : theme === "dark"
-                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                w-full sm:w-auto
+                ${
+                  rating > 0 && comments.trim()
+                    ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg"
+                    : theme === "dark"
+                      ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
                 }
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                 ${theme === "dark" ? "focus:ring-offset-gray-800" : "focus:ring-offset-white"}
@@ -294,26 +342,42 @@ const FeedbackForm = ({ courseId, enrollmentId, theme, onSuccess }) => {
             >
               {isSubmitting ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   <span>Submitting...</span>
                 </>
               ) : (
                 <>
-                  <Send className="w-4 h-4" />
+                  <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>Submit Feedback</span>
                 </>
               )}
             </button>
           </div>
 
-          {/* Footer note */}
+          {/* Footer note - Responsive */}
           <div className={`mt-4 pt-4 border-t ${borderColor.primary}`}>
-            <p className={`text-xs ${textColor.muted} text-center`}>
-              Your feedback is anonymous and will only be used to improve course quality.
-              Thank you for helping us grow! 🌟
+            <p className={`text-xs ${textColor.muted} text-center px-2`}>
+              Your feedback is anonymous and will only be used to improve course
+              quality. Thank you for helping us grow! 🌟
             </p>
           </div>
         </div>
@@ -321,18 +385,5 @@ const FeedbackForm = ({ courseId, enrollmentId, theme, onSuccess }) => {
     </div>
   );
 };
-
-// Add this to your global CSS or in a style tag
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .animate-fadeIn {
-    animation: fadeIn 0.5s ease-out;
-  }
-`;
-document.head.appendChild(style);
 
 export default FeedbackForm;

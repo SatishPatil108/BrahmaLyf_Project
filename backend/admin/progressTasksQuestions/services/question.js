@@ -522,6 +522,7 @@ export const getAllCompletedMessagesService = (course_id, week_no, day_no) => {
         q.course_id,
         q.week_no,
         q.day_no,
+        q.short_intro,
         q.completed_message
       FROM bm.completion_messages q
       WHERE q.status = 1
@@ -553,6 +554,7 @@ export const postCompletedMessageService = (
   course_id,
   week_no,
   day_no,
+  short_intro,
   completed_message,
 ) => {
   return new Promise((resolve, reject) => {
@@ -561,18 +563,19 @@ export const postCompletedMessageService = (
         course_id,
         week_no,
         day_no,
+        short_intro,
         completed_message,
         created_on,
         updated_on,
         status
       )
-      VALUES ($1, $2, $3, $4, NOW(), NOW(), 1)
+      VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), 1)
       RETURNING *;
     `;
 
     connection.query(
       messageQuery,
-      [course_id, week_no, day_no, completed_message],
+      [course_id, week_no, day_no, short_intro, completed_message],
       (err, result) => {
         if (err) return reject(err);
         resolve(result.rows?.[0] || null);
@@ -587,6 +590,7 @@ export const updateCompletedMessageService = (
   course_id,
   week_no,
   day_no,
+  short_intro,
   completed_message,
 ) => {
   return new Promise((resolve, reject) => {
@@ -596,7 +600,8 @@ export const updateCompletedMessageService = (
         course_id = $2,
         week_no = $3,
         day_no = $4,
-        completed_message = $5,
+        short_intro = $5,
+        completed_message = $6,
         updated_on = NOW()
       WHERE id = $1
       RETURNING *;
@@ -604,7 +609,7 @@ export const updateCompletedMessageService = (
 
     connection.query(
       messageQuery,
-      [message_id, course_id, week_no, day_no, completed_message],
+      [message_id, course_id, week_no, day_no, short_intro, completed_message],
       (err, result) => {
         if (err) return reject(err);
         resolve(result.rows?.[0] || null);

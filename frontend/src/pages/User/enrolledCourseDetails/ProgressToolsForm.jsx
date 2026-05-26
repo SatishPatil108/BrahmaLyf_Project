@@ -26,7 +26,6 @@ import {
   markToolsQuestionSubmitted,
 } from "@/store/feature/user/userSlice";
 
-import RichTextEditor from "@/components/RichTextEditor/RichTextEditorWithLock";
 import RichTextEditorWithLock from "@/components/RichTextEditor/RichTextEditorWithLock";
 
 if (
@@ -106,37 +105,35 @@ const ProgressToolsForm = ({ courseId, theme = "light", onSubmitSuccess }) => {
     }
   }, [courseId, dispatch]);
 
-  useEffect(() => {
-    if (
-      reduxSubmittedAnswers &&
-      Object.keys(reduxSubmittedAnswers).length > 0
-    ) {
-      const merged = {};
-
-      Object.entries(reduxSubmittedAnswers).forEach(([dayKey, dayAnswers]) => {
-        if (dayAnswers && typeof dayAnswers === "object") {
-          Object.assign(merged, dayAnswers);
-        } else {
-          console.warn("⚠️ Invalid day answers structure:", {
-            dayKey,
-            dayAnswers,
-          });
-        }
-      });
-
-      setAnswers((prev) => ({
-        ...prev,
-        ...merged,
-      }));
-      setIsDataLoaded(true);
-    }
-  }, [reduxSubmittedAnswers]);
+  // Replace the completion useEffect in ProgressPracticeForm
 
   const totalQuestions = allQuestions.length;
   const submittedCount = allQuestions.filter(
     (q) => reduxSubmittedQuestions[q.id],
   ).length;
-  const allCompleted = totalQuestions > 0 && submittedCount === totalQuestions;
+  const allCompleted =
+    isDataLoaded && totalQuestions > 0 && submittedCount === totalQuestions;
+
+  // Show completion card then completed form
+  useEffect(() => {
+    if (!allCompleted) return;
+
+    // Page refresh: data already loaded, skip the 4.5s animation
+    if (isDataLoaded && !showCompletionCard && !showCompletedForm) {
+      setShowCompletedForm(true);
+      return;
+    }
+
+    completionTimeoutRef.current = setTimeout(() => {
+      setShowCompletionCard(false);
+      setShowCompletedForm(true);
+    }, 4500);
+
+    return () => {
+      if (completionTimeoutRef.current)
+        clearTimeout(completionTimeoutRef.current);
+    };
+  }, [allCompleted, isDataLoaded, showCompletionCard, showCompletedForm]);
 
   // Show completion card then completed form
   useEffect(() => {
@@ -331,7 +328,7 @@ const ProgressToolsForm = ({ courseId, theme = "light", onSubmitSuccess }) => {
               <CheckCircle className="w-4 h-4 text-blue-500 ml-2" />
             )}
           </div>
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-5 scrollbar-hide">
             {dayQuestions.map((question, idx) => (
               <ToolsQuestionCard
                 key={question.id}
@@ -418,7 +415,7 @@ const ProgressToolsForm = ({ courseId, theme = "light", onSubmitSuccess }) => {
             </div>
 
             {/* Questions */}
-            <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2">
+            <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2 scrollbar-hide">
               {renderDays(true)}
             </div>
 
@@ -568,22 +565,20 @@ const ToolsQuestionCard = ({
 
       {/* Top-right badge */}
       {isLocked && (
-        <div className="absolute top-3 right-3 flex items-center gap-1.5">
-          {/* Edit button */}
+        <div className="absolute top-3 right-3 flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-1.5">
           <button
             onClick={onEditStart}
             className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-all duration-150
-              ${
-                theme === "dark"
-                  ? "bg-gray-700 hover:bg-yellow-800/40 text-gray-300 hover:text-yellow-400"
-                  : "bg-gray-100 hover:bg-yellow-100 text-gray-500 hover:text-yellow-600"
-              }`}
+        ${
+          theme === "dark"
+            ? "bg-gray-700 hover:bg-yellow-800/40 text-gray-300 hover:text-yellow-400"
+            : "bg-gray-100 hover:bg-yellow-100 text-gray-500 hover:text-yellow-600"
+        }`}
             title="Edit answer"
           >
             <Pencil className="w-3 h-3" />
-            Edit
+            <span className="hidden sm:inline">Edit</span>
           </button>
-          {/* Submitted badge */}
           <div
             className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
               theme === "dark"
@@ -592,7 +587,7 @@ const ToolsQuestionCard = ({
             }`}
           >
             <Lock className="w-3 h-3" />
-            Submitted
+            <span className="hidden sm:inline">Submitted</span>
           </div>
         </div>
       )}
@@ -611,42 +606,49 @@ const ToolsQuestionCard = ({
       )}
 
       {/* Question text */}
-      <div className="flex items-start gap-3 mb-4 pl-1">
+      <div className="flex items-start gap-2 sm:gap-3 mb-3 sm:mb-4">
         <span
-          className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
-          ${
-            isLocked
-              ? "bg-blue-500 text-white"
-              : isEditing
-                ? "bg-yellow-400 text-white"
-                : theme === "dark"
-                  ? "bg-gray-700 text-gray-400"
-                  : "bg-gray-200 text-gray-600"
-          }`}
+          className={`
+      mt-0.5 flex-shrink-0
+      w-5 h-5 sm:w-6 sm:h-6
+      rounded-full flex items-center justify-center
+      text-[10px] sm:text-xs font-bold
+      ${
+        isLocked
+          ? "bg-blue-500 text-white mb-4"
+          : isEditing
+            ? "bg-yellow-400 text-white"
+            : theme === "dark"
+              ? "bg-gray-700 text-gray-400"
+              : "bg-gray-200 text-gray-600"
+      }
+    `}
         >
           {isLocked ? "✓" : isEditing ? "✎" : index + 1}
         </span>
-        <div className="flex-1 pr-32">
+
+        {/* Question text — takes remaining space, respects top-right badge */}
+        <div className="flex-1 min-w-0">
           <p
-            className={`text-sm font-medium ${textColor.primary} leading-relaxed`}          
-            dangerouslySetInnerHTML=
-            {{
-              __html: question_text,
-            }}             
-            />
-            {!isSubmitted && <span className="text-red-500 ml-1">*</span>}
+            className={`text-xs sm:text-sm font-medium ${textColor.primary} leading-relaxed break-words`}
+            dangerouslySetInnerHTML={{ __html: question_text }}
+          />
+          {!isSubmitted && <span className="text-red-500 ml-1">*</span>}
         </div>
       </div>
 
       {/* Answer area */}
-      <div className="pl-9">
-        <RichTextEditorWithLock
+      <div className="">
+        <textarea
           value={currentAnswer || ""}
-          onChange={(val) => onText(id, val)}
-          isSubmitted={isLocked} // only lock editor when not editing
-          bgColor={bgColor}
-          textColor={textColor}
-          borderColor={borderColor}
+          onChange={(e) => onText(id, e.target.value)}
+          disabled={isSubmitted}
+          className={`w-full h-40 px-4 py-2.5 rounded-lg text-sm border transition-all duration-150
+              ${bgColor.primary} ${textColor.primary} ${borderColor.secondary}
+              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+              ${isSubmitted ? "cursor-not-allowed opacity-60" : "cursor-pointer"}
+              ${currentAnswer ? (theme === "dark" ? "border-indigo-600" : "border-indigo-400") : ""}`}
+          placeholder="Enter your answer..."
         />
 
         {/* Submit button (not yet submitted) */}

@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import pool from "../database/database.js";
 
-export const runToolsQuestionsCronForCourse = async (courseId) => {
+const runToolsQuestionsCronForCourse = async (courseId) => {
   const client = await pool.connect();
 
   try {
@@ -117,3 +117,5 @@ cron.schedule("0 0 * * 1", async () => {
     console.error("[CRON] Fatal error:", err.message);
   }
 });
+
+export default runToolsQuestionsCronForCourse;

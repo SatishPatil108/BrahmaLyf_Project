@@ -180,7 +180,9 @@ export const postCompletedMessageValidator = (req, res, next) => {
   const schema = joi.object({
     week_no: joi.number().integer().min(1).max(52).required(),
     day_no: joi.number().integer().min(1).max(7).required(),
+    short_intro: joi.string().trim().min(1).required(),
     completed_message: joi.string().trim().min(1).required(),
+
   });
 
   const { error } = schema.validate(req.body);
@@ -208,7 +210,7 @@ export const updateCompletedMessageValidator = (req, res, next) => {
   const bodySchema = joi.object({
     week_no: joi.number().integer().min(1).max(52).required(),
     day_no: joi.number().integer().min(1).max(7).required(),
-    completed_message: joi.string().trim().min(1).required(),
+    short_intro: joi.string().trim().min(1).required(),    completed_message: joi.string().trim().min(1).required(),
   });
 
   const { error: paramsError } = paramsSchema.validate(req.params, {

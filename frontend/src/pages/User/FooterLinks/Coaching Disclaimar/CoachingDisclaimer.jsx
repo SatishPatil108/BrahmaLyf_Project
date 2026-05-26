@@ -14,12 +14,15 @@ import {
 } from "lucide-react";
 import coachingSections from "./coachingSections";
 import RichTextContent from "@/components/RichTextContent/RichTextContent";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function CoachingDisclaimer() {
   const [expandedSections, setExpandedSections] = useState({});
   const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
   const [acceptedResponsibility, setAcceptedResponsibility] = useState(false);
   const [acceptedAgeRestriction, setAcceptedAgeRestriction] = useState(false);
+
+  const { theme } = useTheme();
 
   const toggleSection = (id) => {
     setExpandedSections((prev) => ({

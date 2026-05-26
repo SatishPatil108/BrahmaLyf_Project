@@ -21,7 +21,7 @@ const ViewQuestionDrawer = ({ isOpen, onClose, question }) => {
     5: "Rating",
     6: "Progress Bar",
   };
-  
+
   const OPTION_TYPES_WITH_OPTIONS = [2, 3, 4];
 
   return (
@@ -52,9 +52,12 @@ const ViewQuestionDrawer = ({ isOpen, onClose, question }) => {
               <BadgeQuestionMarkIcon className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
-              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                {question.question_text}
-              </h4>
+              <h4
+                className="text-lg  text-gray-900 dark:text-gray-100 mb-3"
+                dangerouslySetInnerHTML={{
+                  __html: question.question_text,
+                }}
+              />
               <div className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-300 shadow-sm">
                   {OPTION_TYPE_ICONS[question.option_type]}

@@ -4,7 +4,8 @@
    GRADIENT ANIMATIONS
    ====================== */
 @keyframes gradient {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
@@ -100,7 +101,8 @@
    PULSE & BOUNCE ANIMATIONS
    ====================== */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -109,7 +111,8 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -117,26 +120,17 @@
   }
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
+ 
 
 .animate-pulse {
   animation: pulse 2s ease-in-out infinite;
 }
 
 .animate-bounce {
-  animation: bounce 2s ease-in-out infinite;
+  animation: float 2s ease-in-out infinite;
 }
 
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
+ 
 
 /* ======================
    SCALE ANIMATIONS
@@ -169,7 +163,12 @@
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent 25%, rgba(255, 255, 255, 0.1) 50%, transparent 75%);
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 75%
+  );
   background-size: 1000px 100%;
   animation: shimmer 2s infinite linear;
 }
@@ -178,7 +177,8 @@
    GLOW EFFECTS
    ====================== */
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
   }
   50% {
@@ -193,16 +193,34 @@
 /* ======================
    ANIMATION DELAYS & DURATIONS
    ====================== */
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-500 { animation-delay: 500ms; }
-.delay-700 { animation-delay: 700ms; }
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}
+.delay-500 {
+  animation-delay: 500ms;
+}
+.delay-700 {
+  animation-delay: 700ms;
+}
 
-.duration-300 { animation-duration: 300ms; }
-.duration-500 { animation-duration: 500ms; }
-.duration-700 { animation-duration: 700ms; }
-.duration-1000 { animation-duration: 1000ms; }
+.duration-300 {
+  animation-duration: 300ms;
+}
+.duration-500 {
+  animation-duration: 500ms;
+}
+.duration-700 {
+  animation-duration: 700ms;
+}
+.duration-1000 {
+  animation-duration: 1000ms;
+}
 
 /* ======================
    SCROLLBAR STYLING
@@ -256,9 +274,15 @@
 /* ======================
    BACKDROP EFFECTS
    ====================== */
-.backdrop-blur-sm { backdrop-filter: blur(4px); }
-.backdrop-blur-md { backdrop-filter: blur(8px); }
-.backdrop-blur-lg { backdrop-filter: blur(16px); }
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+.backdrop-blur-md {
+  backdrop-filter: blur(8px);
+}
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+}
 
 /* ======================
    GLASS EFFECT
@@ -322,11 +346,18 @@
   transform: scale(1.02);
 }
 
+.hover-lift:hover {
+  will-change: transform, opacity;
+}
+
 /* ======================
    SMOOTH TRANSITIONS
    ====================== */
 .transition-smooth {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ======================
@@ -341,7 +372,7 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   .animate-gradient,
   .animate-fadeIn,
   .animate-fadeInUp,
@@ -350,7 +381,6 @@
   .animate-slideUp,
   .animate-pulse,
   .animate-bounce,
-  .animate-float,
   .animate-scaleIn,
   .animate-shimmer,
   .animate-pulse-glow {
@@ -367,7 +397,7 @@
   .animate-scaleIn {
     animation-duration: 0.6s;
   }
-  
+
   .animate-gradient,
   .animate-pulse-glow {
     animation-duration: 2s;

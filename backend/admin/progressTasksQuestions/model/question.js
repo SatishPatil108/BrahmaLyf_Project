@@ -488,13 +488,14 @@ export const deleteProgressPracticeMessageModel = async (req, res) => {
 // models for completed message
 export const postCompletedMessageModel = async (req, res) => {
   try {
-    const { week_no, day_no, completed_message } = req.body;
+    const { week_no, day_no, short_intro, completed_message } = req.body;
     const { courseId } = req.params;
 
     const results = await postCompletedMessageService(
       Number(courseId),
       week_no,
       day_no,
+      short_intro,
       completed_message,
     );
 
@@ -573,7 +574,7 @@ export const updateCompletedMessageModel = async (req, res) => {
   try {
     const { courseId, messageId } = req.params;
 
-    const { week_no, day_no, completed_message } = req.body;
+    const { week_no, day_no, short_intro , completed_message } = req.body;
 
     // Check if completed message exists
     const existingCompletedMessage = await getCompletedMessageService(
@@ -596,6 +597,7 @@ export const updateCompletedMessageModel = async (req, res) => {
       Number(courseId),
       week_no,
       day_no,
+      short_intro,
       completed_message,
     );
 

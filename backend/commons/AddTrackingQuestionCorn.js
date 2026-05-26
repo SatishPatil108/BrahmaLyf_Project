@@ -115,3 +115,5 @@ cron.schedule("0 0 * * 1", async () => {
     console.error("[CRON] Fatal error:", err.message);
   }
 });
+
+export default runTrackingQuestionsCronForCourse;
