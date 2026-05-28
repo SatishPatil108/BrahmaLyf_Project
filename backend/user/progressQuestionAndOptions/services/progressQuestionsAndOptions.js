@@ -352,7 +352,7 @@ export const getUserCompletedMessageService = async (
     SELECT 
          q.id AS message_id,
          q.completed_message AS message,
-         q.short_intro AS shortIntro
+         q.short_intro
     FROM bm.completion_messages q
     WHERE q.course_id = $1
       AND q.week_no = $2

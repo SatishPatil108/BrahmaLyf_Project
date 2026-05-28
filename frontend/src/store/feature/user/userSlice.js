@@ -202,9 +202,16 @@ const userSlice = createSlice({
     markScopedDayCompleted: (state, action) => {
       const { section, courseId, dayNo } = action.payload;
 
-      const courseState = getScopedCourseState(state, section, courseId);
+      if (!state[section]) state[section] = {};
+      if (!state[section].byCourse) state[section].byCourse = {};
+      if (!state[section].byCourse[courseId]) {
+        state[section].byCourse[courseId] = createCourseScopedState();
+      }
+      if (!state[section].byCourse[courseId].completedDays) {
+        state[section].byCourse[courseId].completedDays = {};
+      }
 
-      courseState.completedDays[dayNo] = true;
+      state[section].byCourse[courseId].completedDays[dayNo] = true;
     },
   },
 
@@ -370,6 +377,7 @@ const userSlice = createSlice({
 
         const normalizedAnswers = {};
         const submittedQuestions = {};
+        const completedDays = {}; 
 
         submissions.forEach(({ day_no, answers }) => {
           if (!normalizedAnswers[day_no]) normalizedAnswers[day_no] = {};
@@ -386,13 +394,16 @@ const userSlice = createSlice({
               submittedQuestions[questionId] = true;
             },
           );
+
+          // ✅ mark day completed if it has any submissions
+          if (answers.length > 0) {
+            completedDays[day_no] = true;
+          }
         });
 
-        if (!state.userProgressDetails.byCourse) {
-          state.userProgressDetails.byCourse = {};
-        }
         if (!state.userProgressDetails.byCourse[courseId]) {
-          state.userProgressDetails.byCourse[courseId] = {};
+          state.userProgressDetails.byCourse[courseId] =
+            createCourseScopedState();
         }
 
         state.userProgressDetails.byCourse[courseId].submittedAnswers =
@@ -400,6 +411,11 @@ const userSlice = createSlice({
         state.userProgressDetails.byCourse[courseId].submittedQuestions = {
           ...state.userProgressDetails.byCourse[courseId].submittedQuestions,
           ...submittedQuestions,
+        };
+
+        state.userProgressDetails.byCourse[courseId].completedDays = {
+          ...state.userProgressDetails.byCourse[courseId].completedDays,
+          ...completedDays,
         };
       })
 

@@ -13,6 +13,7 @@ import {
   Send,
   Star,
   Lock,
+  X,
 } from "lucide-react";
 
 import {
@@ -65,11 +66,15 @@ const ProgressPracticeForm = ({
     error,
     submittedQuestions: reduxSubmittedQuestions,
     submittedAnswers: reduxSubmittedAnswers,
+    completedDays,
+    currentDayIndex,
   } = useUserProgressDetails(courseId);
 
-  // console.log("weekData: ",  weekData);
+  const weekNo = weekData?.week_no || 1;
+  const dayNo = weekData?.day_no || 1;
 
-  const { weeklyTheme, completedMessage } = useUserCompletedMessage(1, 1, 1);
+  const totalDays = weekData?.total_days || 7;
+  const allDaysData = weekData?.data || [];
 
   const [answers, setAnswers] = useState({});
   const [hoverRating, setHoverRating] = useState({});
@@ -77,11 +82,17 @@ const ProgressPracticeForm = ({
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [showCompletionCard, setShowCompletionCard] = useState(false);
   const [showCompletedForm, setShowCompletedForm] = useState(false);
-  const completionTimeoutRef = useRef(null);
 
-  const weekNo = weekData?.week_no || 1;
-  const totalDays = weekData?.total_days || 7;
-  const allDaysData = weekData?.data || [];
+  const [showDayCompletionPopup, setShowDayCompletionPopup] = useState(false);
+  const [popupDayNo, setPopupDayNo] = useState(null);
+
+  const { weeklyTheme, completedMessage } = useUserCompletedMessage(
+    courseId,
+    weekNo,
+    popupDayNo ?? dayNo,
+  );
+
+  const completionTimeoutRef = useRef(null);
 
   // Flatten all questions from all days
   const allQuestions = useMemo(() => {
@@ -111,18 +122,20 @@ const ProgressPracticeForm = ({
   // Load all answers across all days
   useEffect(() => {
     if (
-      reduxSubmittedAnswers &&
-      Object.keys(reduxSubmittedAnswers).length > 0
+      !reduxSubmittedAnswers ||
+      Object.keys(reduxSubmittedAnswers).length === 0
     ) {
-      const merged = {};
-      Object.values(reduxSubmittedAnswers).forEach((dayAnswers) => {
-        if (dayAnswers && typeof dayAnswers === "object") {
-          Object.assign(merged, dayAnswers);
-        }
-      });
-      setAnswers(merged);
-      setIsDataLoaded(true);
+      setIsDataLoaded(true); // ✅ still mark loaded even if no answers yet
+      return;
     }
+    const merged = {};
+    Object.values(reduxSubmittedAnswers).forEach((dayAnswers) => {
+      if (dayAnswers && typeof dayAnswers === "object") {
+        Object.assign(merged, dayAnswers);
+      }
+    });
+    setAnswers(merged);
+    setIsDataLoaded(true);
   }, [reduxSubmittedAnswers]);
 
   // Check for completion and show success card
@@ -153,6 +166,24 @@ const ProgressPracticeForm = ({
       }
     };
   }, [allCompleted, showCompletionCard, showCompletedForm]);
+
+  // this useEffect to watch completedDays from Redux and trigger popup
+  const prevCompletedDaysRef = useRef({});
+
+  useEffect(() => {
+    if (!completedDays || Object.keys(completedDays).length === 0) return;
+
+    const newlyCompleted = Object.keys(completedDays).find(
+      (day) => completedDays[day] && !prevCompletedDaysRef.current[day],
+    );
+
+    if (newlyCompleted) {
+      setPopupDayNo(Number(newlyCompleted));
+      setShowDayCompletionPopup(true);
+    }
+
+    prevCompletedDaysRef.current = { ...completedDays };
+  }, [completedDays]);
 
   const forceRefreshAnswers = useCallback(async () => {
     if (!courseId) return;
@@ -220,13 +251,12 @@ const ProgressPracticeForm = ({
         }),
       );
 
-      await forceRefreshAnswers();
-
       const dayQuestions = allQuestions.filter((q) => q.day_no === dayNo);
       const updatedSubmitted = {
         ...reduxSubmittedQuestions,
         [questionId]: true,
       };
+
       const allDone = dayQuestions.every((q) => updatedSubmitted[q.id]);
       if (allDone) {
         dispatch(
@@ -321,6 +351,20 @@ const ProgressPracticeForm = ({
               <CheckCircle className="w-4 h-4 text-blue-500 ml-2" />
             )}
           </div>
+
+          <div>
+            {weeklyTheme.map((theme, idx) => (
+              <div key={idx} className="mb-4">
+                <h3 className={`text-lg font-semibold ${textColor.primary}`}>
+                  {theme.theme}
+                </h3>
+                <p className={`text-sm ${textColor.muted}`}>
+                  {theme.weekly_target}
+                </p>
+                <p className={`text-sm ${textColor.muted}`}>{theme.outcomes}</p>
+              </div>
+            ))}
+          </div>
           <div className="flex flex-col gap-5">
             {dayQuestions.map((question, idx) => (
               <QuestionCard
@@ -404,6 +448,89 @@ const ProgressPracticeForm = ({
               </div>
             </div>
 
+            {/* Weekly Theme — shown once before all questions */}
+            {weeklyTheme?.length > 0 && (
+              <div className="mb-6 space-y-4">
+                {weeklyTheme.map((t, idx) => (
+                  <div
+                    key={idx}
+                    className={`rounded-xl border ${borderColor.primary} ${bgColor.secondary} p-6 text-center shadow-sm hover:shadow-md transition-shadow`}
+                  >
+                    {/* Theme - Pill Label Centered */}
+                    <div className="flex justify-center mb-4">
+                      <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-1.5 rounded-full border border-blue-200 dark:border-blue-800">
+                        <span className="text-blue-600 dark:text-blue-400 text-sm">
+                          🏷️
+                        </span>
+                        <span className="text-xs font-bold  tracking-wider text-blue-700 dark:text-blue-300">
+                          This Week's Theme
+                        </span>
+                      </div>
+                    </div>
+
+                    <h3
+                      className={`sm:text-lg text-sm font-bold ${textColor.primary} mb-6 py-2`}
+                      dangerouslySetInnerHTML={{ __html: t.theme }}
+                    />
+
+                    {/* Divider with Center Dot */}
+                    {t.weekly_target && (
+                      <>
+                        <div className="flex justify-center items-center gap-2 my-4">
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                        </div>
+
+                        <div className="flex justify-center mb-3">
+                          <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/30 px-4 py-1.5 rounded-full border border-green-200 dark:border-green-800">
+                            <span className="text-green-600 dark:text-green-400 text-sm">
+                              🎯
+                            </span>
+                            <span className="text-xs font-bold  tracking-wider text-green-700 dark:text-green-300">
+                              This Week's Target
+                            </span>
+                          </div>
+                        </div>
+
+                        <p
+                          className={`sm:text-lg text-sm ${textColor.muted} max-w-md mx-auto py-2`}
+                          dangerouslySetInnerHTML={{ __html: t.weekly_target }}
+                        />
+                      </>
+                    )}
+
+                    {/* Outcomes Section */}
+                    {t.outcomes && (
+                      <>
+                        <div className="flex justify-center items-center gap-2 my-4">
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                        </div>
+
+                        <div className="flex justify-center mb-3">
+                          <div className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/30 px-4 py-1.5 rounded-full border border-purple-200 dark:border-purple-800">
+                            <span className="text-purple-600 dark:text-purple-400 text-sm">
+                              ✨
+                            </span>
+                            <span className="text-xs font-bold  tracking-wider text-purple-700 dark:text-purple-300">
+                              Outcomes
+                            </span>
+                          </div>
+                        </div>
+
+                        <p
+                          className={`sm:text-lg text-sm ${textColor.muted} max-w-md mx-auto py-2`}
+                          dangerouslySetInnerHTML={{ __html: t.outcomes }}
+                        />
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2 scrollbar-hide">
               {renderDays(true)}
             </div>
@@ -477,6 +604,109 @@ const ProgressPracticeForm = ({
             </div>
           </div>
 
+          {/* Weekly Theme — Card Style Centered */}
+          {weeklyTheme?.length > 0 && (
+            <div className="mb-6 space-y-4">
+              {weeklyTheme.map((t, idx) => (
+                <div
+                  key={idx}
+                  className={`rounded-xl border ${borderColor.primary} ${bgColor.secondary} p-6 text-center shadow-sm hover:shadow-md transition-shadow`}
+                >
+                  {/* Theme - Pill Label Centered */}
+                  <div className="flex justify-center mb-4">
+                    <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-1.5 rounded-full border border-blue-200 dark:border-blue-800">
+                      <span className="text-blue-600 dark:text-blue-400 text-sm">
+                        🏷️
+                      </span>
+                      <span className="text-xs font-bold  tracking-wider text-blue-700 dark:text-blue-300">
+                        This Week's Theme
+                      </span>
+                    </div>
+                  </div>
+
+                  <h3
+                    className={`sm:text-lg text-sm font-bold ${textColor.primary} mb-6 py-2`}
+                    dangerouslySetInnerHTML={{ __html: t.theme }}
+                  />
+
+                  {/* Divider with Center Dot */}
+                  {t.weekly_target && (
+                    <>
+                      <div className="flex justify-center items-center gap-2 my-4">
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                      </div>
+
+                      <div className="flex justify-center mb-3">
+                        <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/30 px-4 py-1.5 rounded-full border border-green-200 dark:border-green-800">
+                          <span className="text-green-600 dark:text-green-400 text-sm">
+                            🎯
+                          </span>
+                          <span className="text-xs font-bold  tracking-wider text-green-700 dark:text-green-300">
+                            This Week's Target
+                          </span>
+                        </div>
+                      </div>
+
+                      <p
+                        className={`sm:text-lg text-sm ${textColor.muted} max-w-md mx-auto py-2`}
+                        dangerouslySetInnerHTML={{ __html: t.weekly_target }}
+                      />
+                    </>
+                  )}
+
+                  {/* Outcomes Section */}
+                  {t.outcomes && (
+                    <>
+                      <div className="flex justify-center items-center gap-2 my-4">
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                      </div>
+
+                      <div className="flex justify-center mb-3">
+                        <div className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/30 px-4 py-1.5 rounded-full border border-purple-200 dark:border-purple-800">
+                          <span className="text-purple-600 dark:text-purple-400 text-sm">
+                            ✨
+                          </span>
+                          <span className="text-xs font-bold  tracking-wider text-purple-700 dark:text-purple-300">
+                            Outcomes
+                          </span>
+                        </div>
+                      </div>
+
+                      <p
+                        className={`sm:text-lg text-sm ${textColor.muted} max-w-md mx-auto py-2`}
+                        dangerouslySetInnerHTML={{ __html: t.outcomes }}
+                      />
+                    </>
+                  )}
+                </div>
+              ))}
+
+              {completedMessage.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`rounded-xl border ${borderColor.primary} ${bgColor.secondary} p-6 text-center shadow-sm hover:shadow-md transition-shadow`}
+                >
+                  <div className="inline-flex items-center gap-2 mb-3 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800">
+                    <span className="text-blue-600 dark:text-blue-400 text-sm">
+                      ℹ️
+                    </span>
+                    <span className="text-xs font-bold tracking-wider text-blue-700 dark:text-blue-300">
+                      Short Intro
+                    </span>
+                  </div>
+                  <p
+                    className={`sm:text-md text-sm font-bold ${textColor.primary} mb-6 py-2`}
+                    dangerouslySetInnerHTML={{ __html: msg.short_intro }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2 scrollbar-hide">
             {Object.keys(questionsByDay).map((dayNo) => {
               const day = questionsByDay[dayNo];
@@ -542,6 +772,92 @@ const ProgressPracticeForm = ({
               </p>
             )}
           </div>
+
+          {/* Day Completion Popup Message */}
+          {showDayCompletionPopup && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
+              {/* Backdrop */}
+              <div
+                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                onClick={() => setShowDayCompletionPopup(false)}
+              />
+
+              {/* Popup Content */}
+              <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowDayCompletionPopup(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                {completedMessage.map((msg, idx) => (
+                  <div key={idx} className="text-center">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                      🎉 Day {popupDayNo} Complete! 🎉
+                    </h3>
+                    <p
+                      className="text-gray-600 dark:text-gray-300 mb-4"
+                      dangerouslySetInnerHTML={{ __html: msg.message }}
+                    />
+                    <span className="text-sm text-emerald-600 dark:text-emerald-400">
+                      Keep up the great work! 🌟
+                    </span>
+                  </div>
+                ))}
+                <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                  {/* Close Button */}
+                  <button
+                    onClick={() => {
+                      setShowDayCompletionPopup(false);
+                      setPopupDayNo(null);
+                    }}
+                    className="order-2 sm:order-1 px-4 py-2.5 rounded-xl 
+               border-2 border-emerald-500 dark:border-emerald-400
+               text-emerald-600 dark:text-emerald-400 font-semibold
+               hover:bg-emerald-50 dark:hover:bg-emerald-950/30
+               transition-all duration-200
+               focus:outline-none focus:ring-2 focus:ring-emerald-500
+               flex items-center justify-center gap-2"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Close</span>
+                  </button>
+
+                  {/* Continue Button */}
+                  <button
+                    onClick={() => {
+                      setShowDayCompletionPopup(false);
+                      setPopupDayNo(null);
+                    }}
+                    className="order-1 sm:order-2 flex-1 px-6 py-2.5 rounded-xl 
+               bg-gradient-to-r from-emerald-500 to-teal-600 
+               hover:from-emerald-600 hover:to-teal-700
+               text-white font-semibold
+               shadow-md hover:shadow-lg
+               transition-all duration-200
+               focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
+               flex items-center justify-center gap-2"
+                  >
+                    <span>Continue to Next Day</span>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className={`mt-6 pt-4 border-t ${borderColor.primary}`}>
             <p className={`text-xs ${textColor.muted} text-center`}>
@@ -936,7 +1252,7 @@ const QuestionCard = ({
                 </div>
                 <div className="mx-auto p-3 flex items-center gap-5">
                   <span
-                    className="text-sm font-medium min-w-[42px] text-right tabular-nums"
+                    className="text-sm font-medium min-w-[42px] text-right tabular-nums text-blue-500"
                     style={{ color: color ?? undefined }}
                   >
                     {val}%

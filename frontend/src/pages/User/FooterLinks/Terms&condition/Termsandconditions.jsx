@@ -199,7 +199,7 @@ export default function TermsAndConditions() {
           <div className="p-6 sm:p-8">
             <p className={`mb-4 ${c.bodyText} leading-relaxed`}>
               Welcome to{" "}
-              <span className={`font-bold ${c.headingText}`}>BrahmaLYF</span>{" "}
+              <span className={`font-bold ${c.headingText} text-purple-500`}>BrahmaLYF</span>{" "}
               ("Platform", "we", "our", "us"). These Terms & Conditions / Terms
               of Use ("Terms") govern your access to and use of{" "}
               <span className={`font-bold ${c.headingText}`}>

@@ -34,6 +34,7 @@ export default function RefundCancellationPolicy() {
       cardBody: "text-gray-300",
       cardDivider: "border-gray-700",
       introBg: "bg-gray-700/30 border-gray-700",
+      cardBrand: "text-purple-500 font-bold",
       // Bullet dots
       dotColor: "bg-purple-500",
       dotText: "text-gray-400",

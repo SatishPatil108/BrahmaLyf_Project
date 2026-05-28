@@ -24,7 +24,7 @@ export default function PrivacyPolicy() {
       cardIconColor: "text-blue-400",
       cardHeading: "text-gray-100",
       cardBody: "text-gray-300",
-      cardBrand: "text-white font-semibold",
+      cardBrand: "font-semibold text-blue-500",
       // Accordion
       accordionBg: "bg-gray-800/30 border-gray-700",
       accordionBtnHover: "hover:bg-gray-700/50",
@@ -51,7 +51,7 @@ export default function PrivacyPolicy() {
       cardIconColor: "text-blue-600",
       cardHeading: "text-slate-900",
       cardBody: "text-slate-700",
-      cardBrand: "text-slate-900 font-semibold",
+      cardBrand: "text-slate-900 font-semibold ",
       // Accordion
       accordionBg: "bg-white border-slate-200",
       accordionBtnHover: "hover:bg-slate-50",
