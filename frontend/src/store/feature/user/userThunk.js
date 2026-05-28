@@ -384,7 +384,10 @@ export const fetchUserResponseAPI = createAsyncThunk(
     try {
       const response = await userAPI.fetchUserResponse(courseId);
 
-      return response.data;
+      return {
+        ...response.data,
+        courseId,
+      };
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to fetch user response",
@@ -510,6 +513,44 @@ export const fetchUserToolQuestionsAPI = createAsyncThunk(
       return thunkAPI.rejectWithValue(
         error.response?.data?.message ||
           "Failed to fetch user progress tracking questions and options",
+      );
+    }
+  },
+);
+
+export const fetchUserCompletedMessageAPI = createAsyncThunk(
+  "user/fetchUserCompletedMessage",
+  async ({ courseId, weekNo, dayNo }, thunkAPI) => {
+    try {
+      const response = await userAPI.fetchUserCompletedMessage(
+        courseId,
+        weekNo,
+        dayNo,
+      );
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch user completed message",
+      );
+    }
+  },
+);
+
+export const fetchUserProgressThemesAPI = createAsyncThunk(
+  "user/fetchUserProgressThemes",
+  async ({ courseId, weekNo }, thunkAPI) => {
+    try {
+      const response = await userAPI.fetchProgressPracticeThemes(
+        courseId,
+        weekNo,
+      );
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch user progress theme details",
       );
     }
   },

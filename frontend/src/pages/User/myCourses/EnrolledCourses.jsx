@@ -193,24 +193,19 @@ const EnrolledCourses = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1
-              className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 ${styles.text.primary}`}
+              className={`text-xl sm:text-4xl lg:text-5xl font-bold mb-2 ${styles.text.primary}`}
             >
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
                 My Learning Journey
               </span>
             </h1>
-            <p className={`text-base sm:text-lg ${styles.text.secondary}`}>
+            <p className={`text-sm sm:text-lg ${styles.text.secondary}`}>
               Continue your transformation with {myCourses.length} enrolled{" "}
               {myCourses.length === 1 ? "course" : "courses"}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <span
-              className={`px-3 py-1.5 rounded-full text-sm font-medium ${theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"}`}
-            >
-              {myCourses.filter((c) => c.status === 1).length} Active
-            </span>
             <Link
               to="/categories"
               className={`px-4 py-2.5 rounded-lg font-medium transition-all hover:scale-105 flex items-center gap-2 ${styles.button}`}
@@ -218,76 +213,6 @@ const EnrolledCourses = () => {
               <BookOpen className="w-4 h-4" />
               <span className="hidden sm:inline">Browse More</span>
             </Link>
-          </div>
-        </div>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className={`p-4 rounded-xl border ${styles.card}`}>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500">
-                <BookOpen className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className={`text-2xl font-bold ${styles.text.primary}`}>
-                  {myCourses.length}
-                </p>
-                <p className={`text-sm ${styles.text.secondary}`}>
-                  Total Courses
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className={`p-4 rounded-xl border ${styles.card}`}>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500">
-                <PlayCircle className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className={`text-2xl font-bold ${styles.text.primary}`}>
-                  {myCourses.filter((c) => c.status === 1).length}
-                </p>
-                <p className={`text-sm ${styles.text.secondary}`}>Active</p>
-              </div>
-            </div>
-          </div>
-          <div className={`p-4 rounded-xl border ${styles.card}`}>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500">
-                <Clock className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className={`text-2xl font-bold ${styles.text.primary}`}>
-                  {myCourses.reduce(
-                    (acc, course) => acc + (parseInt(course.duration) || 0),
-                    0,
-                  )}
-                  h
-                </p>
-                <p className={`text-sm ${styles.text.secondary}`}>
-                  Total Hours
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className={`p-4 rounded-xl border ${styles.card}`}>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-yellow-500">
-                <Users className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className={`text-2xl font-bold ${styles.text.primary}`}>
-                  {
-                    new Set(
-                      myCourses
-                        .filter((c) => c.coach_id) // Remove null/undefined
-                        .map((c) => c.coach_id),
-                    ).size
-                  }
-                </p>
-                <p className={`text-sm ${styles.text.secondary}`}>Coaches</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

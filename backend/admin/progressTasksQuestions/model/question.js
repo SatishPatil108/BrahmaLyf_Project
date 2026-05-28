@@ -361,7 +361,7 @@ export const postProgressPracticeMessageModel = async (req, res) => {
 
 export const updateProgressPracticeMessageModel = async (req, res) => {
   try {
-    const { courseId, messageId } = req.params;
+    const { courseId, themeId } = req.params;
 
     const {
       week_no,
@@ -374,7 +374,7 @@ export const updateProgressPracticeMessageModel = async (req, res) => {
     // Check if practice message exists
     const existingPracticeMessage = await getProgressPracticeMessageService(
       Number(courseId),
-      Number(messageId),
+      Number(themeId),
     );
 
     if (!existingPracticeMessage) {
@@ -429,13 +429,13 @@ export const updateProgressPracticeMessageModel = async (req, res) => {
 
 export const deleteProgressPracticeMessageModel = async (req, res) => {
   try {
-    const { messageId } = req.params;
+    const { themeId } = req.params;
 
     // ----------------------------------------------
     // Check if practice message exists
     // ----------------------------------------------
     const existingPracticeMessage = await getProgressPracticeMessageService(
-      Number(messageId),
+      Number(themeId),
     );
 
     if (!existingPracticeMessage) {
@@ -452,7 +452,7 @@ export const deleteProgressPracticeMessageModel = async (req, res) => {
     // Soft delete DB record
     // ----------------------------------------------
     const response = await deleteProgressPracticeMessageService(
-      Number(messageId),
+      Number(themeId),
     );
 
     if (!response) {

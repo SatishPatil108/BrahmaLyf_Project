@@ -41,7 +41,7 @@ const OPTION_TYPE_ICONS = {
 };
 const OPTION_TYPES_WITH_OPTIONS = [2, 3, 4];
 
-const ProgressTasksQuestionDetails = ({ isOpen, onClose }) => {
+const ProgressPracticeQuestionDetails = ({ isOpen, onClose }) => {
   const [weekNo, setWeekNo] = useState(1);
   const [dayNo, setDayNo] = useState(1);
   const { courseId } = useParams();
@@ -803,4 +803,4 @@ const ProgressTasksQuestionDetails = ({ isOpen, onClose }) => {
   );
 };
 
-export default ProgressTasksQuestionDetails;
+export default ProgressPracticeQuestionDetails;

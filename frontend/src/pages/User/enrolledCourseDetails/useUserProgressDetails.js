@@ -36,6 +36,7 @@ const useUserProgressDetails = (courseId) => {
 
   const reduxWeekNo = courseState?.weekNo || null;
 
+
   // refs
   const prevWeekNoRef = useRef(null);
 

@@ -275,43 +275,7 @@ const CourseList = () => {
               </button>
             </div>
           </div>
-        )}
-
-        {/* Footer Note */}
-        {!loading && !error && courses && courses.length > 0 && (
-          <div className="text-center mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <Pagination
-              currentPage={pageNo}
-              totalPages={coursesDetails.total_pages || 1}
-              onPageChange={setPageNo}
-            />
-            <div className="inline-flex items-center gap-2 mb-4">
-              <Zap
-                className={`w-5 h-5 ${
-                  theme === "dark" ? "text-yellow-300" : "text-yellow-500"
-                }`}
-              />
-              <p
-                className={`text-lg font-medium ${
-                  theme === "dark" ? "text-gray-300" : "text-gray-600"
-                }`}
-              >
-                {coursesDetails.total_records} transformative categor
-                {coursesDetails.total_records === 1 ? "y" : "ies"} available
-              </p>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse"></div>
-              <p
-                className={`text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                Tap any category to begin your journey
-              </p>
-            </div>
-          </div>
-        )}
+        )}         
       </main>
     </div>
   );

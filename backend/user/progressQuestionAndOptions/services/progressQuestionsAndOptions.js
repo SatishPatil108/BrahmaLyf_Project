@@ -331,3 +331,118 @@ export const postUserResponseService = (
     );
   });
 };
+
+export const getUserCompletedMessageService = async (
+  courseId,
+  weekNo,
+  dayNo,
+) => {
+  try {
+    // Parse and validate inputs
+    courseId = parseInt(courseId, 10);
+    weekNo = parseInt(weekNo, 10);
+    dayNo = parseInt(dayNo, 10);
+
+    if (isNaN(courseId) || isNaN(weekNo) || isNaN(dayNo)) {
+      throw new Error("Invalid courseId or weekNo or dayNo");
+    }
+
+    // Fetch completed message for the given course, week and day
+    const query = `
+    SELECT 
+         q.id AS message_id,
+         q.completed_message AS message,
+         q.short_intro AS shortIntro
+    FROM bm.completion_messages q
+    WHERE q.course_id = $1
+      AND q.week_no = $2
+      AND q.day_no = $3
+      AND q.status = 1
+    ORDER BY q.day_no, q.id;
+    `;
+
+    const result = await connection.query(query, [courseId, weekNo, dayNo]);
+    const rows = result.rows;
+
+    // No records found
+    if (!rows.length) {
+      console.warn(
+        `[SERVICE] No completed messages found for Course ${courseId} — Week ${weekNo} — Day ${dayNo}`,
+      );
+
+      return {
+        courseId,
+        weekNo,
+        dayNo,
+        totalRecords: 0,
+        messages: [],
+      };
+    }
+
+    // Return structured response
+    return {
+      courseId,
+      weekNo,
+      totalRecords: rows.length,
+      messages: rows,
+    };
+  } catch (err) {
+    console.error("Error fetching user's completed messages for the day:", err);
+    throw err;
+  }
+};
+
+export const getUserProgressThemeService = async (courseId, weekNo) => {
+  try {
+    // Parse and validate inputs
+    courseId = parseInt(courseId, 10);
+    weekNo = parseInt(weekNo, 10);
+
+    if (isNaN(courseId) || isNaN(weekNo)) {
+      throw new Error("Invalid courseId or weekNo");
+    }
+
+    // Fetch completed message for the given course, week
+    const query = `
+      SELECT 
+        q.id AS theme_id,
+        q.themes AS theme,
+        q.weekly_target,
+        q.outcomes,
+        q.outcome_order
+      FROM bm.progress_practice_themes q
+      WHERE q.course_id = $1
+      AND q.week_no = $2
+        AND q.status = 1
+      ORDER BY q.week_no, q.id;
+    `;
+
+    const result = await connection.query(query, [courseId, weekNo]);
+    const rows = result.rows;
+
+    // No records found
+    if (!rows.length) {
+      console.warn(
+        `[SERVICE] No themes found for Course ${courseId} — Week ${weekNo}`,
+      );
+
+      return {
+        courseId,
+        weekNo,
+        totalRecords: 0,
+        themes: [],
+      };
+    }
+
+    // Return structured response
+    return {
+      courseId,
+      weekNo,
+      totalRecords: rows.length,
+      themes: rows,
+    };
+  } catch (err) {
+    console.error("Error fetching user's completed themes for the week:", err);
+    throw err;
+  }
+};

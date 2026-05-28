@@ -1,5 +1,5 @@
 // Rich text renderer with bold, lists, and links
-const RichTextContent = ({ content }) => {
+const RichTextContent = ({ content, className = "", bulletClassName = "" }) => {
   const lines = content.split("\n").filter((line) => line.trim());
 
   const parseInline = (text) => {
@@ -14,12 +14,9 @@ const RichTextContent = ({ content }) => {
         parts.push(text.slice(lastIndex, match.index));
       }
       parts.push(
-        <span
-          key={match.index}
-          className="font-semibold text-slate-900 dark:text-slate-100"
-        >
+        <strong key={match.index} className="font-semibold">
           {match[1]}
-        </span>,
+        </strong>,
       );
       lastIndex = match.index + match[0].length;
     }
@@ -39,10 +36,12 @@ const RichTextContent = ({ content }) => {
           const bulletContent = trimmed.substring(1).trim();
           return (
             <div key={idx} className="flex gap-3">
-              <span className="text-blue-600 dark:text-blue-400 font-bold flex-shrink-0 mt-0.5">
+              <span
+                className={`font-bold flex-shrink-0 mt-0.5 ${bulletClassName}`}
+              >
                 •
               </span>
-              <p className="text-slate-700 dark:text-slate-300 leading-relaxed flex-1">
+              <p className={`leading-relaxed flex-1 ${className}`}>
                 {parseInline(bulletContent)}
               </p>
             </div>
@@ -57,7 +56,7 @@ const RichTextContent = ({ content }) => {
               <span className="text-blue-600 dark:text-blue-400 font-semibold flex-shrink-0 min-w-[24px]">
                 {numberedMatch[1]}.
               </span>
-              <p className="text-slate-700 dark:text-slate-300 leading-relaxed flex-1">
+              <p className={`leading-relaxed flex-1 ${className}`}>
                 {parseInline(numberedMatch[2])}
               </p>
             </div>
@@ -66,10 +65,7 @@ const RichTextContent = ({ content }) => {
 
         // Regular paragraph
         return (
-          <p
-            key={idx}
-            className="text-slate-700 dark:text-slate-300 leading-relaxed"
-          >
+          <p key={idx} className={`leading-relaxed ${className}`}>
             {parseInline(trimmed)}
           </p>
         );

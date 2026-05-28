@@ -24,16 +24,11 @@ function Header() {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
 
+  const isDark = theme === "dark";
+
   useEffect(() => {
-    // Only apply the scroll effect on the homepage ('/')
     if (location.pathname === "/") {
-      const handleScroll = () => {
-        if (window.scrollY > 50) {
-          setIsScrolled(true);
-        } else {
-          setIsScrolled(false);
-        }
-      };
+      const handleScroll = () => setIsScrolled(window.scrollY > 50);
       window.addEventListener("scroll", handleScroll);
       return () => window.removeEventListener("scroll", handleScroll);
     } else {
@@ -41,43 +36,56 @@ function Header() {
     }
   }, [location.pathname]);
 
+  const navStyles = {
+    header: isDark
+      ? "bg-gray-900/95 backdrop-blur-md border-b border-gray-800"
+      : "bg-white/95 backdrop-blur-md border-b border-gray-200",
+    bottomNav: isDark
+      ? "bg-gray-900/95 backdrop-blur-md border-t border-gray-800"
+      : "bg-white/95 backdrop-blur-md border-t border-gray-200",
+    text: isDark ? "text-gray-300" : "text-gray-900",
+    hoverText: isDark ? "hover:text-gray-100" : "hover:text-gray-700",
+    inactiveIconBg: isDark
+      ? "bg-gray-800/50 hover:bg-gray-700/50"
+      : "bg-gray-100 hover:bg-gray-200",
+  };
+
   const navLinkStyle = ({ isActive }) => `
     inline-flex items-center px-4 py-2.5 rounded-lg whitespace-nowrap font-medium text-sm transition-all duration-200
     ${
       isActive
         ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/20"
-        : "text-gray-300 hover:bg-gray-800/50 hover:text-gray-100 backdrop-blur-sm"
+        : `${
+            isDark
+              ? "text-gray-300 hover:bg-gray-800/50 hover:text-gray-100"
+              : "text-gray-900 hover:bg-gray-100 hover:text-gray-700"
+          } backdrop-blur-sm`
     }
   `;
 
-  // Theme toggle button component - Always dark themed for navbar
   const ThemeToggleButton = ({ isMobile = false }) => (
     <button
       onClick={toggleTheme}
       className={`
         flex items-center justify-center rounded-full transition-all duration-300 group
-        ${
-          isMobile
-            ? "w-10 h-10 bg-gray-800/50 backdrop-blur-sm hover:bg-gray-700/50"
-            : "w-9 h-9 bg-gray-800/50 backdrop-blur-sm hover:bg-gray-700/50"
-        }
+        ${isMobile ? "w-10 h-10" : "w-9 h-9"}
+        ${isDark ? "bg-gray-800/50 hover:bg-gray-700/50" : "bg-gray-100 hover:bg-gray-200"}
       `}
-      aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-      title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
+      title={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
-      {theme === "light" ? (
-        <Moon
+      {isDark ? (
+        <Sun
           className={`${isMobile ? "w-5 h-5" : "w-4 h-4"} text-gray-300 group-hover:scale-110 transition-transform`}
         />
       ) : (
-        <Sun
-          className={`${isMobile ? "w-5 h-5" : "w-4 h-4"} text-gray-300 group-hover:scale-110 transition-transform`}
+        <Moon
+          className={`${isMobile ? "w-5 h-5" : "w-4 h-4"} text-gray-700 group-hover:scale-110 transition-transform`}
         />
       )}
     </button>
   );
 
-  // Define bottom navigation items explicitly
   const bottomNavItems = [
     { to: "/", label: "Home", icon: Home },
     { to: "/about", label: "About", icon: Info },
@@ -98,40 +106,34 @@ function Header() {
     });
   }
 
-  // Dark theme styles for navbar
-  const darkNavStyles = {
-    header: "bg-gray-900/95 backdrop-blur-md border-b border-gray-800",
-    bottomNav: "bg-gray-900/95 backdrop-blur-md border-t border-gray-800",
-    text: "text-gray-300",
-    hoverText: "hover:text-gray-100",
-    logoGradient:
-      "bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent",
-    inactiveIconBg: "bg-gray-800/50 hover:bg-gray-700/50",
-  };
-
   return (
     <>
-      {/* Desktop Header - NOT fixed, regular flow */}
+      {/* Desktop Header */}
       <div className="hidden lg:block">
         <header
           className={`w-full transition-all duration-500 ${
-            isScrolled ? `${darkNavStyles.header} shadow-lg` : "bg-gray-900"
+            isScrolled
+              ? `${navStyles.header} shadow-lg`
+              : isDark
+                ? "bg-gray-900"
+                : "bg-white"
           }`}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-20">
-              {/* Logo */}
               <NavLink to="/" className="flex items-center">
                 <div className="h-20 flex items-center">
-                  <img
-                    src={assets.logo}
-                    alt="BrahmaLyf Logo"
-                    className="h-full w-auto object-contain"
-                  />
+                  <div className="bg-gray-800">
+                    <img
+                      src={isDark ? assets.logo_dark : assets.logo_light}
+                      alt="BrahmaLyf Logo"
+                      className="h-20 w-auto object-cover"
+                      style={{ mixBlendMode: "lighten" }}
+                    />
+                  </div>
                 </div>
               </NavLink>
 
-              {/* Navigation */}
               <nav
                 aria-label="Main navigation"
                 className="flex items-center gap-4"
@@ -150,19 +152,16 @@ function Header() {
                   ))}
                 </ul>
 
-                {/* Language Selector - Desktop */}
                 {user && (
                   <div className="ml-2">
                     <LanguageSelector />
                   </div>
                 )}
 
-                {/* Theme Toggle - Desktop */}
                 <div className="ml-2">
                   <ThemeToggleButton />
                 </div>
 
-                {/* User Menu */}
                 {user && (
                   <div className="ml-2">
                     <UserMenu />
@@ -174,35 +173,31 @@ function Header() {
         </header>
       </div>
 
-      {/* Mobile Header - Fixed at top with LanguageSelector, Theme toggle and UserMenu */}
+      {/* Mobile Header */}
       <div className="lg:hidden">
         <header
-          className={`sticky top-0 left-0 w-full z-50 ${darkNavStyles.header}`}
+          className={`sticky top-0 left-0 w-full z-50 ${navStyles.header}`}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex items-center justify-between h-16">
-              {/* Logo - Mobile */}
               <NavLink to="/" className="flex items-center gap-2">
-                <img
-                  src={assets.logo}
-                  alt="BrahmaLyf Logo"
-                  className="h-18 w-auto object-contain"
-                />
+                <div className="bg-gray-800">
+                  <img
+                    src={isDark ? assets.logo_dark : assets.logo_light}
+                    alt="BrahmaLyf Logo"
+                    className="h-16 w-auto object-cover"
+                    style={{ mixBlendMode: "lighten" }}
+                  />
+                </div>
               </NavLink>
 
-              {/* Right side - Language selector, Theme toggle and User Menu */}
               <div className="flex items-center gap-1.5">
-                {/* Language Selector - Mobile */}
                 {user && (
                   <div className="ml-2">
                     <LanguageSelector />
                   </div>
                 )}
-
-                {/* Theme Toggle - Mobile */}
                 <ThemeToggleButton isMobile={true} />
-
-                {/* User Menu - Mobile */}
                 {user && <UserMenu />}
               </div>
             </div>
@@ -210,9 +205,9 @@ function Header() {
         </header>
       </div>
 
-      {/* Mobile Bottom Navigation - Fixed at bottom */}
+      {/* Mobile Bottom Navigation */}
       <nav
-        className={`lg:hidden fixed bottom-0 left-0 right-0 ${darkNavStyles.bottomNav} z-40 shadow-xl`}
+        className={`lg:hidden fixed bottom-0 left-0 right-0 ${navStyles.bottomNav} z-40 shadow-xl`}
         aria-label="Mobile bottom navigation"
       >
         <div className="max-w-7xl mx-auto">
@@ -227,7 +222,7 @@ function Header() {
                     ${
                       isActive
                         ? "text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text"
-                        : `${darkNavStyles.text} ${darkNavStyles.hoverText}`
+                        : `${navStyles.text} ${navStyles.hoverText}`
                     }
                   `}
                 >
@@ -237,11 +232,13 @@ function Header() {
                         className={`p-2 rounded-lg mb-1 transition-all ${
                           isActive
                             ? "bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/20"
-                            : `${darkNavStyles.inactiveIconBg}`
+                            : navStyles.inactiveIconBg
                         }`}
                       >
                         <item.icon
-                          className={`w-4 h-4 ${isActive ? "text-white" : darkNavStyles.text} group-hover:scale-110 transition-transform`}
+                          className={`w-4 h-4 ${
+                            isActive ? "text-white" : navStyles.text
+                          } group-hover:scale-110 transition-transform`}
                         />
                       </div>
                       <span className="text-xs font-medium">{item.label}</span>

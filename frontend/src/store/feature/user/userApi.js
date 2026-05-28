@@ -347,3 +347,21 @@ export const fetchUserToolsWeekQuestions = async (courseId, weekNo) => {
     authRequired: false,
   });
 };
+
+export const fetchUserCompletedMessage = async (courseId, weekNo, dayNo) => {
+  return await makeRequest({
+    service: `user/fetchUserCompletedMessage?courseId=${courseId}&weekNo=${weekNo}&dayNo=${dayNo}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "user",
+  });
+};
+
+export const fetchProgressPracticeThemes = async (courseId, weekNo) => {
+  return await makeRequest({
+    service: `user/fetchUserProgressThemes?courseId=${courseId}&weekNo=${weekNo}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "user",
+  });
+};

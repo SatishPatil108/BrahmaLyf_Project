@@ -46,15 +46,15 @@ import {
   fetchProgressToolsQuestions,
   updateProgressToolsQuestion,
   deleteProgressToolsQuestion,
-  postProgressToolsQuestion,
-  deleteProgressPracticeMessage,
-  updateProgressPracticeMessage,
-  fetchProgressPracticeMessages,
-  postProgressPracticeMessage,
+  postProgressToolsQuestion,  
   postCompletedMessage,
   updateCompletedMessage,
   deleteCompletedMessage,
   fetchCompletedMessage,
+  postProgressPracticeThemes,
+  fetchProgressPracticeThemes,
+  updateProgressPracticeThemes,
+  deleteProgressPracticeThemes,
 } from "./adminApi";
 
 export const getAdminDashboardData = createAsyncThunk(
@@ -750,70 +750,70 @@ export const deleteProgressToolsQuestionAPI = createAsyncThunk(
   },
 );
 
-// post progress messages question
-export const postProgressPracticeMessageAPI = createAsyncThunk(
-  "admin/postProgressPracticeMessage",
-  async (courseId, messageData, thunkAPI) => {
+// post progress themes question
+export const postProgressPracticeThemesAPI = createAsyncThunk(
+  "admin/postProgressPracticeThemes",
+  async (courseId, themeData, thunkAPI) => {
     try {
-      const response = await postProgressPracticeMessage(courseId, messageData);
+      const response = await postProgressPracticeThemes(courseId, themeData);
       return response.data;
     } catch (error) {
       console.error(error);
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to add progress messages",
+        error.response?.message || "Failed to add progress themes",
       );
     }
   },
 );
 
-// fetch progress messages question by week no and course id
-export const fetchProgressPracticeMessagesAPI = createAsyncThunk(
-  "admin/fetchProgressPracticeMessages",
+// fetch progress themes question by week no and course id
+export const fetchProgressPracticeThemesAPI = createAsyncThunk(
+  "admin/fetchProgressPracticeThemes",
   async ({ courseId, weekNo }, thunkAPI) => {
     try {
-      const response = await fetchProgressPracticeMessages({
+      const response = await fetchProgressPracticeThemes({
         courseId,
         weekNo,
       });
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to fetch progress messages",
+        error.response?.message || "Failed to fetch progress themes",
       );
     }
   },
 );
 
-// update progress messages question
-export const updateProgressPracticeMessageAPI = createAsyncThunk(
-  "admin/updateProgressPracticeMessage",
-  async ({ courseId, messageId, messageData }, thunkAPI) => {
+// update progress themes question
+export const updateProgressPracticeThemesAPI = createAsyncThunk(
+  "admin/updateProgressPracticeThemes",
+  async ({ courseId, themeId, themeData }, thunkAPI) => {
     try {
-      const response = await updateProgressPracticeMessage({
+      const response = await updateProgressPracticeThemes({
         courseId,
-        messageId,
-        messageData,
+        themeId,
+        themeData,
       });
       return response.data;
     } catch (error) {
       console.error(error);
       return thunkAPI.rejectWithValue(
-        error.response?.message || "Failed to update progress messages",
+        error.response?.message || "Failed to update progress themes",
       );
     }
   },
 );
 
-// delete progress messages question
-export const deleteProgressPracticeMessageAPI = createAsyncThunk(
-  "admin/deleteProgressPracticeMessage",
-  async (messageId, thunkAPI) => {
+// delete progress themes question
+export const deleteProgressPracticeThemesAPI = createAsyncThunk(
+  "admin/deleteProgressPracticeThemes",
+  async (themeId, thunkAPI) => {
     try {
-      await deleteProgressPracticeMessage(messageId);
-      return messageId;
+      await deleteProgressPracticeThemes(themeId);
+      return themeId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete progress messages",
+        error.response?.data?.message || "Failed to delete progress themes",
       );
     }
   },

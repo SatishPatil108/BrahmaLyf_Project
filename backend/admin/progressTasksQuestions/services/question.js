@@ -304,14 +304,14 @@ export const deleteProgressTasksQuestionService = (questionId) => {
   });
 };
 
-// service files for messages
+// service files for themes and completed message
 
 export const getProgressPracticeMessageService = (messageId) => {
   return new Promise((resolve, reject) => {
     const query = `
       SELECT 
         *
-      FROM bm.progress_practice_messages
+      FROM bm.progress_practice_themes
       WHERE id = $1
         AND status = 1
       LIMIT 1;
@@ -341,44 +341,29 @@ export const getAllProgressPracticeMessagesService = (course_id, week_no) => {
       return reject({ message: "Invalid week_no" });
     }
 
-    const countQuery = `
-      SELECT COUNT(*) AS total_messages
-      FROM bm.progress_practice_messages
-      WHERE status = 1
-        AND course_id = $1
-        AND week_no = $2
-    `;
-
-    connection.query(countQuery, [course_id, week_no], (err, countResult) => {
-      if (err) return reject(err);
-
-      const totalMessages = parseInt(countResult.rows[0].total_messages, 10);
-
-      const dataQuery = `
+    const dataQuery = `
         SELECT
-          q.id AS message_id,
+          q.id AS theme_id,
           q.week_no,
           q.course_id,
           q.themes,
           q.weekly_target,
           q.outcomes,
           q.outcome_order
-        FROM bm.progress_practice_messages q
+        FROM bm.progress_practice_themes q
         WHERE q.status = 1
           AND q.course_id = $1
           AND q.week_no = $2
         ORDER BY q.outcome_order ASC, q.id ASC
       `;
 
-      connection.query(dataQuery, [course_id, week_no], (err, dataResult) => {
-        if (err) return reject(err);
+    connection.query(dataQuery, [course_id, week_no], (err, dataResult) => {
+      if (err) return reject(err);
 
-        resolve({
-          course_id,
-          week_no,
-          total_messages: totalMessages,
-          messages: dataResult.rows || [],
-        });
+      resolve({
+        course_id,
+        week_no,
+        themes: dataResult.rows || [],
       });
     });
   });
@@ -395,7 +380,7 @@ export const postProgressPracticeMessageService = (
 ) => {
   return new Promise((resolve, reject) => {
     const messageQuery = `
-      INSERT INTO bm.progress_practice_messages (
+      INSERT INTO bm.progress_practice_themes (
         week_no,
         course_id,
         themes,
@@ -423,7 +408,7 @@ export const postProgressPracticeMessageService = (
 
 // Update Progress Practice Message
 export const updateProgressPracticeMessageService = (
-  message_id,
+  theme_id,
   week_no,
   course_id,
   themes,
@@ -433,7 +418,7 @@ export const updateProgressPracticeMessageService = (
 ) => {
   return new Promise((resolve, reject) => {
     const messageQuery = `
-      UPDATE bm.progress_practice_messages
+      UPDATE bm.progress_practice_themes
       SET
         week_no = $2,
         course_id = $3,
@@ -449,7 +434,7 @@ export const updateProgressPracticeMessageService = (
     connection.query(
       messageQuery,
       [
-        message_id,
+        theme_id,
         week_no,
         course_id,
         themes,
@@ -465,17 +450,17 @@ export const updateProgressPracticeMessageService = (
   });
 };
 
-export const deleteProgressPracticeMessageService = (messageId) => {
+export const deleteProgressPracticeMessageService = (themeId) => {
   return new Promise((resolve, reject) => {
     const query = `
-            UPDATE bm.progress_practice_messages
+            UPDATE bm.progress_practice_themes
             SET 
                 status = 0,
                 updated_on = NOW()
             WHERE id = $1
             RETURNING *;
         `;
-    connection.query(query, [messageId], (err, result) => {
+    connection.query(query, [themeId], (err, result) => {
       if (err) return reject(err);
       resolve(result.rows?.[0] || null);
     });

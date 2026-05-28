@@ -56,8 +56,6 @@ const UserRoutes = () => {
 
   // Listen to scroll and route changes
   useEffect(() => {
-    // Check for back button visibility based on current location
-    // Exclude certain pages where back button shouldn't show
     const excludedPaths = ["/", "/login", "/register"];
     setShowBackButton(canGoBack && !excludedPaths.includes(location.pathname));
 

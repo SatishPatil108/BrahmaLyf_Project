@@ -34,6 +34,8 @@ import {
   updateUserToolsResponseAPI,
   fetchUserTaskQuestionsAPI,
   fetchUserToolQuestionsAPI,
+  fetchUserProgressThemesAPI,
+  fetchUserCompletedMessageAPI,
 } from "./userThunk";
 
 const createCourseScopedState = () => ({
@@ -104,10 +106,25 @@ const initialState = {
     byCourse: {},
   },
 
-  TasksDetails: {
+  PracticeDetails: {
     tasks: [],
     courseId: null,
     weekNo: null,
+    totalRecords: 0,
+  },
+
+  ThemeDetails: {
+    themes: [],
+    courseId: null,
+    weekNo: null,
+    totalRecords: 0,
+  },
+
+  CompletedMessageDetails: {
+    messages: [],
+    courseId: null,
+    weekNo: null,
+    dayNo: null,
     totalRecords: 0,
   },
 
@@ -288,6 +305,26 @@ const userSlice = createSlice({
         state.isSpin = false;
       })
 
+      // fetch user themes by specific week
+      .addCase(fetchUserProgressThemesAPI.fulfilled, (state, action) => {
+        const { themes, courseId, weekNo, totalRecords } = action.payload;
+        state.ThemeDetails.themes = themes;
+        state.ThemeDetails.courseId = courseId;
+        state.ThemeDetails.weekNo = weekNo;
+        state.ThemeDetails.totalRecords = totalRecords;
+      })
+
+      // fetch user completed messages by specific day wise
+      .addCase(fetchUserCompletedMessageAPI.fulfilled, (state, action) => {
+        const { messages, courseId, weekNo, dayNo, totalRecords } =
+          action.payload;
+        state.CompletedMessageDetails.messages = messages;
+        state.CompletedMessageDetails.courseId = courseId;
+        state.CompletedMessageDetails.weekNo = weekNo;
+        state.CompletedMessageDetails.dayNo = dayNo;
+        state.CompletedMessageDetails.totalRecords = totalRecords;
+      })
+
       // fetch user progress questions
       .addCase(fetchUserProgressQuestionsAndOptionsAPI.pending, (state) => {
         if (!state.userProgressDetails.alreadySubmitted) {
@@ -327,18 +364,15 @@ const userSlice = createSlice({
 
       .addCase(fetchUserResponseAPI.fulfilled, (state, action) => {
         const submissions = action.payload?.submission ?? [];
+        const courseId = action.payload?.courseId;
 
-        if (!submissions.length) return;
+        if (!courseId || !submissions.length) return;
 
         const normalizedAnswers = {};
         const submittedQuestions = {};
 
-        submissions.forEach((submission) => {
-          const { day_no, answers } = submission;
-
-          if (!normalizedAnswers[day_no]) {
-            normalizedAnswers[day_no] = {};
-          }
+        submissions.forEach(({ day_no, answers }) => {
+          if (!normalizedAnswers[day_no]) normalizedAnswers[day_no] = {};
 
           answers.forEach(
             ({ questionId, optionId, multipleAnswers, textAnswer }) => {
@@ -349,33 +383,44 @@ const userSlice = createSlice({
               } else if (textAnswer !== undefined) {
                 normalizedAnswers[day_no][questionId] = textAnswer;
               }
-
               submittedQuestions[questionId] = true;
             },
           );
         });
 
-        state.userProgressDetails.submittedAnswers = normalizedAnswers;
-        state.userProgressDetails.submittedQuestions = {
-          ...state.userProgressDetails.submittedQuestions,
+        if (!state.userProgressDetails.byCourse) {
+          state.userProgressDetails.byCourse = {};
+        }
+        if (!state.userProgressDetails.byCourse[courseId]) {
+          state.userProgressDetails.byCourse[courseId] = {};
+        }
+
+        state.userProgressDetails.byCourse[courseId].submittedAnswers =
+          normalizedAnswers;
+        state.userProgressDetails.byCourse[courseId].submittedQuestions = {
+          ...state.userProgressDetails.byCourse[courseId].submittedQuestions,
           ...submittedQuestions,
         };
       })
 
       // post user progress answer
-      .addCase(postUserProgressAPI.pending, (state) => {
-        state.userProgressDetails.loading = true;
-        state.userProgressDetails.error = null;
-      })
-
       .addCase(postUserProgressAPI.fulfilled, (state, action) => {
-        state.userProgressDetails.alreadySubmitted = true;
-        state.userProgressDetails.lastSubmittedDate = new Date().toISOString();
+        const courseId = action.payload?.courseId;
+        if (!state.userProgressDetails.byCourse[courseId]) {
+          state.userProgressDetails.byCourse[courseId] = {};
+        }
+        state.userProgressDetails.byCourse[courseId].alreadySubmitted = true;
+        state.userProgressDetails.byCourse[courseId].lastSubmittedDate =
+          new Date().toISOString();
       })
 
       .addCase(postUserProgressAPI.rejected, (state, action) => {
-        state.userProgressDetails.loading = false;
-        state.userProgressDetails.error = action.error.message;
+        const courseId = action.meta.arg.courseId;
+        if (state.userProgressDetails.byCourse?.[courseId]) {
+          state.userProgressDetails.byCourse[courseId].loading = false;
+          state.userProgressDetails.byCourse[courseId].error =
+            action.error.message;
+        }
       })
 
       // tools section
@@ -474,7 +519,7 @@ const userSlice = createSlice({
       .addCase(fetchUserTaskQuestionsAPI.fulfilled, (state, action) => {
         const payload = action.payload || {};
 
-        state.TasksDetails = {
+        state.PracticeDetails = {
           courseId: payload.courseId,
           weekNo: payload.weekNo,
           totalRecords: payload.totalRecords || 0,
@@ -489,7 +534,7 @@ const userSlice = createSlice({
           courseId: payload.courseId,
           weekNo: payload.weekNo,
           totalRecords: payload.totalRecords || 0,
-          tools: payload.questions || [], 
+          tools: payload.questions || [],
         };
       })
 

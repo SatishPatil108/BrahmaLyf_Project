@@ -25,6 +25,7 @@ import {
   markScopedDayCompleted,
   markQuestionSubmitted,
 } from "@/store/feature/user/userSlice";
+import useUserCompletedMessage from "./useUserCompletedMessage";
 
 if (
   typeof document !== "undefined" &&
@@ -66,6 +67,10 @@ const ProgressPracticeForm = ({
     submittedAnswers: reduxSubmittedAnswers,
   } = useUserProgressDetails(courseId);
 
+  // console.log("weekData: ",  weekData);
+
+  const { weeklyTheme, completedMessage } = useUserCompletedMessage(1, 1, 1);
+
   const [answers, setAnswers] = useState({});
   const [hoverRating, setHoverRating] = useState({});
   const [submittingQuestion, setSubmittingQuestion] = useState(null);
@@ -103,12 +108,6 @@ const ProgressPracticeForm = ({
     return grouped;
   }, [allDaysData]);
 
-  useEffect(() => {
-    if (courseId) {
-      dispatch(fetchUserResponseAPI({ courseId }));
-    }
-  }, [courseId, dispatch]);
-
   // Load all answers across all days
   useEffect(() => {
     if (
@@ -116,22 +115,12 @@ const ProgressPracticeForm = ({
       Object.keys(reduxSubmittedAnswers).length > 0
     ) {
       const merged = {};
-
-      Object.entries(reduxSubmittedAnswers).forEach(([dayKey, dayAnswers]) => {
+      Object.values(reduxSubmittedAnswers).forEach((dayAnswers) => {
         if (dayAnswers && typeof dayAnswers === "object") {
           Object.assign(merged, dayAnswers);
-        } else {
-          console.warn("⚠️ Invalid day answers structure:", {
-            dayKey,
-            dayAnswers,
-          });
         }
       });
-
-      setAnswers((prev) => ({
-        ...prev,
-        ...merged,
-      }));
+      setAnswers(merged);
       setIsDataLoaded(true);
     }
   }, [reduxSubmittedAnswers]);
@@ -279,7 +268,7 @@ const ProgressPracticeForm = ({
       ? Math.round((submittedCount / totalQuestions) * 100)
       : 0;
 
-  if (isLoading) {
+  if (isLoading || (!isDataLoaded && reduxSubmittedAnswers === undefined)) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="relative w-10 h-10">
@@ -453,7 +442,7 @@ const ProgressPracticeForm = ({
                 <h2
                   className={`text-lg sm:text-xl font-bold ${textColor.primary}`}
                 >
-                  Daily Progress Check-in
+                  Daily Practice Check-in
                 </h2>
                 <p className={`text-sm ${textColor.muted}`}>
                   Week {weekNo} · All Days ({totalDays} days)
@@ -646,7 +635,7 @@ const QuestionCard = ({
       {/* Submitted badge - NO edit button */}
       {isSubmitted && (
         <div
-          className={`absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+          className={`absolute mt-6 lg:mt-0 top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
             theme === "dark"
               ? "bg-emerald-900/40 text-emerald-400"
               : "bg-emerald-100 text-emerald-700"
@@ -944,30 +933,31 @@ const QuestionCard = ({
                   >
                     +
                   </button>
-
+                </div>
+                <div className="mx-auto p-3 flex items-center gap-5">
                   <span
                     className="text-sm font-medium min-w-[42px] text-right tabular-nums"
                     style={{ color: color ?? undefined }}
                   >
                     {val}%
                   </span>
-                </div>
 
-                <span
-                  className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border self-start
+                  <span
+                    className={`inline-flex items-center  text-xs px-4 py-2 rounded-full border self-start
                 ${
                   theme === "dark"
                     ? "bg-gray-800 border-gray-700 text-gray-300"
                     : "bg-gray-50 border-gray-200 text-gray-500"
                 }`}
-                >
-                  <span
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ backgroundColor: color ?? "#888" }}
-                  />
-                  {LABELS[val] ?? `${val}%`}
-                  {val > 0 ? ` · ${val}%` : ""}
-                </span>
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: color ?? "#888" }}
+                    />
+                    {LABELS[val] ?? `${val}%`}
+                    {val > 0 ? ` · ${val}%` : ""}
+                  </span>
+                </div>
               </div>
             );
           })()}

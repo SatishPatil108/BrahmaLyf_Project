@@ -32,11 +32,11 @@ import EditCourse from "./EditCourse";
 import EditCourseCurriculum from "./EditCourseCurriculum";
 import useCourseDetails from "./useCourseDetails";
 import CustomButton from "@/components/CustomButton";
-import ProgressTasksQuestionDetails from "../ProgressTasksTracking/ProgressTasksQuestionDetails";
 import ProgressToolsQuestionDetails from "../ProgressToolsQuestion/ProgressToolsQuestionDetails";
 import CustomDrawer from "@/components/CustomDrawer";
 import { stripHtml } from "@/components/RichTextEditor/stripHtml";
-import ProgressMessageDetails from "../ProgressMessage/ProgressMessageDetails";
+import ProgressMessageDetails from "../ProgressThemeMessage/ProgressThemeDetails";
+import ProgressPracticeQuestionDetails from "../ProgressPracticeQuestion/ProgressPracticeQuestionDetails";
 
 // Enhanced color configuration
 const COLORS = {
@@ -944,7 +944,7 @@ const CourseDetails = () => {
         )}
 
         {isTasksDrawerOpen && (
-          <ProgressTasksQuestionDetails
+          <ProgressPracticeQuestionDetails
             isOpen={isTasksDrawerOpen}
             onClose={closeTasksDrawer}
             drawerOnly={true}
@@ -988,9 +988,6 @@ const InfoCard = ({ title, icon, content, color = "info" }) => {
           {title}
         </h3>
       </div>
-      {/* <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
-        {content}
-      </p> */}
       <p
         className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line"
         dangerouslySetInnerHTML={{ __html: content }}

@@ -17,6 +17,7 @@ const useCompletedMessage = (courseId, weekNo, dayNo) => {
   const messages = completedMessages.messages || [];
   const completedMessage = messages[0] ?? null;
 
+
   const [isSubmittingMessage, setIsSubmittingMessage] = useState(false);
   const [messageActionMessage, setMessageActionMessage] = useState(null);
 

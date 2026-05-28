@@ -44,14 +44,14 @@ import {
   updateProgressToolsQuestionAPI,
   fetchProgressToolsQuestionsAPI,
   postProgressToolsQuestionAPI,
-  deleteProgressPracticeMessageAPI,
-  updateProgressPracticeMessageAPI,
-  fetchProgressPracticeMessagesAPI,
-  postProgressPracticeMessageAPI,
   postCompletedMessageAPI,
   fetchCompletedMessagesAPI,
   updateCompletedMessageAPI,
   deleteCompletedMessageAPI,
+  postProgressPracticeThemesAPI,
+  fetchProgressPracticeThemesAPI,
+  updateProgressPracticeThemesAPI,
+  deleteProgressPracticeThemesAPI,
 } from "./adminThunk";
 
 const adminSlice = createSlice({
@@ -68,7 +68,7 @@ const adminSlice = createSlice({
     inquiriesDetails: { inquiries: [] },
     progressTasksQuestions: { questions: [] },
     progressToolsQuestions: { tools: [] },
-    progressPracticeMessages: { messages: [] },
+    progressPracticeThemes: { themes: [] },
     completedMessages: { messages: [] },
     coachesList: [],
     courseDetails: null,
@@ -419,35 +419,33 @@ const adminSlice = createSlice({
       })
 
       // progress practice messages
-      .addCase(postProgressPracticeMessageAPI.fulfilled, (state, action) => {
+      .addCase(postProgressPracticeThemesAPI.fulfilled, (state, action) => {
         state.loading = false;
-        state.progressPracticeMessages.messages.unshift(action.payload);
+        state.progressPracticeThemes.themes.unshift(action.payload);
       })
 
-      .addCase(fetchProgressPracticeMessagesAPI.fulfilled, (state, action) => {
+      .addCase(fetchProgressPracticeThemesAPI.fulfilled, (state, action) => {
         state.loading = false;
-        state.progressPracticeMessages.messages =
-          action.payload?.messages || [];
+        state.progressPracticeThemes.themes = action.payload?.themes || [];
       })
 
-      .addCase(updateProgressPracticeMessageAPI.fulfilled, (state, action) => {
+      .addCase(updateProgressPracticeThemesAPI.fulfilled, (state, action) => {
         state.loading = false;
-        state.progressPracticeMessages.messages =
-          state.progressPracticeMessages.messages.map((message) => {
-            if (message.id === action.payload.id)
+        state.progressPracticeThemes.themes =
+          state.progressPracticeThemes.themes.map((theme) => {
+            if (theme.id === action.payload.id)
               return { id: action.payload.id, ...action.payload };
-            return message;
+            return theme;
           });
       })
 
-      .addCase(deleteProgressPracticeMessageAPI.fulfilled, (state, action) => {
+      .addCase(deleteProgressPracticeThemesAPI.fulfilled, (state, action) => {
         state.loading = false;
-        state.progressPracticeMessages.messages =
-          state.progressPracticeMessages.messages.filter(
-            (m) => m.id !== action.payload.id,
+        state.progressPracticeThemes.themes =
+          state.progressPracticeThemes.themes.filter(
+            (t) => t.id !== action.payload.id,
           );
       })
-
 
       //  completed messages API
       .addCase(postCompletedMessageAPI.fulfilled, (state, action) => {
@@ -457,18 +455,18 @@ const adminSlice = createSlice({
 
       .addCase(fetchCompletedMessagesAPI.fulfilled, (state, action) => {
         state.loading = false;
-        state.completedMessages.messages =
-          action.payload?.messages || [];
+        state.completedMessages.messages = action.payload?.messages || [];
       })
 
       .addCase(updateCompletedMessageAPI.fulfilled, (state, action) => {
         state.loading = false;
-        state.completedMessages.messages =
-          state.completedMessages.messages.map((message) => {
+        state.completedMessages.messages = state.completedMessages.messages.map(
+          (message) => {
             if (message.id === action.payload.id)
               return { id: action.payload.id, ...action.payload };
             return message;
-          });
+          },
+        );
       })
 
       .addCase(deleteCompletedMessageAPI.fulfilled, (state, action) => {

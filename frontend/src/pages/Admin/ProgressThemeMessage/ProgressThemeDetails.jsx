@@ -15,9 +15,9 @@ import {
 } from "lucide-react";
 import CustomButton from "@/components/CustomButton";
 import CustomDrawer from "@/components/CustomDrawer";
-import useProgressMessageDetails from "./useProgressMessageDetails";
 import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 import { cleanHtml } from "@/components/RichTextEditor/cleanHtml";
+import useProgressThemeDetails from "./useProgressThemeDetails";
 
 // Component for View Message Details
 const ViewMessageDrawer = ({ isOpen, onClose, message }) => {
@@ -268,7 +268,7 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
   const { courseId } = useParams();
 
   const {
-    messages,
+    themes,
     loading,
     error,
     isSubmitting,
@@ -277,7 +277,7 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
     addMessage,
     updateMessage,
     handleDeleteMessage,
-  } = useProgressMessageDetails(courseId, weekNo);
+  } = useProgressThemeDetails(courseId, weekNo);
 
   const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false);
   const [isViewDrawerOpen, setIsViewDrawerOpen] = useState(false);
@@ -342,7 +342,7 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
       themes: "",
       weekly_target: "",
       outcomes: "",
-      outcome_order: messages.length + 1,
+      outcome_order: themes.length + 1,
     });
     setErrors({});
     clearMessage();
@@ -353,7 +353,7 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
     setIsEditing(true);
     setErrors({});
     setMessageData({
-      id: message.message_id,
+      id: message.theme_id,
       week_no: message.week_no,
       themes: message.themes,
       weekly_target: message.weekly_target,
@@ -400,8 +400,6 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
     } else if (plainOutcomes.length > 5000) {
       newErrors.outcomes = "Outcomes should not exceed 5000 characters";
     }
-
-     
 
     if (!messageData.week_no) {
       newErrors.week_no = "Week number is required";
@@ -555,26 +553,26 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
             </CustomButton>
 
             {/* Messages List */}
-            {messages.length === 0 ? (
+            {themes.length === 0 ? (
               <div className="text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl">
                 <MessageSquare className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
                 <p className="text-gray-500 dark:text-gray-400">
-                  No messages found
+                  No themes found
                 </p>
                 <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-                  No messages available for Week {weekNo}
+                  No themes available for Week {weekNo}
                 </p>
                 <p className="text-sm text-gray-400 dark:text-gray-500">
-                  Click the button above to add your first message
+                  Click the button above to add your first theme
                 </p>
               </div>
             ) : (
               <div className="space-y-3">
-                {messages.map((message, index) => (
+                {themes.map((theme, index) => (
                   <div
-                    key={message.message_id || index}
+                    key={theme.theme_id || index}
                     className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer"
-                    onClick={() => openViewDrawer(message)}
+                    onClick={() => openViewDrawer(theme)}
                   >
                     <div className="p-4">
                       <div className="flex items-start justify-between">
@@ -584,17 +582,17 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
                               #{index + 1}
                             </span>
                             <span className="text-xs text-gray-500 dark:text-gray-400">
-                              Week {message.week_no}
+                              Week {theme.week_no}
                             </span>
                           </div>
                           <h4
                             className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2 mb-2"
-                            dangerouslySetInnerHTML={{ __html: message.themes }}
+                            dangerouslySetInnerHTML={{ __html: theme.themes }}
                           />
                           <div
                             className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1"
                             dangerouslySetInnerHTML={{
-                              __html: message.weekly_target,
+                              __html: theme.weekly_target,
                             }}
                           />
                         </div>
@@ -602,7 +600,7 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              openEditMessageForm(message);
+                              openEditMessageForm(theme);
                             }}
                             className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all"
                             title="Edit Message"
@@ -612,7 +610,7 @@ const ProgressMessageDetails = ({ isOpen, onClose }) => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDelete(message.message_id);
+                              handleDelete(theme.theme_id);
                             }}
                             disabled={isSubmitting}
                             className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all disabled:opacity-50"

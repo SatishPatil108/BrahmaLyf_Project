@@ -513,51 +513,51 @@ export const deleteProgressToolsQuestion = async (tools_question_id) => {
   });
 };
 
-// add progress practice weekly message
-export const postProgressPracticeMessage = async ({
+// add progress practice weekly theme
+export const postProgressPracticeThemes = async ({
   courseId,
-  messageData,
+  themeData,
 }) => {
   return await makeRequest({
-    service: `admin/progress-practice/message/${courseId}`,
+    service: `admin/progress-practice/themes/${courseId}`,
     method: API_METHODS.POST,
-    data: messageData,
+    data: themeData,
     authRequired: true,
     tokenType: "admin",
     contentType: "application/json",
   });
 };
 
-// fetch progress practice message
-export const fetchProgressPracticeMessages = async ({ courseId, weekNo }) => {
+// fetch progress practice theme
+export const fetchProgressPracticeThemes = async ({ courseId, weekNo }) => {
   return await makeRequest({
-    service: `admin/progress-practice/message?courseId=${courseId}&weekNo=${weekNo}`,
+    service: `admin/progress-practice/themes?courseId=${courseId}&weekNo=${weekNo}`,
     method: API_METHODS.GET,
     authRequired: true,
     tokenType: "admin",
   });
 };
 
-// update progress practice message
-export const updateProgressPracticeMessage = async ({
+// update progress practice theme
+export const updateProgressPracticeThemes = async ({
   courseId,
-  messageId,
-  messageData,
+  themeId,
+  themeData,
 }) => {
   return await makeRequest({
-    service: `admin/progress-practice/message/${courseId}/${messageId}`,
+    service: `admin/progress-practice/themes/${courseId}/${themeId}`,
     method: API_METHODS.PUT,
-    data: messageData,
+    data: themeData,
     authRequired: true,
     tokenType: "admin",
     contentType: "application/json",
   });
 };
 
-// delete progress practice message
-export const deleteProgressPracticeMessage = async (messageId) => {
+// delete progress practice theme
+export const deleteProgressPracticeThemes = async (themeId) => {
   return await makeRequest({
-    service: `admin/progress-practice/message/${messageId}`,
+    service: `admin/progress-practice/themes/${themeId}`,
     method: API_METHODS.DELETE,
     authRequired: true,
     tokenType: "admin",

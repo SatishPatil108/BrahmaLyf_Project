@@ -124,7 +124,7 @@ export const postProgressPracticeMessageValidator = (req, res, next) => {
 export const updateProgressPracticeMessageValidator = (req, res, next) => {
   const paramsSchema = joi.object({
     courseId: joi.number().integer().required(),
-    messageId: joi.number().integer().required(),
+    themeId: joi.number().integer().required(),
   });
 
   const bodySchema = joi.object({

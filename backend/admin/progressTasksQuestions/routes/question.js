@@ -50,29 +50,29 @@ export default (app) => {
     deleteProgressTasksQuestionController,
   );
 
-  // Additional routes for progress practice messages
+  // Additional routes for progress practice themes
   app.get(
-    "/apis/admin/progress-practice/message",
+    "/apis/admin/progress-practice/themes",
     verifyAdminToken,
     getAllProgressPracticeMessagesController,
   );
 
   app.post(
-    "/apis/admin/progress-practice/message/:courseId",
+    "/apis/admin/progress-practice/themes/:courseId",
     verifyAdminToken,
     postProgressPracticeMessageValidator,
     postProgressPracticeMessageController,
   );
 
   app.put(
-    "/apis/admin/progress-practice/message/:courseId/:messageId",
+    "/apis/admin/progress-practice/themes/:courseId/:themeId",
     verifyAdminToken,
     updateProgressPracticeMessageValidator,
     updateProgressPracticeMessageController,
   );
 
   app.delete(
-    "/apis/admin/progress-practice/message/:messageId",
+    "/apis/admin/progress-practice/themes/:themeId",
     verifyAdminToken,
     deleteProgressPracticeMessageController,
   );

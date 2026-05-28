@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   ChevronDown,
-  Check,
-  Moon,
-  Sun,
   Shield,
   RefreshCw,
   Clock,
@@ -13,46 +10,112 @@ import {
 } from "lucide-react";
 import refundSections from "./refundSections";
 import RichTextContent from "@/components/RichTextContent/RichTextContent";
+import { useTheme } from "@/contexts/ThemeContext";
+
 export default function RefundCancellationPolicy() {
   const [expandedSections, setExpandedSections] = useState({});
-  const [acceptedRefund, setAcceptedRefund] = useState(false);
-  const [acceptedCancellation, setAcceptedCancellation] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  const toggleSection = (id) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+  const { theme } = useTheme();
+
+  const themeColors = {
+    dark: {
+      pageBg: "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900",
+      headerBg: "bg-gray-900 border-gray-700",
+      tagBg: "bg-purple-900/30 text-purple-400 hover:bg-purple-900/50",
+      headerOverlay: "from-purple-900/20 to-transparent opacity-50",
+      headingText: "text-gray-100",
+      bodyText: "text-gray-300",
+      mutedText: "text-gray-500",
+      cardHeading: "text-gray-200",
+      // Intro card
+      cardBg: "bg-gray-800/50 border-gray-700",
+      cardIconBg: "bg-purple-900/30",
+      cardIconColor: "text-purple-400",
+      cardBody: "text-gray-300",
+      cardDivider: "border-gray-700",
+      introBg: "bg-gray-700/30 border-gray-700",
+      // Bullet dots
+      dotColor: "bg-purple-500",
+      dotText: "text-gray-400",
+      // Accordion
+      accordionBg: "bg-gray-800/40 border-gray-700",
+      accordionBtnHover: "hover:bg-gray-700/50",
+      accordionTitle: "text-gray-100",
+      accordionIcon: "text-purple-400",
+      accordionChevron: "text-gray-500",
+      accordionChevronActive: "text-purple-400",
+      accordionContentBg: "bg-gray-900/40",
+      accordionDivider: "border-gray-700",
+      richText:
+        "text-white [&_p]:text-white [&_span]:text-white [&_li]:text-white [&_strong]:!text-purple-500 [&_b]:!text-purple-500",
+    },
+    light: {
+      pageBg: "bg-gradient-to-br from-slate-50 via-white to-slate-50",
+      headerBg: "bg-white border-slate-200 shadow-sm",
+      headerOverlay: "from-purple-50 to-transparent opacity-50",
+      headingText: "text-slate-900",
+      bodyText: "text-slate-600",
+      mutedText: "text-slate-500",
+      // Intro card
+      cardBg: "bg-white border-slate-200",
+      cardIconBg: "bg-purple-100",
+      cardIconColor: "text-purple-600",
+      cardBody: "text-slate-700",
+      cardDivider: "border-slate-100",
+      // Bullet dots
+      dotColor: "bg-purple-400",
+      dotText: "text-slate-600",
+      // Accordion
+      accordionBg: "bg-white border-slate-200",
+      accordionBtnHover: "hover:bg-slate-50",
+      accordionTitle: "text-slate-900",
+      accordionIcon: "text-purple-500",
+      accordionChevron: "text-slate-500",
+      accordionChevronActive: "text-purple-600",
+      accordionContentBg: "bg-slate-50",
+      accordionDivider: "border-slate-200",
+      richText:
+        "[&_strong]:text-slate-900 [&_a]:text-purple-600 [&_a:hover]:text-purple-800",
+    },
   };
 
-  const isAllAccepted = acceptedRefund && acceptedCancellation && acceptedTerms;
-  const expandedCount = Object.values(expandedSections).filter(Boolean).length;
-  const totalSections = refundSections.length;
+  const c = themeColors[theme] || themeColors.light;
+
+  const toggleSection = (id) => {
+    setExpandedSections((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const iconMap = {
+    refund: RefreshCw,
+    cancellation: XCircle,
+    payment: CreditCard,
+    time: Clock,
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors duration-300">
+    <div className={`min-h-screen ${c.pageBg} transition-colors duration-300`}>
       {/* Header */}
-      <div className="relative overflow-hidden border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-50 dark:from-orange-950/30 to-transparent opacity-50"></div>
+      <div className={`relative overflow-hidden border-b ${c.headerBg}`}>
+        <div
+          className={`absolute inset-0 bg-gradient-to-r ${c.headerOverlay}`}
+        ></div>
         <div className="relative mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="space-y-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-orange-100 dark:bg-orange-900/50 rounded-xl">
-                <RefreshCw
-                  size={28}
-                  className="text-orange-600 dark:text-orange-400"
-                />
+              <div className={`p-2 ${c.cardIconBg} rounded-xl`}>
+                <RefreshCw size={28} className={c.cardIconColor} />
               </div>
-              <h1 className="lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white text-2xl">
+              <h1
+                className={`text-2xl lg:text-3xl font-bold tracking-tight ${c.headingText}`}
+              >
                 Refund & Cancellation Policy
               </h1>
             </div>
-            <p className="text-lg text-slate-600 dark:text-slate-400">
+            <p className={`text-lg ${c.bodyText}`}>
               Clear guidelines about refunds, cancellations, and your consumer
               rights
             </p>
-            <p className="text-sm text-slate-500 dark:text-slate-500 mt-2">
+            <p className={`text-sm ${c.mutedText} mt-2`}>
               Last updated: {"01/01/2026 "}
             </p>
           </div>
@@ -62,29 +125,24 @@ export default function RefundCancellationPolicy() {
       {/* Main Content */}
       <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Introduction Card */}
-        <div className="mb-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-6 shadow-sm sm:p-8 backdrop-blur-sm">
+        <div
+          className={`mb-12 rounded-xl border ${c.cardBg} p-6 shadow-sm sm:p-8`}
+        >
           <div className="flex items-start gap-4">
-            <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-              <Shield
-                size={22}
-                className="text-orange-600 dark:text-orange-400"
-              />
+            <div className={`p-2 ${c.cardIconBg} rounded-lg`}>
+              <Shield size={22} className={c.cardIconColor} />
             </div>
             <div>
-              <h2 className="mb-3 text-xl font-semibold text-slate-900 dark:text-white">
+              <h2 className={`mb-3 text-xl font-semibold ${c.cardHeading}`}>
                 Our Refund Commitment
               </h2>
-              <p className="mb-3 text-slate-700 dark:text-slate-300 leading-relaxed">
-                At{" "}
-                <span className="font-semibold text-slate-900 dark:text-white">
-                  BrahmaLYF
-                </span>
-                , we strive to ensure your complete satisfaction with our
-                services. This Refund & Cancellation Policy outlines the terms
-                under which you may cancel your subscription or request a refund
-                for our services.
+              <p className={`mb-3 ${c.cardBody} leading-relaxed`}>
+                At <span className={c.cardBrand}>BrahmaLYF</span>, we strive to
+                ensure your complete satisfaction with our services. This Refund
+                & Cancellation Policy outlines the terms under which you may
+                cancel your subscription or request a refund for our services.
               </p>
-              <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+              <p className={`${c.cardBody} leading-relaxed`}>
                 Please read this policy carefully before making any purchase. By
                 subscribing to or purchasing any of our services, you agree to
                 be bound by this Refund & Cancellation Policy.
@@ -95,65 +153,50 @@ export default function RefundCancellationPolicy() {
 
         {/* Accordion Sections */}
         <div className="space-y-4 mb-12">
-          {refundSections.map((section) => (
-            <div
-              key={section.id}
-              className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/30 shadow-sm transition-all hover:shadow-md"
-            >
-              <button
-                onClick={() => toggleSection(section.id)}
-                className="w-full px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+          {refundSections.map((section) => {
+            const IconComponent = iconMap[section.icon] || AlertCircle;
+            return (
+              <div
+                key={section.id}
+                className={`overflow-hidden rounded-xl border ${c.accordionBg} shadow-sm transition-all hover:shadow-md`}
               >
-                <div className="flex items-center gap-3 pr-4">
-                  {section.icon === "refund" && (
-                    <RefreshCw
+                <button
+                  onClick={() => toggleSection(section.id)}
+                  className={`w-full px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between text-left ${c.accordionBtnHover} transition-colors`}
+                >
+                  <div className="flex items-center gap-3 pr-4">
+                    <IconComponent
                       size={18}
-                      className="text-orange-500 flex-shrink-0"
+                      className={`${c.accordionIcon} flex-shrink-0`}
                     />
-                  )}
-                  {section.icon === "cancellation" && (
-                    <XCircle
-                      size={18}
-                      className="text-orange-500 flex-shrink-0"
-                    />
-                  )}
-                  {section.icon === "payment" && (
-                    <CreditCard
-                      size={18}
-                      className="text-orange-500 flex-shrink-0"
-                    />
-                  )}
-                  {section.icon === "time" && (
-                    <Clock
-                      size={18}
-                      className="text-orange-500 flex-shrink-0"
-                    />
-                  )}
-                  {!section.icon && (
-                    <AlertCircle
-                      size={18}
-                      className="text-orange-500 flex-shrink-0"
-                    />
-                  )}
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                    {section.title}
-                  </h3>
-                </div>
-                <ChevronDown
-                  size={20}
-                  className={`flex-shrink-0 text-slate-500 dark:text-slate-400 transition-transform duration-300 ${
-                    expandedSections[section.id] ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
+                    <h3 className={`text-lg font-semibold ${c.accordionTitle}`}>
+                      {section.title}
+                    </h3>
+                  </div>
+                  <ChevronDown
+                    size={20}
+                    className={`flex-shrink-0 transition-transform duration-300 ${
+                      expandedSections[section.id]
+                        ? `rotate-180 ${c.accordionChevronActive}`
+                        : c.accordionChevron
+                    }`}
+                  />
+                </button>
 
-              {expandedSections[section.id] && (
-                <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30 px-6 py-4 sm:px-8 sm:py-6">
-                  <RichTextContent content={section.content} />
-                </div>
-              )}
-            </div>
-          ))}
+                {expandedSections[section.id] && (
+                  <div
+                    className={`border-t ${c.accordionDivider} ${c.accordionContentBg} px-6 py-4 sm:px-8 sm:py-6`}
+                  >
+                    <RichTextContent
+                      content={section.content}
+                      className={c.richText}
+                      bulletClassName="text-purple-500"
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </main>
     </div>

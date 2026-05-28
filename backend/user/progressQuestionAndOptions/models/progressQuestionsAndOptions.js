@@ -8,17 +8,23 @@ import {
 } from "../../../response/response.js";
 
 import {
+  COMPLETED_MESSAGE_FETCH_SUCCESS,
+  MESSAGE_NOT_FOUND,
   NO_RECORD_FOUND,
   PROGRESS_FETCH_FAILED,
   PROGRESS_FETCH_SUCCESS,
   PROGRESS_QUESTIONS_AND_OPTIONS_FETCHED_SUCCESS,
   PROGRESS_SUBMIT_FAILED,
   PROGRESS_SUBMIT_SUCCESS,
+  THEME_FOUND,
+  THEME_NOT_FOUND,
 } from "../messages/progressQuestionsAndOptions.js";
 
 import {
   checkUserAlreadySubmittedService,
   getQuestionsWithOptionsService,
+  getUserCompletedMessageService,
+  getUserProgressThemeService,
   getUserResponseService,
   getUserTasksWeekQuestionsService,
   postUserResponseService,
@@ -212,6 +218,81 @@ export const postUserProgressModel = async (req, res) => {
     );
   } catch (catchError) {
     console.error("PostUserProgressModel error:", catchError);
+    return error(
+      res,
+      500,
+      APP_RESPONSE_CODE_ERROR,
+      "Internal server error",
+      null,
+    );
+  }
+};
+
+export const getUserCompletedMessageModel = async (req, res) => {
+  try {
+    const courseId = Number(req.query.courseId);
+    const weekNo = Number(req.query.weekNo);
+    const dayNo = Number(req.query.dayNo);
+
+    // Get data from service
+    const data = await getUserCompletedMessageService(courseId, weekNo, dayNo);
+
+    // No records found
+    if (!data || data.totalRecords === 0) {
+      return error(
+        res,
+        HTTP_OK,
+        APP_RESPONSE_CODE_ERROR,
+        MESSAGE_NOT_FOUND,
+        null,
+      );
+    }
+
+    // Success response
+    return success(
+      res,
+      HTTP_OK,
+      APP_RESPONSE_CODE_SUCCESS,
+      COMPLETED_MESSAGE_FETCH_SUCCESS,
+      data,
+    );
+  } catch (err) {
+    console.error("getUserCompletedMessageModel error:", err);
+
+    return error(
+      res,
+      500,
+      APP_RESPONSE_CODE_ERROR,
+      "Internal server error",
+      null,
+    );
+  }
+};
+
+export const getUserProgressThemeModel = async (req, res) => {
+  try {
+    const courseId = Number(req.query.courseId);
+    const weekNo = Number(req.query.weekNo);
+
+    // Get data from service
+    const data = await getUserProgressThemeService(courseId, weekNo);
+
+    // No records found
+    if (!data || data.totalRecords === 0) {
+      return error(
+        res,
+        HTTP_OK,
+        APP_RESPONSE_CODE_ERROR,
+        THEME_NOT_FOUND,
+        null,
+      );
+    }
+
+    // Success response
+    return success(res, HTTP_OK, APP_RESPONSE_CODE_SUCCESS, THEME_FOUND, data);
+  } catch (err) {
+    console.error("getUserProgressThemeModel error:", err);
+
     return error(
       res,
       500,

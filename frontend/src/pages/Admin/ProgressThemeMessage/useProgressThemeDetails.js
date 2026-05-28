@@ -1,13 +1,13 @@
 import {
-  deleteProgressPracticeMessageAPI,
-  fetchProgressPracticeMessagesAPI,
-  postProgressPracticeMessageAPI,
-  updateProgressPracticeMessageAPI,
+  postProgressPracticeThemesAPI,
+  fetchProgressPracticeThemesAPI,
+  updateProgressPracticeThemesAPI,
+  deleteProgressPracticeThemesAPI,
 } from "@/store/feature/admin";
 import { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const useProgressMessageDetails = (courseId, weekNo) => {
+const useProgressThemeDetails = (courseId, weekNo) => {
   const dispatch = useDispatch();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,11 +16,11 @@ const useProgressMessageDetails = (courseId, weekNo) => {
   const [isMessageDrawerOpen, setIsMessageDrawerOpen] = useState(false);
   const [isMessageEditing, setIsMessageEditing] = useState(false);
 
-  const { progressPracticeMessages, loading, error } = useSelector(
+  const { progressPracticeThemes, loading, error } = useSelector(
     (state) => state.admin,
   );
 
-  const messages = progressPracticeMessages?.messages || [];
+  const themes = progressPracticeThemes?.themes || [];
 
   const clearMessage = useCallback(() => setActionMessage(null), []);
 
@@ -28,7 +28,7 @@ const useProgressMessageDetails = (courseId, weekNo) => {
   useEffect(() => {
     if (courseId && weekNo) {
       dispatch(
-        fetchProgressPracticeMessagesAPI({
+        fetchProgressPracticeThemesAPI({
           courseId,
           weekNo,
         }),
@@ -40,7 +40,7 @@ const useProgressMessageDetails = (courseId, weekNo) => {
   const refetch = useCallback(() => {
     if (courseId && weekNo) {
       dispatch(
-        fetchProgressPracticeMessagesAPI({
+        fetchProgressPracticeThemesAPI({
           courseId,
           weekNo,
         }),
@@ -65,12 +65,12 @@ const useProgressMessageDetails = (courseId, weekNo) => {
 
     try {
       await dispatch(
-        postProgressPracticeMessageAPI({ courseId, messageData }),
+        postProgressPracticeThemesAPI({ courseId, themeData: messageData }),
       ).unwrap();
 
       setActionMessage({
         type: "success",
-        text: "Message added successfully",
+        text: "Theme added successfully",
       });
 
       setIsMessageDrawerOpen(false);
@@ -78,7 +78,7 @@ const useProgressMessageDetails = (courseId, weekNo) => {
     } catch (err) {
       setActionMessage({
         type: "error",
-        text: "Failed to add message",
+        text: "Failed to add theme",
         details: err?.message,
       });
     } finally {
@@ -86,23 +86,23 @@ const useProgressMessageDetails = (courseId, weekNo) => {
     }
   };
 
-  // Update existing message
-  const updateMessage = async (messageId, courseId, messageData) => {
+  // Update existing theme
+  const updateMessage = async (themeId, courseId, themeData) => {
     setIsSubmitting(true);
     clearMessage();
 
     try {
       await dispatch(
-        updateProgressPracticeMessageAPI({
-          messageId,
+        updateProgressPracticeThemesAPI({
+          themeId,
           courseId,
-          messageData,
+          themeData,
         }),
       ).unwrap();
 
       setActionMessage({
         type: "success",
-        text: "Message updated successfully",
+        text: "Theme updated successfully",
       });
 
       setIsMessageDrawerOpen(false);
@@ -110,7 +110,7 @@ const useProgressMessageDetails = (courseId, weekNo) => {
     } catch (err) {
       setActionMessage({
         type: "error",
-        text: "Failed to update message",
+        text: "Failed to update theme",
         details: err?.message,
       });
     } finally {
@@ -118,24 +118,24 @@ const useProgressMessageDetails = (courseId, weekNo) => {
     }
   };
 
-  // Delete message
-  const handleDeleteMessage = async (messageId) => {
+  // Delete theme
+  const handleDeleteMessage = async (themeId) => {
     setIsSubmitting(true);
     clearMessage();
 
     try {
-      await dispatch(deleteProgressPracticeMessageAPI(messageId)).unwrap();
+      await dispatch(deleteProgressPracticeThemesAPI(themeId)).unwrap();
 
       setActionMessage({
         type: "success",
-        text: "Message deleted successfully",
+        text: "Theme deleted successfully",
       });
 
       refetch();
     } catch (err) {
       setActionMessage({
         type: "error",
-        text: "Failed to delete message",
+        text: "Failed to delete theme",
         details: err?.message,
       });
     } finally {
@@ -144,7 +144,7 @@ const useProgressMessageDetails = (courseId, weekNo) => {
   };
 
   return {
-    messages,
+    themes,
     loading,
     error,
     isSubmitting,
@@ -157,4 +157,4 @@ const useProgressMessageDetails = (courseId, weekNo) => {
   };
 };
 
-export default useProgressMessageDetails;
+export default useProgressThemeDetails;

@@ -2,6 +2,8 @@ import verifyUserToken from "../../middleware/verifyUserToken.js";
 
 import {
   getQuestionsWithOptionsController,
+  getUserCompletedMessageController,
+  getUserProgressThemeController,
   getUserResponseController,
   getUserTasksWeekQuestionsController,
   postUserProgressController,
@@ -29,5 +31,17 @@ export default (app) => {
     "/apis/user/progress-tracking",
     verifyUserToken,
     postUserProgressController,
+  );
+
+  app.get(
+    "/apis/user/fetchUserCompletedMessage",
+    verifyUserToken,
+    getUserCompletedMessageController,
+  );
+
+  app.get(
+    "/apis/user/fetchUserProgressThemes",
+    verifyUserToken,
+    getUserProgressThemeController,
   );
 };
