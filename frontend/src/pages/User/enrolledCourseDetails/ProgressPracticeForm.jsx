@@ -5,29 +5,28 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   ClipboardList,
   CheckCircle,
-  ChevronRight,
   Send,
   Star,
   Lock,
   X,
+  ChevronRight,
+  BadgeInfo,
 } from "lucide-react";
 
-import {
-  fetchUserResponseAPI,
-  postUserProgressAPI,
-} from "@/store/feature/user";
-
+import { postUserProgressAPI } from "@/store/feature/user";
 import useUserProgressDetails from "./useUserProgressDetails";
 import {
   markScopedDayCompleted,
   markQuestionSubmitted,
 } from "@/store/feature/user/userSlice";
 import useUserCompletedMessage from "./useUserCompletedMessage";
+import QuestionCard from "./QuestionCard";
 
+// ─── Inject styles once at module level ───────────────────────────────────────
 if (
   typeof document !== "undefined" &&
   !document.getElementById("progress-form-styles")
@@ -45,14 +44,282 @@ if (
     }
     .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
     .animate-fadeOut { animation: fadeOut 0.5s ease-out forwards; }
-
-    /* Hide scrollbar */
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   `;
   document.head.appendChild(style);
 }
 
+// ─── SectionDivider ────────────────────────────────────────────────────────────
+const SectionDivider = ({ color }) => (
+  <div className="flex justify-center items-center gap-2 my-4">
+    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
+    <div className={`w-1.5 h-1.5 rounded-full ${color}`} />
+    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
+  </div>
+);
+
+// ─── PillLabel ─────────────────────────────────────────────────────────────────
+const PillLabel = ({ emoji, label, color }) => (
+  <div className="flex justify-center mb-3">
+    <div
+      className={`flex items-center gap-2 bg-${color}-50 dark:bg-${color}-900/30 px-4 py-1.5 rounded-full border border-${color}-200 dark:border-${color}-800`}
+    >
+      <span className={`text-${color}-600 dark:text-${color}-400 text-sm`}>
+        {emoji}
+      </span>
+      <span
+        className={`text-xs font-bold tracking-wider text-${color}-700 dark:text-${color}-300`}
+      >
+        {label}
+      </span>
+    </div>
+  </div>
+);
+
+// ─── WeeklyThemeCard ───────────────────────────────────────────────────────────
+const WeeklyThemeCard = ({ t, borderColor, bgColor, textColor }) => (
+  <div
+    className={`rounded-xl border ${borderColor.primary} ${bgColor.secondary} p-6 text-center shadow-sm hover:shadow-md transition-shadow`}
+  >
+    <div className="flex justify-center mb-4">
+      <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-1.5 rounded-full border border-blue-200 dark:border-blue-800">
+        <span className="text-blue-600 dark:text-blue-400 text-sm">🏷️</span>
+        <span className="text-xs font-bold tracking-wider text-blue-700 dark:text-blue-300">
+          This Week's Theme
+        </span>
+      </div>
+    </div>
+
+    <h3
+      className={`sm:text-lg text-sm font-bold ${textColor.primary} mb-6 py-2`}
+      dangerouslySetInnerHTML={{ __html: t.theme }}
+    />
+
+    {t.weekly_target && (
+      <>
+        <SectionDivider color="bg-green-500" />
+        <PillLabel emoji="🎯" label="This Week's Target" color="green" />
+        <p
+          className={`sm:text-lg text-sm ${textColor.muted} max-w-md mx-auto py-2`}
+          dangerouslySetInnerHTML={{ __html: t.weekly_target }}
+        />
+      </>
+    )}
+
+    {t.outcomes && (
+      <>
+        <SectionDivider color="bg-purple-500" />
+        <PillLabel emoji="✨" label="Outcomes" color="purple" />
+        <p
+          className={`sm:text-lg text-sm ${textColor.muted} max-w-md mx-auto py-2`}
+          dangerouslySetInnerHTML={{ __html: t.outcomes }}
+        />
+      </>
+    )}
+  </div>
+);
+
+// ─── DayCompletionPopup ────────────────────────────────────────────────────────
+const DayCompletionPopup = ({ popupDayNo, completedMessage, onClose }) => (
+  <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
+    <div
+      className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+      onClick={onClose}
+    />
+    <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+      >
+        <X className="w-5 h-5" />
+      </button>
+
+      {completedMessage.map((msg, idx) => (
+        <div key={idx} className="text-center">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            🎉 Day {popupDayNo} Complete! 🎉
+          </h3>
+          <p
+            className="text-gray-600 dark:text-gray-300 mb-4"
+            dangerouslySetInnerHTML={{ __html: msg.message }}
+          />
+          <span className="text-sm text-emerald-600 dark:text-emerald-400">
+            Keep up the great work! 🌟
+          </span>
+        </div>
+      ))}
+
+      <div className="flex flex-col sm:flex-row gap-3 mt-6">
+        <button
+          onClick={onClose}
+          className="order-2 sm:order-1 px-4 py-2.5 rounded-xl
+            border-2 border-emerald-500 dark:border-emerald-400
+            text-emerald-600 dark:text-emerald-400 font-semibold
+            hover:bg-emerald-50 dark:hover:bg-emerald-950/30
+            transition-all duration-200
+            focus:outline-none focus:ring-2 focus:ring-emerald-500
+            flex items-center justify-center gap-2"
+        >
+          <X className="w-4 h-4" />
+          <span>Close</span>
+        </button>
+        <button
+          onClick={onClose}
+          className="order-1 sm:order-2 flex-1 px-6 py-2.5 rounded-xl
+            bg-gradient-to-r from-emerald-500 to-teal-600
+            hover:from-emerald-600 hover:to-teal-700
+            text-white font-semibold shadow-md hover:shadow-lg
+            transition-all duration-200
+            focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
+            flex items-center justify-center gap-2"
+        >
+          <span>Continue to Next Day</span>
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 7l5 5m0 0l-5 5m5-5H6"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+// ─── DaySection ────────────────────────────────────────────────────────────────
+// Isolated per-day component so useUserCompletedMessage can be called
+const DaySection = ({
+  dNo,
+  questions,
+  courseId,
+  weekNo,
+  reduxSubmittedQuestions,
+  textColor,
+  bgColor,
+  borderColor,
+  theme,
+  answers,
+  hoverRating,
+  setHoverRating,
+  submittingQuestion,
+  handleQuestionSubmit,
+  onText,
+  onRadio,
+  onDropdown,
+  onMultiSelect,
+  onRating,
+}) => {
+  // Each day fetches its own short intro message
+  const { completedMessage } = useUserCompletedMessage(courseId, weekNo, dNo);
+
+  const daySubmittedCount = questions.filter(
+    (q) => reduxSubmittedQuestions?.[q.id],
+  ).length;
+  const dayCompleted = daySubmittedCount === questions.length;
+
+  return (
+    <div className="mb-4">
+      {/* Day header */}
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-emerald-200 dark:border-emerald-800">
+        <div
+          className={`px-3 py-1 rounded-full text-sm font-semibold ${
+            dayCompleted
+              ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+          }`}
+        >
+          Day {dNo}
+        </div>
+        <span className={`text-xs ${textColor.muted}`}>
+          {daySubmittedCount}/{questions.length} Completed
+        </span>
+        {dayCompleted && (
+          <CheckCircle className="w-4 h-4 text-emerald-500 ml-2" />
+        )}
+      </div>
+
+      {/* Per-day short intro — shown above that day's questions */}
+      {completedMessage.map((msg, idx) =>
+        msg.short_intro ? (
+          <div
+            key={idx}
+            className={`w-full h-22 my-2 sm:h-12 px-4 py-2.5 rounded-lg text-sm border transition-all duration-150 mb-8
+              ${bgColor.primary} ${textColor.primary} ${borderColor.secondary}`}
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <BadgeInfo className="w-6 h-6 text-green-400 mb-4" />
+              </div>
+              <div className="flex-1">
+                <p
+                  className=" text-sm leading-relaxed mt-1"
+                  dangerouslySetInnerHTML={{ __html: msg.short_intro }}
+                />
+              </div>
+            </div>
+          </div>
+        ) : null,
+      )}
+
+      {/* Questions */}
+      <div className="flex flex-col gap-5">
+        {questions.map((question, idx) => (
+          <QuestionCard
+            key={question.id}
+            question={question}
+            index={idx}
+            answers={answers}
+            hoverRating={hoverRating}
+            setHoverRating={setHoverRating}
+            theme={theme}
+            textColor={textColor}
+            bgColor={bgColor}
+            borderColor={borderColor}
+            onText={onText}
+            onRadio={onRadio}
+            onDropdown={onDropdown}
+            onMultiSelect={onMultiSelect}
+            onRating={onRating}
+            isSubmitted={!!reduxSubmittedQuestions?.[question.id]}
+            isSubmitting={submittingQuestion === question.id}
+            onQuestionSubmit={() =>
+              handleQuestionSubmit(question.id, parseInt(dNo))
+            }
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ─── Theme factory ─────────────────────────────────────────────────────────────
+const makeTheme = (isDark) => ({
+  textColor: {
+    primary: isDark ? "text-gray-100" : "text-gray-800",
+    secondary: isDark ? "text-gray-300" : "text-gray-700",
+    muted: isDark ? "text-gray-400" : "text-gray-600",
+  },
+  bgColor: {
+    primary: isDark ? "bg-gray-900" : "bg-white",
+    secondary: isDark ? "bg-gray-800" : "bg-gray-50",
+    card: isDark ? "bg-gray-800/90" : "bg-white",
+    hover: isDark ? "hover:bg-gray-700" : "hover:bg-gray-100",
+  },
+  borderColor: {
+    primary: isDark ? "border-gray-800" : "border-gray-200",
+    secondary: isDark ? "border-gray-700" : "border-gray-300",
+  },
+});
+
+// ─── ProgressPracticeForm ──────────────────────────────────────────────────────
 const ProgressPracticeForm = ({
   courseId,
   theme = "light",
@@ -67,67 +334,63 @@ const ProgressPracticeForm = ({
     submittedQuestions: reduxSubmittedQuestions,
     submittedAnswers: reduxSubmittedAnswers,
     completedDays,
-    currentDayIndex,
   } = useUserProgressDetails(courseId);
 
-  const weekNo = weekData?.week_no || 1;
-  const dayNo = weekData?.day_no || 1;
-
-  const totalDays = weekData?.total_days || 7;
-  const allDaysData = weekData?.data || [];
+  const weekNo = weekData?.week_no ?? 1;
+  const dayNo = weekData?.day_no ?? 1;
+  const totalDays = weekData?.total_days ?? 7;
+  const allDaysData = weekData?.data ?? [];
 
   const [answers, setAnswers] = useState({});
   const [hoverRating, setHoverRating] = useState({});
   const [submittingQuestion, setSubmittingQuestion] = useState(null);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
-  const [showCompletionCard, setShowCompletionCard] = useState(false);
-  const [showCompletedForm, setShowCompletedForm] = useState(false);
-
   const [showDayCompletionPopup, setShowDayCompletionPopup] = useState(false);
   const [popupDayNo, setPopupDayNo] = useState(null);
 
-  const { weeklyTheme, completedMessage } = useUserCompletedMessage(
-    courseId,
-    weekNo,
-    popupDayNo ?? dayNo,
+  // weeklyTheme only — completedMessage now lives inside DaySection
+  const { weeklyTheme, completedMessage: popupCompletedMessage } =
+    useUserCompletedMessage(courseId, weekNo, popupDayNo ?? dayNo);
+
+  // ── Derived data ─────────────────────────────────────────────────────────────
+  const allQuestions = useMemo(
+    () =>
+      allDaysData.flatMap((day) =>
+        (day.questions ?? []).map((q) => ({ ...q, day_no: day.day_no })),
+      ),
+    [allDaysData],
   );
 
-  const completionTimeoutRef = useRef(null);
-
-  // Flatten all questions from all days
-  const allQuestions = useMemo(() => {
-    return allDaysData.flatMap((day) =>
-      (day.questions || []).map((q) => ({
-        ...q,
-        day_no: day.day_no,
-        day_index: day.day_no - 1,
-      })),
-    );
-  }, [allDaysData]);
-
-  // Group questions by day for better organization
   const questionsByDay = useMemo(() => {
     const grouped = {};
     allDaysData.forEach((day) => {
-      if (day.questions && day.questions.length > 0) {
-        grouped[day.day_no] = {
-          dayNo: day.day_no,
-          questions: day.questions,
-        };
+      if (day.questions?.length) {
+        grouped[day.day_no] = { dayNo: day.day_no, questions: day.questions };
       }
     });
     return grouped;
   }, [allDaysData]);
 
-  // Load all answers across all days
+  const totalQuestions = allQuestions.length;
+
+  const submittedCount = useMemo(
+    () => allQuestions.filter((q) => reduxSubmittedQuestions?.[q.id]).length,
+    [allQuestions, reduxSubmittedQuestions],
+  );
+
+  const progressPct =
+    totalQuestions > 0
+      ? Math.round((submittedCount / totalQuestions) * 100)
+      : 0;
+
+  const { textColor, bgColor, borderColor } = useMemo(
+    () => makeTheme(theme === "dark"),
+    [theme],
+  );
+
+  // ── Hydrate local answers from Redux ─────────────────────────────────────────
   useEffect(() => {
-    if (
-      !reduxSubmittedAnswers ||
-      Object.keys(reduxSubmittedAnswers).length === 0
-    ) {
-      setIsDataLoaded(true); // ✅ still mark loaded even if no answers yet
-      return;
-    }
+    if (reduxSubmittedAnswers === undefined) return;
     const merged = {};
     Object.values(reduxSubmittedAnswers).forEach((dayAnswers) => {
       if (dayAnswers && typeof dayAnswers === "object") {
@@ -138,43 +401,21 @@ const ProgressPracticeForm = ({
     setIsDataLoaded(true);
   }, [reduxSubmittedAnswers]);
 
-  // Check for completion and show success card
-  const totalQuestions = allQuestions.length;
-  const submittedCount = allQuestions.filter(
-    (q) => reduxSubmittedQuestions?.[q.id],
-  ).length;
-  const allCompleted = totalQuestions > 0 && submittedCount === totalQuestions;
+  // ── Day completion popup guard ────────────────────────────────────────────────
+  const prevCompletedDaysRef = useRef(null);
+  const isInitializedRef = useRef(false);
 
-  // Handle showing completion card and then showing filled form
   useEffect(() => {
-    if (allCompleted && !showCompletionCard && !showCompletedForm) {
-      if (completionTimeoutRef.current) {
-        clearTimeout(completionTimeoutRef.current);
-      }
+    if (!isDataLoaded || !completedDays) return;
 
-      setShowCompletionCard(true);
-
-      completionTimeoutRef.current = setTimeout(() => {
-        setShowCompletionCard(false);
-        setShowCompletedForm(true);
-      }, 4500);
+    if (!isInitializedRef.current) {
+      prevCompletedDaysRef.current = { ...completedDays };
+      isInitializedRef.current = true;
+      return;
     }
 
-    return () => {
-      if (completionTimeoutRef.current) {
-        clearTimeout(completionTimeoutRef.current);
-      }
-    };
-  }, [allCompleted, showCompletionCard, showCompletedForm]);
-
-  // this useEffect to watch completedDays from Redux and trigger popup
-  const prevCompletedDaysRef = useRef({});
-
-  useEffect(() => {
-    if (!completedDays || Object.keys(completedDays).length === 0) return;
-
     const newlyCompleted = Object.keys(completedDays).find(
-      (day) => completedDays[day] && !prevCompletedDaysRef.current[day],
+      (day) => completedDays[day] && !prevCompletedDaysRef.current?.[day],
     );
 
     if (newlyCompleted) {
@@ -183,127 +424,107 @@ const ProgressPracticeForm = ({
     }
 
     prevCompletedDaysRef.current = { ...completedDays };
-  }, [completedDays]);
+  }, [completedDays, isDataLoaded]);
 
-  const forceRefreshAnswers = useCallback(async () => {
-    if (!courseId) return;
-    try {
-      await dispatch(fetchUserResponseAPI({ courseId })).unwrap();
-    } catch (err) {
-      console.error("Failed to refresh answers:", err);
-    }
-  }, [dispatch, courseId]);
-
-  const handleText = (id, value) => {
+  // ── Answer handlers ───────────────────────────────────────────────────────────
+  const handleText = useCallback((id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
-  };
+  }, []);
 
-  const handleRadio = (id, value) => {
+  const handleRadio = useCallback((id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
-  };
+  }, []);
 
-  const handleDropdown = (id, value) => {
+  const handleDropdown = useCallback((id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
-  };
+  }, []);
 
-  const handleMultiSelect = (id, value) => {
+  const handleMultiSelect = useCallback((id, value) => {
     setAnswers((prev) => {
-      const current = prev[id] || [];
-      const newValue = current.includes(value)
+      const current = prev[id] ?? [];
+      const next = current.includes(value)
         ? current.filter((v) => v !== value)
         : [...current, value];
-      return {
-        ...prev,
-        [id]: newValue,
-      };
+      return { ...prev, [id]: next };
     });
-  };
+  }, []);
 
-  const handleRating = (id, value) => {
+  const handleRating = useCallback((id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
-  };
+  }, []);
 
-  const handleQuestionSubmit = async (questionId, dayNo) => {
-    const answer = answers[questionId];
-    const hasAnswer =
-      answer !== undefined &&
-      (Array.isArray(answer)
-        ? answer.length > 0
-        : String(answer).trim() !== "");
+  // ── Question submission ───────────────────────────────────────────────────────
+  const handleQuestionSubmit = useCallback(
+    async (questionId, qDayNo) => {
+      const answer = answers[questionId];
+      const hasAnswer =
+        answer !== undefined &&
+        (Array.isArray(answer)
+          ? answer.length > 0
+          : String(answer).trim() !== "");
 
-    if (!hasAnswer || reduxSubmittedQuestions[questionId]) return;
+      if (!hasAnswer || reduxSubmittedQuestions?.[questionId]) return;
 
-    setSubmittingQuestion(questionId);
-    try {
-      await dispatch(
-        postUserProgressAPI({
-          weekNo,
-          dayNo,
-          courseId,
-          answers: { [questionId]: answer },
-        }),
-      ).unwrap();
-
-      dispatch(
-        markQuestionSubmitted({
-          courseId,
-          questionId,
-        }),
-      );
-
-      const dayQuestions = allQuestions.filter((q) => q.day_no === dayNo);
-      const updatedSubmitted = {
-        ...reduxSubmittedQuestions,
-        [questionId]: true,
-      };
-
-      const allDone = dayQuestions.every((q) => updatedSubmitted[q.id]);
-      if (allDone) {
-        dispatch(
-          markScopedDayCompleted({
-            section: "userProgressDetails",
+      setSubmittingQuestion(questionId);
+      try {
+        await dispatch(
+          postUserProgressAPI({
+            weekNo,
+            dayNo: qDayNo,
             courseId,
-            dayNo,
+            answers: { [questionId]: answer },
           }),
-        );
+        ).unwrap();
+
+        dispatch(markQuestionSubmitted({ courseId, questionId }));
+
+        const dayQuestions = allQuestions.filter((q) => q.day_no === qDayNo);
+        const updatedSubmitted = {
+          ...reduxSubmittedQuestions,
+          [questionId]: true,
+        };
+        const allDone = dayQuestions.every((q) => updatedSubmitted[q.id]);
+
+        if (allDone) {
+          dispatch(
+            markScopedDayCompleted({
+              section: "userProgressDetails",
+              courseId,
+              dayNo: qDayNo,
+            }),
+          );
+        }
+
+        onSubmitSuccess?.();
+      } catch (err) {
+        console.error("Progress Submit error:", err);
+      } finally {
+        setSubmittingQuestion(null);
       }
+    },
+    [
+      answers,
+      reduxSubmittedQuestions,
+      dispatch,
+      weekNo,
+      courseId,
+      allQuestions,
+      onSubmitSuccess,
+    ],
+  );
 
-      onSubmitSuccess?.();
-    } catch (err) {
-      console.error("Progress Submit error:", err);
-    } finally {
-      setSubmittingQuestion(null);
-    }
-  };
+  const handleClosePopup = useCallback(() => {
+    setShowDayCompletionPopup(false);
+    setPopupDayNo(null);
+  }, []);
 
-  // Theme helpers
-  const textColor = {
-    primary: theme === "dark" ? "text-gray-100" : "text-gray-800",
-    secondary: theme === "dark" ? "text-gray-300" : "text-gray-700",
-    muted: theme === "dark" ? "text-gray-400" : "text-gray-600",
-  };
-  const bgColor = {
-    primary: theme === "dark" ? "bg-gray-900" : "bg-white",
-    secondary: theme === "dark" ? "bg-gray-800" : "bg-gray-50",
-    card: theme === "dark" ? "bg-gray-800/90" : "bg-white",
-    hover: theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100",
-  };
-  const borderColor = {
-    primary: theme === "dark" ? "border-gray-800" : "border-gray-200",
-    secondary: theme === "dark" ? "border-gray-700" : "border-gray-300",
-  };
-
-  const progressPct =
-    totalQuestions > 0
-      ? Math.round((submittedCount / totalQuestions) * 100)
-      : 0;
-
-  if (isLoading || (!isDataLoaded && reduxSubmittedAnswers === undefined)) {
+  // ── Guards ────────────────────────────────────────────────────────────────────
+  if (isLoading || !isDataLoaded) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="relative w-10 h-10">
           <div className="w-10 h-10 rounded-full border-4 border-gray-200 dark:border-gray-700" />
-          <div className="absolute top-0 left-0 w-10 h-10 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin" />
+          <div className="absolute inset-0 w-10 h-10 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin" />
         </div>
         <p className={`ml-4 text-sm ${textColor.muted}`}>
           Loading progress questions...
@@ -315,239 +536,12 @@ const ProgressPracticeForm = ({
   if (error) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm text-red-400">
-          {error || "Something went wrong."}
-        </p>
+        <p className="text-sm text-red-400">{error}</p>
       </div>
     );
   }
 
-  // Shared question renderer (used in both completed & regular form)
-  const renderDays = (locked = false) =>
-    Object.keys(questionsByDay).map((dayNo) => {
-      const day = questionsByDay[dayNo];
-      const dayQuestions = day.questions;
-      const daySubmittedCount = dayQuestions.filter(
-        (q) => reduxSubmittedQuestions[q.id],
-      ).length;
-      const dayCompleted = daySubmittedCount === dayQuestions.length;
-
-      return (
-        <div key={dayNo} className="mb-4">
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-blue-200 dark:border-blue-800">
-            <div
-              className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                dayCompleted
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-              }`}
-            >
-              Day {dayNo}
-            </div>
-            <span className={`text-xs ${textColor.muted}`}>
-              {daySubmittedCount}/{dayQuestions.length} Completed
-            </span>
-            {dayCompleted && (
-              <CheckCircle className="w-4 h-4 text-blue-500 ml-2" />
-            )}
-          </div>
-
-          <div>
-            {weeklyTheme.map((theme, idx) => (
-              <div key={idx} className="mb-4">
-                <h3 className={`text-lg font-semibold ${textColor.primary}`}>
-                  {theme.theme}
-                </h3>
-                <p className={`text-sm ${textColor.muted}`}>
-                  {theme.weekly_target}
-                </p>
-                <p className={`text-sm ${textColor.muted}`}>{theme.outcomes}</p>
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-col gap-5">
-            {dayQuestions.map((question, idx) => (
-              <QuestionCard
-                key={question.id}
-                question={question}
-                index={idx}
-                answers={answers}
-                hoverRating={hoverRating}
-                setHoverRating={setHoverRating}
-                theme={theme}
-                textColor={textColor}
-                bgColor={bgColor}
-                borderColor={borderColor}
-                onText={handleText}
-                onRadio={handleRadio}
-                onDropdown={handleDropdown}
-                onMultiSelect={handleMultiSelect}
-                onRating={handleRating}
-                isSubmitted={!!reduxSubmittedQuestions?.[question.id]}
-                isSubmitting={submittingQuestion === question.id}
-                onQuestionSubmit={() =>
-                  handleQuestionSubmit(question.id, parseInt(dayNo))
-                }
-              />
-            ))}
-          </div>
-        </div>
-      );
-    });
-
-  // Completed form — show all submitted answers (locked, no edit)
-  if (allCompleted && showCompletedForm) {
-    return (
-      <div className="w-full max-w-3xl mx-auto">
-        <div
-          className={`relative overflow-hidden ${bgColor.card} rounded-xl shadow-sm border ${borderColor.primary} transition-all duration-300 hover:shadow-md`}
-        >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
-          <div className="p-4 sm:p-6 md:p-8">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`p-2.5 rounded-lg ${theme === "dark" ? "bg-blue-900/30" : "bg-blue-100"}`}
-                >
-                  <ClipboardList
-                    className={`w-5 h-5 ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}
-                  />
-                </div>
-                <div>
-                  <h2
-                    className={`text-lg sm:text-xl font-bold ${textColor.primary}`}
-                  >
-                    Your Submitted Progress Answers
-                  </h2>
-                  <p className={`text-sm ${textColor.muted}`}>
-                    Week {weekNo} · All {totalQuestions} questions completed
-                  </p>
-                </div>
-              </div>
-              <div
-                className={`px-2.5 py-1 text-xs font-medium rounded-full ${theme === "dark" ? "bg-blue-900/30 text-blue-400" : "bg-blue-100 text-blue-700"}`}
-              >
-                Complete ✓
-              </div>
-            </div>
-
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className={`text-xs font-medium ${textColor.muted}`}>
-                  Overall Progress
-                </span>
-                <span className="text-xs font-medium text-blue-500">100%</span>
-              </div>
-              <div
-                className={`h-2 rounded-full ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}
-              >
-                <div
-                  className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
-                  style={{ width: "100%" }}
-                />
-              </div>
-            </div>
-
-            {/* Weekly Theme — shown once before all questions */}
-            {weeklyTheme?.length > 0 && (
-              <div className="mb-6 space-y-4">
-                {weeklyTheme.map((t, idx) => (
-                  <div
-                    key={idx}
-                    className={`rounded-xl border ${borderColor.primary} ${bgColor.secondary} p-6 text-center shadow-sm hover:shadow-md transition-shadow`}
-                  >
-                    {/* Theme - Pill Label Centered */}
-                    <div className="flex justify-center mb-4">
-                      <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-1.5 rounded-full border border-blue-200 dark:border-blue-800">
-                        <span className="text-blue-600 dark:text-blue-400 text-sm">
-                          🏷️
-                        </span>
-                        <span className="text-xs font-bold  tracking-wider text-blue-700 dark:text-blue-300">
-                          This Week's Theme
-                        </span>
-                      </div>
-                    </div>
-
-                    <h3
-                      className={`sm:text-lg text-sm font-bold ${textColor.primary} mb-6 py-2`}
-                      dangerouslySetInnerHTML={{ __html: t.theme }}
-                    />
-
-                    {/* Divider with Center Dot */}
-                    {t.weekly_target && (
-                      <>
-                        <div className="flex justify-center items-center gap-2 my-4">
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                          <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                        </div>
-
-                        <div className="flex justify-center mb-3">
-                          <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/30 px-4 py-1.5 rounded-full border border-green-200 dark:border-green-800">
-                            <span className="text-green-600 dark:text-green-400 text-sm">
-                              🎯
-                            </span>
-                            <span className="text-xs font-bold  tracking-wider text-green-700 dark:text-green-300">
-                              This Week's Target
-                            </span>
-                          </div>
-                        </div>
-
-                        <p
-                          className={`sm:text-lg text-sm ${textColor.muted} max-w-md mx-auto py-2`}
-                          dangerouslySetInnerHTML={{ __html: t.weekly_target }}
-                        />
-                      </>
-                    )}
-
-                    {/* Outcomes Section */}
-                    {t.outcomes && (
-                      <>
-                        <div className="flex justify-center items-center gap-2 my-4">
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                          <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                        </div>
-
-                        <div className="flex justify-center mb-3">
-                          <div className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/30 px-4 py-1.5 rounded-full border border-purple-200 dark:border-purple-800">
-                            <span className="text-purple-600 dark:text-purple-400 text-sm">
-                              ✨
-                            </span>
-                            <span className="text-xs font-bold  tracking-wider text-purple-700 dark:text-purple-300">
-                              Outcomes
-                            </span>
-                          </div>
-                        </div>
-
-                        <p
-                          className={`sm:text-lg text-sm ${textColor.muted} max-w-md mx-auto py-2`}
-                          dangerouslySetInnerHTML={{ __html: t.outcomes }}
-                        />
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2 scrollbar-hide">
-              {renderDays(true)}
-            </div>
-
-            <div className={`mt-6 pt-4 border-t ${borderColor.primary}`}>
-              <p className={`text-xs ${textColor.muted} text-center`}>
-                All your progress responses have been saved successfully. Great
-                job! 🎉
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show regular form (not all questions completed yet)
+  // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div className="w-full max-w-3xl mx-auto">
       <div
@@ -556,13 +550,18 @@ const ProgressPracticeForm = ({
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
 
         <div className="p-4 sm:p-6 md:p-8">
+          {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-3">
               <div
-                className={`p-2.5 rounded-lg ${theme === "dark" ? "bg-emerald-900/30" : "bg-emerald-100"}`}
+                className={`p-2.5 rounded-lg ${
+                  theme === "dark" ? "bg-emerald-900/30" : "bg-emerald-100"
+                }`}
               >
                 <ClipboardList
-                  className={`w-5 h-5 ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}
+                  className={`w-5 h-5 ${
+                    theme === "dark" ? "text-emerald-400" : "text-emerald-600"
+                  }`}
                 />
               </div>
               <div>
@@ -577,25 +576,34 @@ const ProgressPracticeForm = ({
               </div>
             </div>
             <span
-              className={`px-2.5 py-1 text-xs font-medium rounded-full ${theme === "dark" ? "bg-emerald-900/30 text-emerald-400" : "bg-emerald-100 text-emerald-700"}`}
+              className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                theme === "dark"
+                  ? "bg-emerald-900/30 text-emerald-400"
+                  : "bg-emerald-100 text-emerald-700"
+              }`}
             >
               {submittedCount}/{totalQuestions} Submitted
             </span>
           </div>
 
+          {/* Progress bar */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-1.5">
               <span className={`text-xs font-medium ${textColor.muted}`}>
                 Overall Progress
               </span>
               <span
-                className={`text-xs font-medium ${progressPct === 100 ? "text-emerald-500" : textColor.muted}`}
+                className={`text-xs font-medium ${
+                  progressPct === 100 ? "text-emerald-500" : textColor.muted
+                }`}
               >
                 {progressPct}%
               </span>
             </div>
             <div
-              className={`h-2 rounded-full ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}
+              className={`h-2 rounded-full ${
+                theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+              }`}
             >
               <div
                 className="h-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
@@ -604,167 +612,48 @@ const ProgressPracticeForm = ({
             </div>
           </div>
 
-          {/* Weekly Theme — Card Style Centered */}
-          {weeklyTheme?.length > 0 && (
-            <div className="mb-6 space-y-4">
-              {weeklyTheme.map((t, idx) => (
-                <div
-                  key={idx}
-                  className={`rounded-xl border ${borderColor.primary} ${bgColor.secondary} p-6 text-center shadow-sm hover:shadow-md transition-shadow`}
-                >
-                  {/* Theme - Pill Label Centered */}
-                  <div className="flex justify-center mb-4">
-                    <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-1.5 rounded-full border border-blue-200 dark:border-blue-800">
-                      <span className="text-blue-600 dark:text-blue-400 text-sm">
-                        🏷️
-                      </span>
-                      <span className="text-xs font-bold  tracking-wider text-blue-700 dark:text-blue-300">
-                        This Week's Theme
-                      </span>
-                    </div>
-                  </div>
-
-                  <h3
-                    className={`sm:text-lg text-sm font-bold ${textColor.primary} mb-6 py-2`}
-                    dangerouslySetInnerHTML={{ __html: t.theme }}
+          {/* Scrollable content */}
+          <div className="flex flex-col gap-6 max-h-[100vh] overflow-y-auto pr-2 scrollbar-hide">
+            {/* Weekly theme — shown once at the top */}
+            {weeklyTheme?.length > 0 && (
+              <div className="mb-6 space-y-4">
+                {weeklyTheme.map((t, idx) => (
+                  <WeeklyThemeCard
+                    key={idx}
+                    t={t}
+                    borderColor={borderColor}
+                    bgColor={bgColor}
+                    textColor={textColor}
                   />
+                ))}
+              </div>
+            )}
 
-                  {/* Divider with Center Dot */}
-                  {t.weekly_target && (
-                    <>
-                      <div className="flex justify-center items-center gap-2 my-4">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                      </div>
-
-                      <div className="flex justify-center mb-3">
-                        <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/30 px-4 py-1.5 rounded-full border border-green-200 dark:border-green-800">
-                          <span className="text-green-600 dark:text-green-400 text-sm">
-                            🎯
-                          </span>
-                          <span className="text-xs font-bold  tracking-wider text-green-700 dark:text-green-300">
-                            This Week's Target
-                          </span>
-                        </div>
-                      </div>
-
-                      <p
-                        className={`sm:text-lg text-sm ${textColor.muted} max-w-md mx-auto py-2`}
-                        dangerouslySetInnerHTML={{ __html: t.weekly_target }}
-                      />
-                    </>
-                  )}
-
-                  {/* Outcomes Section */}
-                  {t.outcomes && (
-                    <>
-                      <div className="flex justify-center items-center gap-2 my-4">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                        <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                      </div>
-
-                      <div className="flex justify-center mb-3">
-                        <div className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/30 px-4 py-1.5 rounded-full border border-purple-200 dark:border-purple-800">
-                          <span className="text-purple-600 dark:text-purple-400 text-sm">
-                            ✨
-                          </span>
-                          <span className="text-xs font-bold  tracking-wider text-purple-700 dark:text-purple-300">
-                            Outcomes
-                          </span>
-                        </div>
-                      </div>
-
-                      <p
-                        className={`sm:text-lg text-sm ${textColor.muted} max-w-md mx-auto py-2`}
-                        dangerouslySetInnerHTML={{ __html: t.outcomes }}
-                      />
-                    </>
-                  )}
-                </div>
-              ))}
-
-              {completedMessage.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`rounded-xl border ${borderColor.primary} ${bgColor.secondary} p-6 text-center shadow-sm hover:shadow-md transition-shadow`}
-                >
-                  <div className="inline-flex items-center gap-2 mb-3 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800">
-                    <span className="text-blue-600 dark:text-blue-400 text-sm">
-                      ℹ️
-                    </span>
-                    <span className="text-xs font-bold tracking-wider text-blue-700 dark:text-blue-300">
-                      Short Intro
-                    </span>
-                  </div>
-                  <p
-                    className={`sm:text-md text-sm font-bold ${textColor.primary} mb-6 py-2`}
-                    dangerouslySetInnerHTML={{ __html: msg.short_intro }}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2 scrollbar-hide">
-            {Object.keys(questionsByDay).map((dayNo) => {
-              const day = questionsByDay[dayNo];
-              const dayQuestions = day.questions;
-              const daySubmittedCount = dayQuestions.filter(
-                (q) => reduxSubmittedQuestions?.[q.id],
-              ).length;
-              const dayCompleted = daySubmittedCount === dayQuestions.length;
-
-              return (
-                <div key={dayNo} className="mb-4">
-                  <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-emerald-200 dark:border-emerald-800">
-                    <div
-                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        dayCompleted
-                          ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
-                          : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                      }`}
-                    >
-                      Day {dayNo}
-                    </div>
-                    <span className={`text-xs ${textColor.muted}`}>
-                      {daySubmittedCount}/{dayQuestions.length} Completed
-                    </span>
-                    {dayCompleted && (
-                      <CheckCircle className="w-4 h-4 text-emerald-500 ml-2" />
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-5">
-                    {dayQuestions.map((question, idx) => (
-                      <QuestionCard
-                        key={question.id}
-                        question={question}
-                        index={idx}
-                        answers={answers}
-                        hoverRating={hoverRating}
-                        setHoverRating={setHoverRating}
-                        theme={theme}
-                        textColor={textColor}
-                        bgColor={bgColor}
-                        borderColor={borderColor}
-                        onText={handleText}
-                        onRadio={handleRadio}
-                        onDropdown={handleDropdown}
-                        onMultiSelect={handleMultiSelect}
-                        onRating={handleRating}
-                        isSubmitted={!!reduxSubmittedQuestions?.[question.id]}
-                        isSubmitting={submittingQuestion === question.id}
-                        onQuestionSubmit={() =>
-                          handleQuestionSubmit(question.id, parseInt(dayNo))
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+            {/* Days — each renders its own short intro then its questions */}
+            {Object.keys(questionsByDay).map((dNo) => (
+              <DaySection
+                key={dNo}
+                dNo={Number(dNo)}
+                questions={questionsByDay[dNo].questions}
+                courseId={courseId}
+                weekNo={weekNo}
+                reduxSubmittedQuestions={reduxSubmittedQuestions}
+                textColor={textColor}
+                bgColor={bgColor}
+                borderColor={borderColor}
+                theme={theme}
+                answers={answers}
+                hoverRating={hoverRating}
+                setHoverRating={setHoverRating}
+                submittingQuestion={submittingQuestion}
+                handleQuestionSubmit={handleQuestionSubmit}
+                onText={handleText}
+                onRadio={handleRadio}
+                onDropdown={handleDropdown}
+                onMultiSelect={handleMultiSelect}
+                onRating={handleRating}
+              />
+            ))}
 
             {allQuestions.length === 0 && (
               <p className={`text-sm ${textColor.muted} text-center py-12`}>
@@ -773,90 +662,13 @@ const ProgressPracticeForm = ({
             )}
           </div>
 
-          {/* Day Completion Popup Message */}
+          {/* Day completion popup */}
           {showDayCompletionPopup && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
-              {/* Backdrop */}
-              <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                onClick={() => setShowDayCompletionPopup(false)}
-              />
-
-              {/* Popup Content */}
-              <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
-                {/* Close Button */}
-                <button
-                  onClick={() => setShowDayCompletionPopup(false)}
-                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-                {completedMessage.map((msg, idx) => (
-                  <div key={idx} className="text-center">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                      🎉 Day {popupDayNo} Complete! 🎉
-                    </h3>
-                    <p
-                      className="text-gray-600 dark:text-gray-300 mb-4"
-                      dangerouslySetInnerHTML={{ __html: msg.message }}
-                    />
-                    <span className="text-sm text-emerald-600 dark:text-emerald-400">
-                      Keep up the great work! 🌟
-                    </span>
-                  </div>
-                ))}
-                <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                  {/* Close Button */}
-                  <button
-                    onClick={() => {
-                      setShowDayCompletionPopup(false);
-                      setPopupDayNo(null);
-                    }}
-                    className="order-2 sm:order-1 px-4 py-2.5 rounded-xl 
-               border-2 border-emerald-500 dark:border-emerald-400
-               text-emerald-600 dark:text-emerald-400 font-semibold
-               hover:bg-emerald-50 dark:hover:bg-emerald-950/30
-               transition-all duration-200
-               focus:outline-none focus:ring-2 focus:ring-emerald-500
-               flex items-center justify-center gap-2"
-                  >
-                    <X className="w-4 h-4" />
-                    <span>Close</span>
-                  </button>
-
-                  {/* Continue Button */}
-                  <button
-                    onClick={() => {
-                      setShowDayCompletionPopup(false);
-                      setPopupDayNo(null);
-                    }}
-                    className="order-1 sm:order-2 flex-1 px-6 py-2.5 rounded-xl 
-               bg-gradient-to-r from-emerald-500 to-teal-600 
-               hover:from-emerald-600 hover:to-teal-700
-               text-white font-semibold
-               shadow-md hover:shadow-lg
-               transition-all duration-200
-               focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
-               flex items-center justify-center gap-2"
-                  >
-                    <span>Continue to Next Day</span>
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
+            <DayCompletionPopup
+              popupDayNo={popupDayNo}
+              completedMessage={popupCompletedMessage}
+              onClose={handleClosePopup}
+            />
           )}
 
           <div className={`mt-6 pt-4 border-t ${borderColor.primary}`}>
@@ -866,447 +678,6 @@ const ProgressPracticeForm = ({
             </p>
           </div>
         </div>
-      </div>
-    </div>
-  );
-};
-
-// QuestionCard component - NO EDIT capability, completely locked after submission
-const QuestionCard = ({
-  question,
-  index,
-  answers,
-  hoverRating,
-  setHoverRating,
-  theme,
-  textColor,
-  bgColor,
-  borderColor,
-  onText,
-  onRadio,
-  onDropdown,
-  onMultiSelect,
-  onRating,
-  isSubmitted,
-  isSubmitting,
-  onQuestionSubmit,
-}) => {
-  const { id, question_text, option_type, options } = question;
-
-  const currentAnswer = answers[id];
-
-  const hasAnswer =
-    currentAnswer !== undefined &&
-    (Array.isArray(currentAnswer)
-      ? currentAnswer.length > 0
-      : String(currentAnswer).trim() !== "");
-
-  const getOptionList = () => {
-    if (!options) return [];
-
-    if (Array.isArray(options) && options[0]?.text) {
-      const arr = Array.isArray(options[0].text)
-        ? options[0].text
-        : [options[0].text];
-
-      return arr.map((text, index) => ({
-        id: index + 1,
-        text,
-      }));
-    }
-
-    if (Array.isArray(options)) return options;
-
-    return [];
-  };
-
-  const optionList = getOptionList();
-
-  const optionTypeLabel = {
-    1: "Text",
-    2: "Radio",
-    3: "Dropdown",
-    4: "Multiple Select",
-    5: "Rating",
-    6: "Progress Bar",
-  };
-
-  // Locked style for submitted questions - completely disabled, no edit button
-  const lockedOverlay = isSubmitted
-    ? theme === "dark"
-      ? "border-emerald-700 bg-emerald-900/10"
-      : "border-emerald-300 bg-emerald-50/50"
-    : "";
-
-  return (
-    <div
-      className={`relative overflow-hidden rounded-xl p-4 sm:p-5 border transition-all duration-200 
-      ${isSubmitted ? lockedOverlay : `${borderColor.secondary} ${bgColor.secondary}`}`}
-    >
-      {/* Left accent bar for submitted questions */}
-      {isSubmitted && (
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-l-xl" />
-      )}
-
-      {/* Submitted badge - NO edit button */}
-      {isSubmitted && (
-        <div
-          className={`absolute mt-6 lg:mt-0 top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-            theme === "dark"
-              ? "bg-emerald-900/40 text-emerald-400"
-              : "bg-emerald-100 text-emerald-700"
-          }`}
-        >
-          <Lock className="w-3 h-3" />
-          Submitted
-        </div>
-      )}
-
-      {/* Question number and text */}
-      <div className="flex items-start gap-3 mb-4 pl-1">
-        <span
-          className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
-          ${
-            isSubmitted
-              ? "bg-emerald-500 text-white"
-              : theme === "dark"
-                ? "bg-gray-700 text-gray-400"
-                : "bg-gray-200 text-gray-600"
-          }`}
-        >
-          {isSubmitted ? "✓" : index + 1}
-        </span>
-        <div className="flex-1 min-w-0">
-          <p
-            className={`text-xs sm:text-sm font-medium ${textColor.primary} leading-relaxed`}
-            dangerouslySetInnerHTML={{
-              __html: question_text,
-            }}
-          />
-          {!isSubmitted && <span className="text-red-500 ml-1">*</span>}
-          <span
-            className={`text-xs mt-1 inline-block px-2 py-0.5 rounded-full ${
-              theme === "dark"
-                ? "bg-gray-700 text-gray-400"
-                : "bg-gray-100 text-gray-500"
-            }`}
-          >
-            {optionTypeLabel[option_type] || "Unknown"}
-          </span>
-        </div>
-      </div>
-
-      {/* Answer input area - completely disabled when submitted */}
-      <div className="pl-1">
-        {option_type === 1 && (
-          <textarea
-            value={currentAnswer || ""}
-            onChange={(e) => onText(id, e.target.value)}
-            disabled={isSubmitted}
-            className={`w-full h-40 px-4 py-2.5 rounded-lg text-sm border transition-all duration-150
-              ${bgColor.primary} ${textColor.primary} ${borderColor.secondary}
-              focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
-              ${isSubmitted ? "cursor-not-allowed opacity-60" : "cursor-pointer"}
-              ${currentAnswer && !isSubmitted ? (theme === "dark" ? "border-emerald-600" : "border-emerald-400") : ""}`}
-            placeholder={
-              isSubmitted ? "Answer submitted" : "Enter your answer..."
-            }
-            readOnly={isSubmitted}
-          />
-        )}
-
-        {option_type === 2 && (
-          <div className="w-full">
-            <div className="flex flex-col gap-3">
-              {optionList.map((opt) => (
-                <label
-                  key={opt.id}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all duration-150 w-full
-                    ${isSubmitted ? "cursor-not-allowed opacity-70" : "cursor-pointer"}
-                    ${
-                      currentAnswer === opt.id
-                        ? theme === "dark"
-                          ? "bg-emerald-900/30 border-emerald-600 text-emerald-300"
-                          : "bg-emerald-50 border-emerald-400 text-emerald-800"
-                        : `${borderColor.primary} ${bgColor.primary} ${!isSubmitted ? bgColor.hover : ""} ${textColor.secondary}`
-                    }`}
-                >
-                  <input
-                    type="radio"
-                    name={`q_${id}`}
-                    value={opt.id}
-                    checked={currentAnswer === opt.id}
-                    onChange={() => onRadio(id, opt.id)}
-                    disabled={isSubmitted}
-                    className="accent-emerald-600 w-4 h-4 shrink-0"
-                  />
-                  <span className="text-sm flex-1">{opt.text}</span>
-                  {currentAnswer === opt.id && !isSubmitted && (
-                    <ChevronRight className="w-4 h-4 text-emerald-500" />
-                  )}
-                  {currentAnswer === opt.id && isSubmitted && (
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                  )}
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {option_type === 3 && (
-          <select
-            value={currentAnswer || ""}
-            onChange={(e) => onDropdown(id, parseInt(e.target.value))}
-            disabled={isSubmitted}
-            className={`w-full px-4 py-2.5 rounded-lg text-sm border transition-all duration-150
-              ${bgColor.primary} ${textColor.primary} ${borderColor.secondary}
-              focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
-              ${isSubmitted ? "cursor-not-allowed opacity-60" : "cursor-pointer"}
-              ${currentAnswer && !isSubmitted ? (theme === "dark" ? "border-emerald-600" : "border-emerald-400") : ""}`}
-          >
-            <option value="">— Select an option —</option>
-            {optionList.map((opt) => (
-              <option key={opt.id} value={opt.id}>
-                {opt.text}
-              </option>
-            ))}
-          </select>
-        )}
-
-        {option_type === 4 && (
-          <div className="w-full">
-            <p className={`text-xs ${textColor.muted} mb-2`}>
-              {isSubmitted ? "Selected answers:" : "Select all that apply"}
-            </p>
-            <div className="flex flex-col gap-2">
-              {optionList.map((opt) => {
-                const checked =
-                  Array.isArray(currentAnswer) &&
-                  currentAnswer.includes(opt.id);
-                return (
-                  <label
-                    key={opt.id}
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all duration-150 w-full
-                      ${isSubmitted ? "cursor-not-allowed opacity-70" : "cursor-pointer"}
-                      ${
-                        checked
-                          ? theme === "dark"
-                            ? "bg-emerald-900/30 border-emerald-600 text-emerald-300"
-                            : "bg-emerald-50 border-emerald-400 text-emerald-800"
-                          : `${borderColor.primary} ${bgColor.primary} ${!isSubmitted ? bgColor.hover : ""} ${textColor.secondary}`
-                      }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => onMultiSelect(id, opt.id)}
-                      disabled={isSubmitted}
-                      className="accent-emerald-600 w-4 h-4 shrink-0"
-                    />
-                    <span className="text-sm flex-1">{opt.text}</span>
-                    {checked && (
-                      <CheckCircle className="w-4 h-4 ml-auto text-emerald-500" />
-                    )}
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {option_type === 5 && (
-          <div className="flex flex-col items-start gap-3">
-            <div className="flex items-center gap-1 flex-wrap">
-              {[1, 2, 3, 4, 5].map((star) => {
-                const filled = star <= (hoverRating[id] || currentAnswer || 0);
-                return (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => !isSubmitted && onRating(id, star)}
-                    onMouseEnter={() =>
-                      !isSubmitted &&
-                      setHoverRating((prev) => ({ ...prev, [id]: star }))
-                    }
-                    onMouseLeave={() =>
-                      !isSubmitted &&
-                      setHoverRating((prev) => ({ ...prev, [id]: 0 }))
-                    }
-                    disabled={isSubmitted}
-                    className={`p-1 rounded-lg transition-all duration-150 ${!isSubmitted ? bgColor.hover : "cursor-not-allowed"} focus:outline-none`}
-                  >
-                    <Star
-                      className={`w-8 h-8 transition-all duration-150 ${
-                        filled
-                          ? "fill-yellow-400 text-yellow-400 scale-110"
-                          : "text-gray-300 dark:text-gray-600"
-                      }`}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-            {currentAnswer > 0 && (
-              <span
-                className={`text-xs px-2 py-1 rounded-full ${theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"}`}
-              >
-                {
-                  ["", "Poor", "Fair", "Good", "Very Good", "Excellent"][
-                    currentAnswer
-                  ]
-                }{" "}
-                · {currentAnswer}/5
-              </span>
-            )}
-          </div>
-        )}
-
-        {option_type === 6 &&
-          (() => {
-            const LABELS = {
-              0: "Not rated",
-              10: "Terrible",
-              20: "Very poor",
-              30: "Poor",
-              40: "Below average",
-              50: "Average",
-              60: "Above average",
-              70: "Good",
-              80: "Very good",
-              90: "Excellent",
-              100: "Outstanding",
-            };
-            const getColor = (v) =>
-              v === 0
-                ? undefined
-                : v <= 20
-                  ? "#ef4444"
-                  : v <= 40
-                    ? "#f97316"
-                    : v <= 50
-                      ? "#eab308"
-                      : v <= 60
-                        ? "#84cc16"
-                        : "#22c55e";
-
-            const val = currentAnswer ?? 0;
-            const color = getColor(val);
-
-            const adjust = (delta) => {
-              if (isSubmitted) return;
-              const next = Math.max(0, Math.min(100, val + delta));
-              onRating(id, next);
-            };
-
-            const handleBarClick = (e) => {
-              if (isSubmitted) return;
-              const rect = e.currentTarget.getBoundingClientRect();
-              const raw = Math.round(
-                ((e.clientX - rect.left) / rect.width) * 100,
-              );
-              const snapped = Math.round(raw / 10) * 10;
-              onRating(id, Math.max(0, Math.min(100, snapped)));
-            };
-
-            return (
-              <div className="flex flex-col gap-3 w-full">
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    disabled={isSubmitted || val <= 0}
-                    onClick={() => adjust(-10)}
-                    className={`w-8 h-8 rounded-lg border border-gray-200 dark:border-gray-700
-                    text-lg text-gray-400 flex items-center justify-center flex-shrink-0
-                    transition-all hover:bg-gray-100 dark:hover:bg-gray-800
-                    disabled:opacity-30 disabled:cursor-not-allowed`}
-                  >
-                    −
-                  </button>
-
-                  <div
-                    onClick={handleBarClick}
-                    className={`flex-1 h-2 rounded-full bg-gray-100 dark:bg-gray-800
-            border border-gray-200 dark:border-gray-700 overflow-hidden
-            ${!isSubmitted ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}
-                  >
-                    <div
-                      className="h-full rounded-full transition-all duration-300"
-                      style={{
-                        width: `${val}%`,
-                        backgroundColor: color ?? "#888",
-                      }}
-                    />
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={isSubmitted || val >= 100}
-                    onClick={() => adjust(10)}
-                    className={`w-8 h-8 rounded-lg border border-gray-200 dark:border-gray-700
-                    text-lg text-gray-400 flex items-center justify-center flex-shrink-0
-                    transition-all hover:bg-gray-100 dark:hover:bg-gray-800
-                    disabled:opacity-30 disabled:cursor-not-allowed`}
-                  >
-                    +
-                  </button>
-                </div>
-                <div className="mx-auto p-3 flex items-center gap-5">
-                  <span
-                    className="text-sm font-medium min-w-[42px] text-right tabular-nums text-blue-500"
-                    style={{ color: color ?? undefined }}
-                  >
-                    {val}%
-                  </span>
-
-                  <span
-                    className={`inline-flex items-center  text-xs px-4 py-2 rounded-full border self-start
-                ${
-                  theme === "dark"
-                    ? "bg-gray-800 border-gray-700 text-gray-300"
-                    : "bg-gray-50 border-gray-200 text-gray-500"
-                }`}
-                  >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full"
-                      style={{ backgroundColor: color ?? "#888" }}
-                    />
-                    {LABELS[val] ?? `${val}%`}
-                    {val > 0 ? ` · ${val}%` : ""}
-                  </span>
-                </div>
-              </div>
-            );
-          })()}
-
-        {/* Submit button - only shown for unanswered questions */}
-        {!isSubmitted && (
-          <div className="mt-4 flex justify-end">
-            <button
-              onClick={onQuestionSubmit}
-              disabled={!hasAnswer || isSubmitting}
-              className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200
-                ${
-                  hasAnswer && !isSubmitting
-                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-sm hover:shadow-md cursor-pointer"
-                    : theme === "dark"
-                      ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                }`}
-            >
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Submitting...</span>
-                </span>
-              ) : (
-                <>
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Submit</span>
-                </>
-              )}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

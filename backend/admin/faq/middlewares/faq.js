@@ -8,8 +8,8 @@ import joi from "joi";
 
 export const postFaqValidator = (req, res, next) => {
   const schema = joi.object({
-    question: joi.string().min(2).max(500).required(), // was max(10) — typo fixed
-    answer: joi.string().min(2).max(5000).required(), // was max(1000) — increased for rich HTML
+    question: joi.string().min(2).max(2000).required(), // was max(10) — typo fixed
+    answer: joi.string().min(2).max(10000).required(), // was max(1000) — increased for rich HTML
   });
 
   const { error } = schema.validate(req.body);
@@ -44,8 +44,8 @@ export const updateFaqValidator = (req, res, next) => {
   }
 
   const bodySchema = joi.object({
-    question: joi.string().min(2).max(500).required(), // was max(100)
-    answer: joi.string().min(2).max(5000).required(), // was max(1000) — increased for rich HTML
+    question: joi.string().min(2).max(1000).required(), // was max(100)
+    answer: joi.string().min(2).max(10000).required(), // was max(1000) — increased for rich HTML
   });
 
   const { error } = bodySchema.validate(req.body);

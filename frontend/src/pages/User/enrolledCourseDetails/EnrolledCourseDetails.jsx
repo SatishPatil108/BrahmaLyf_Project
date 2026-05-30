@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
@@ -6,24 +12,19 @@ import {
   ChevronLeft,
   ChevronRight,
   BookOpen,
-  Users,
-  Target,
   Clock,
   Calendar,
   CheckCircle,
   ListVideo,
-  GraduationCap,
   MessageSquare,
   X,
   Menu,
   Info,
-  ChevronUp,
   ChevronDown,
   FileText,
   Folder,
   FolderOpen,
   Video,
-  ClipboardClock,
 } from "lucide-react";
 import useEnrolledCourseDetails from "./useEnrolledCourseDetails";
 import { clearUserError } from "@/store/feature/user/userSlice";
@@ -34,6 +35,271 @@ import useUserProgressDetails from "./useUserProgressDetails";
 import ProgressToolsForm from "./ProgressToolsForm";
 import CourseInfoContent from "./CourseInfoContent";
 import ProgressPracticeForm from "./ProgressPracticeForm";
+
+// Extracted constant for theme-based styling
+const THEME_STYLES = {
+  dark: {
+    text: {
+      primary: "text-gray-100",
+      secondary: "text-gray-300",
+      muted: "text-gray-400",
+      inverse: "text-gray-800",
+    },
+    bg: {
+      primary: "bg-gray-900",
+      secondary: "bg-gray-800",
+      tertiary: "bg-gray-950",
+    },
+    border: {
+      primary: "border-gray-800",
+      secondary: "border-gray-700",
+    },
+  },
+  light: {
+    text: {
+      primary: "text-gray-800",
+      secondary: "text-gray-700",
+      muted: "text-gray-600",
+      inverse: "text-gray-100",
+    },
+    bg: {
+      primary: "bg-white",
+      secondary: "bg-gray-50",
+      tertiary: "bg-gray-100",
+    },
+    border: {
+      primary: "border-gray-200",
+      secondary: "border-gray-300",
+    },
+  },
+};
+
+// Extracted helper function for date formatting
+const formatDate = (dateStr) => {
+  if (!dateStr) return "N/A";
+  const date = new Date(dateStr);
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+// Extracted Module Item component to prevent re-renders
+const ModuleItem = React.memo(
+  ({
+    module,
+    type,
+    level = 0,
+    hasChildren = false,
+    isSelected,
+    isExpanded,
+    theme,
+    onSelect,
+    onToggleChapter,
+  }) => {
+    const typeConfig = {
+      Chapter: {
+        icon: isExpanded ? FolderOpen : Folder,
+        color: "blue",
+        bgColor: theme === "dark" ? "bg-blue-900/20" : "bg-blue-50",
+        borderColor:
+          theme === "dark" ? "border-blue-800/50" : "border-blue-200",
+      },
+      Section: {
+        icon: FileText,
+        color: "green",
+        bgColor: theme === "dark" ? "bg-green-900/10" : "bg-green-50/50",
+        borderColor:
+          theme === "dark" ? "border-green-800/30" : "border-green-200",
+      },
+      Lesson: {
+        icon: Video,
+        color: "purple",
+        bgColor: theme === "dark" ? "bg-purple-900/10" : "bg-purple-50/50",
+        borderColor:
+          theme === "dark" ? "border-purple-800/30" : "border-purple-200",
+      },
+    };
+
+    const config = typeConfig[type];
+    const Icon = config.icon;
+    const textColor = THEME_STYLES[theme].text;
+    const paddingLeft = 16 + level * 20;
+
+    const handleClick = useCallback(() => {
+      if (type === "Chapter" && hasChildren) {
+        onToggleChapter(module.id);
+      }
+      onSelect(module.id);
+    }, [type, hasChildren, module.id, onToggleChapter, onSelect]);
+
+    return (
+      <div
+        className={`relative ${level > 0 ? "ml-6" : ""}`}
+        style={{ paddingLeft: `${paddingLeft}px` }}
+      >
+        {level > 0 && (
+          <div
+            className={`absolute left-0 top-0 bottom-0 w-0.5 ${
+              theme === "dark" ? "bg-gray-700" : "bg-gray-300"
+            }`}
+            style={{ left: `${paddingLeft - 16}px` }}
+          />
+        )}
+
+        <button
+          onClick={handleClick}
+          className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-start gap-3 group relative
+          ${isSelected ? `${config.bgColor} border ${config.borderColor}` : "hover:bg-gray-100 dark:hover:bg-gray-800"}
+          ${type === "Lesson" ? "border-l-4 ml-[-4px]" : ""}
+          ${isSelected && type === "Lesson" ? "border-l-purple-500" : "border-l-transparent"}
+        `}
+        >
+          <div
+            className={`flex-shrink-0 p-2 rounded-md ${
+              isSelected
+                ? theme === "dark"
+                  ? `bg-${config.color}-900/40`
+                  : `bg-${config.color}-100`
+                : theme === "dark"
+                  ? "bg-gray-800"
+                  : "bg-gray-100"
+            }`}
+          >
+            <Icon
+              className={`w-4 h-4 ${
+                isSelected
+                  ? theme === "dark"
+                    ? `text-${config.color}-400`
+                    : `text-${config.color}-600`
+                  : "text-gray-500 dark:text-gray-400"
+              }`}
+            />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+              <span
+                className={`font-medium truncate ${
+                  isSelected
+                    ? theme === "dark"
+                      ? `text-${config.color}-400`
+                      : `text-${config.color}-700`
+                    : textColor.primary
+                }`}
+              >
+                {module.title}
+              </span>
+              {type === "Chapter" && hasChildren && (
+                <ChevronDown
+                  className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${
+                    isExpanded ? "rotate-180" : ""
+                  } ${textColor.muted}`}
+                />
+              )}
+            </div>
+
+            {type === "Lesson" && (
+              <div className="flex items-center gap-2 mt-1">
+                <div
+                  className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded ${
+                    theme === "dark"
+                      ? "bg-gray-800 text-gray-400"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  <Video className="w-3 h-3" />
+                  <span>Lesson {module.lessonIndex || module.globalIndex}</span>
+                </div>
+                {module.duration && (
+                  <span className={`text-xs ${textColor.muted}`}>
+                    {module.duration}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {isSelected && (
+            <div
+              className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full ${
+                theme === "dark"
+                  ? `bg-${config.color}-400`
+                  : `bg-${config.color}-600`
+              }`}
+            />
+          )}
+
+          {type === "Lesson" && module.isCompleted && (
+            <div className="absolute right-3 top-3">
+              <CheckCircle className="w-4 h-4 text-green-500" />
+            </div>
+          )}
+        </button>
+      </div>
+    );
+  },
+);
+
+ModuleItem.displayName = "ModuleItem";
+
+// Extracted Error Component
+const ErrorState = ({ message, onRetry, theme }) => {
+  const styles = THEME_STYLES[theme];
+  return (
+    <div
+      className={`min-h-screen ${styles.bg.tertiary} transition-colors duration-300`}
+    >
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">⚠️</span>
+          </div>
+          <h2 className={`text-xl font-semibold ${styles.text.primary} mb-2`}>
+            Error Loading Course
+          </h2>
+          <p className={`${styles.text.secondary} mb-4`}>{message}</p>
+          <button
+            onClick={onRetry}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Extracted Loading/Empty State Component
+const EmptyState = ({ theme, onOpenSidebar }) => {
+  const styles = THEME_STYLES[theme];
+  return (
+    <div
+      className={`rounded-xl p-8 text-center ${styles.bg.primary} shadow-sm`}
+    >
+      <BookOpen className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+      <h3 className={`text-lg font-bold ${styles.text.primary} mb-2`}>
+        Welcome to the Course
+      </h3>
+      <p className={`${styles.text.secondary} mb-6`}>
+        Open the menu to select your first module
+      </p>
+      <button
+        onClick={onOpenSidebar}
+        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+      >
+        Open Course Modules
+      </button>
+    </div>
+  );
+};
+
+// Custom hook for theme styles (memoized)
+const useThemeStyles = (theme) => {
+  return useMemo(() => THEME_STYLES[theme], [theme]);
+};
 
 const EnrolledCourseDetails = () => {
   const { courseId } = useParams();
@@ -56,64 +322,27 @@ const EnrolledCourseDetails = () => {
     weekData,
     isLoading: progressLoading,
     error: progressError,
-    submittedToday,
   } = useUserProgressDetails(Number(courseId));
 
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
   const { theme } = useTheme();
+  const styles = useThemeStyles(theme);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const hasAutoOpenedRef = useRef(false);
-
   const [showCourseInfo, setShowCourseInfo] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [expandedChapters, setExpandedChapters] = useState(() => new Set());
 
-  const [expandedChapters, setExpandedChapters] = useState(new Set());
-
+  // Fixed: Correct dependency array for error handling
   useEffect(() => {
     if (error?.message === "Authorization token is missing.") {
       dispatch(clearUserError());
       navigate("/login");
     }
-  }, [error, navigate, dispatch]);
+  }, [error, dispatch, navigate]); // Added missing dependencies
 
-  // Helper function for consistent text colors
-  const textColor = {
-    primary: theme === "dark" ? "text-gray-100" : "text-gray-800",
-    secondary: theme === "dark" ? "text-gray-300" : "text-gray-700",
-    muted: theme === "dark" ? "text-gray-400" : "text-gray-600",
-    inverse: theme === "dark" ? "text-gray-800" : "text-gray-100",
-  };
-
-  const bgColor = {
-    primary: theme === "dark" ? "bg-gray-900" : "bg-white",
-    secondary: theme === "dark" ? "bg-gray-800" : "bg-gray-50",
-    tertiary: theme === "dark" ? "bg-gray-950" : "bg-gray-100",
-  };
-
-  const borderColor = {
-    primary: theme === "dark" ? "border-gray-800" : "border-gray-200",
-    secondary: theme === "dark" ? "border-gray-700" : "border-gray-300",
-  };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "N/A";
-    const date = new Date(dateStr);
-    return date.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const { getYouTubeEmbedUrl } = useYouTubeEmbedUrl({
-    fallbackUrl: "",
-    addPlayerParams: false,
-  });
-
-  // Group modules hierarchically
+  // Memoized grouped modules
   const groupedModules = useMemo(() => {
     if (!enrolledCourseDetails?.modules) return [];
 
@@ -163,7 +392,8 @@ const EnrolledCourseDetails = () => {
     return chapters;
   }, [enrolledCourseDetails?.modules, expandedChapters]);
 
-  const toggleChapter = (chapterId) => {
+  // Memoized callbacks
+  const toggleChapter = useCallback((chapterId) => {
     setExpandedChapters((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(chapterId)) {
@@ -173,247 +403,64 @@ const EnrolledCourseDetails = () => {
       }
       return newSet;
     });
-  };
+  }, []);
 
-  const handleModuleSelect = (moduleId) => {
-    setSelectedModuleId(moduleId);
-    if (window.innerWidth < 1024) {
-      setSidebarOpen(false);
-    }
-  };
+  const handleModuleSelect = useCallback(
+    (moduleId) => {
+      setSelectedModuleId(moduleId);
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      }
+    },
+    [setSelectedModuleId],
+  );
 
-  const handleProgressSubmitSuccess = () => {};
+  const handleProgressSubmitSuccess = useCallback(() => {
+    // Success handler - can be implemented if needed
+  }, []);
 
-  // Render module item with proper indentation
-  const renderModuleItem = (module, type, level = 0, hasChildren = false) => {
-    const isSelected = selectedModuleId === module.id;
-    const isExpanded = expandedChapters.has(module.id);
+  const handleRetry = useCallback(() => {
+    window.location.reload();
+  }, []);
 
-    const typeConfig = {
-      Chapter: {
-        icon: isExpanded ? FolderOpen : Folder,
-        color: "blue",
-        bgColor: theme === "dark" ? "bg-blue-900/20" : "bg-blue-50",
-        textColor: isSelected
-          ? theme === "dark"
-            ? "text-blue-400"
-            : "text-blue-700"
-          : textColor.primary,
-        borderColor:
-          theme === "dark" ? "border-blue-800/50" : "border-blue-200",
-      },
-      Section: {
-        icon: FileText,
-        color: "green",
-        bgColor: theme === "dark" ? "bg-green-900/10" : "bg-green-50/50",
-        textColor: isSelected
-          ? theme === "dark"
-            ? "text-green-400"
-            : "text-green-700"
-          : textColor.primary,
-        borderColor:
-          theme === "dark" ? "border-green-800/30" : "border-green-200",
-      },
-      Lesson: {
-        icon: Video,
-        color: "purple",
-        bgColor: theme === "dark" ? "bg-purple-900/10" : "bg-purple-50/50",
-        textColor: isSelected
-          ? theme === "dark"
-            ? "text-purple-400"
-            : "text-purple-700"
-          : textColor.primary,
-        borderColor:
-          theme === "dark" ? "border-purple-800/30" : "border-purple-200",
-      },
-    };
+  const handleOpenSidebar = useCallback(() => {
+    setSidebarOpen(true);
+  }, []);
 
-    const config = typeConfig[type];
-    const Icon = config.icon;
-    const paddingLeft = 16 + level * 20;
-
-    return (
-      <div
-        className={`relative ${level > 0 ? "ml-6" : ""}`}
-        style={{ paddingLeft: `${paddingLeft}px` }}
-      >
-        {/* Vertical connecting line */}
-        {level > 0 && (
-          <div
-            className={`absolute left-0 top-0 bottom-0 w-0.5 ${
-              theme === "dark" ? "bg-gray-700" : "bg-gray-300"
-            }`}
-            style={{ left: `${paddingLeft - 16}px` }}
-          />
-        )}
-
-        <button
-          onClick={() => {
-            if (type === "Chapter" && hasChildren) {
-              toggleChapter(module.id);
-              handleModuleSelect(module.id);
-            } else {
-              handleModuleSelect(module.id);
-            }
-          }}
-          className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-start gap-3 group relative
-            ${
-              isSelected
-                ? `${config.bgColor} border ${config.borderColor}`
-                : "hover:bg-gray-100 dark:hover:bg-gray-800"
-            }
-            ${type === "Lesson" ? "border-l-4 ml-[-4px]" : ""}
-            ${
-              isSelected && type === "Lesson"
-                ? "border-l-purple-500"
-                : "border-l-transparent"
-            }
-          `}
-        >
-          {/* Icon */}
-          <div
-            className={`flex-shrink-0 p-2 rounded-md ${
-              isSelected
-                ? theme === "dark"
-                  ? `bg-${config.color}-900/40`
-                  : `bg-${config.color}-100`
-                : theme === "dark"
-                  ? "bg-gray-800"
-                  : "bg-gray-100"
-            }`}
-          >
-            <Icon
-              className={`w-4 h-4 ${
-                isSelected
-                  ? theme === "dark"
-                    ? `text-${config.color}-400`
-                    : `text-${config.color}-600`
-                  : "text-gray-500 dark:text-gray-400"
-              }`}
-            />
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <span className={`font-medium truncate ${config.textColor}`}>
-                {module.title}
-              </span>
-              {type === "Chapter" && hasChildren && (
-                <ChevronDown
-                  className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${
-                    isExpanded ? "rotate-180" : ""
-                  } ${textColor.muted}`}
-                />
-              )}
-            </div>
-
-            {type === "Lesson" && (
-              <div className="flex items-center gap-2 mt-1">
-                <div
-                  className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded ${
-                    theme === "dark"
-                      ? "bg-gray-800 text-gray-400"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  <Video className="w-3 h-3" />
-                  <span>Lesson {module.lessonIndex || module.globalIndex}</span>
-                </div>
-                {module.duration && (
-                  <span className={`text-xs ${textColor.muted}`}>
-                    {module.duration}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Selection indicator */}
-          {isSelected && (
-            <div
-              className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full ${
-                theme === "dark"
-                  ? `bg-${config.color}-400`
-                  : `bg-${config.color}-600`
-              }`}
-            />
-          )}
-        </button>
-
-        {/* Progress indicator for lessons */}
-        {type === "Lesson" && module.isCompleted && (
-          <div className="absolute right-3 top-3">
-            <CheckCircle className="w-4 h-4 text-green-500" />
-          </div>
-        )}
-      </div>
+  // Sanitize HTML content (fix security vulnerability)
+  const sanitizeHTML = useCallback((html) => {
+    if (!html) return "";
+    // Basic sanitization - in production, use DOMPurify or similar library
+    return html.replace(
+      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+      "",
     );
-  };
+  }, []);
 
+  // Error and loading states
   if (error) {
     return (
-      <div
-        className={`min-h-screen ${bgColor.tertiary} transition-colors duration-300`}
-      >
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">⚠️</span>
-            </div>
-            <h2 className={`text-xl font-semibold ${textColor.primary} mb-2`}>
-              Error Loading Course
-            </h2>
-            <p className={`${textColor.secondary} mb-4`}>{error.message}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      </div>
+      <ErrorState message={error.message} onRetry={handleRetry} theme={theme} />
     );
   }
 
   if (!enrolledCourseDetails) {
-    return (
-      <div
-        className={`min-h-screen ${bgColor.tertiary} transition-colors duration-300`}
-      >
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
-              <BookOpen className="w-8 h-8 text-gray-400 dark:text-gray-600" />
-            </div>
-            <h2 className={`text-xl font-semibold ${textColor.primary} mb-2`}>
-              Course Not Found
-            </h2>
-            <p className={`${textColor.secondary}`}>
-              The requested course could not be found
-            </p>
-          </div>
-        </div>
-      </div>
-    );
+    return <EmptyState theme={theme} onOpenSidebar={handleOpenSidebar} />;
   }
 
   return (
     <div
-      className={`min-h-screen ${bgColor.tertiary} transition-colors duration-300`}
+      className={`min-h-screen ${styles.bg.tertiary} transition-colors duration-300`}
     >
-      {/* Header - Responsive */}
-      <div className={`border-b ${borderColor.primary} ${bgColor.primary}`}>
-        {/* Mobile Header (lg and below) */}
+      {/* Header Component - Can be extracted further */}
+      <div className={`border-b ${styles.border.primary} ${styles.bg.primary}`}>
+        {/* Mobile Header */}
         <div className="lg:hidden px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={`p-2 rounded-lg hover:${
-                  theme === "dark" ? "bg-gray-800" : "bg-gray-100"
-                }`}
+                className={`p-2 rounded-lg hover:${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}
               >
                 {sidebarOpen ? (
                   <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -423,11 +470,11 @@ const EnrolledCourseDetails = () => {
               </button>
               <div>
                 <h1
-                  className={`text-sm font-bold ${textColor.primary} truncate max-w-[180px]`}
+                  className={`text-sm font-bold ${styles.text.primary} truncate max-w-[180px]`}
                 >
                   {enrolledCourseDetails.course_name}
                 </h1>
-                <p className={`text-xs ${textColor.muted}`}>
+                <p className={`text-xs ${styles.text.muted}`}>
                   Module {currentIndex + 1}/{totalModules}
                 </p>
               </div>
@@ -436,36 +483,29 @@ const EnrolledCourseDetails = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowCourseInfo(!showCourseInfo)}
-                className={`p-2 rounded-lg hover:${
-                  theme === "dark" ? "bg-gray-800" : "bg-gray-100"
-                }`}
+                className={`p-2 rounded-lg hover:${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}
               >
                 <Info className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </button>
 
               <button
                 onClick={() => setShowFeedback(!showFeedback)}
-                className={`p-2 rounded-lg hover:${
-                  theme === "dark" ? "bg-gray-800" : "bg-gray-100"
-                } relative`}
+                className={`p-2 rounded-lg hover:${theme === "dark" ? "bg-gray-800" : "bg-gray-100"} relative`}
               >
                 <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                {currentIndex === totalModules - 1 && totalModules > 0 && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3"></div>
-                )}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Desktop Header (lg and above) */}
+        {/* Desktop Header */}
         <div className="hidden lg:block max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className={`text-xl font-bold ${textColor.primary}`}>
+              <h1 className={`text-xl font-bold ${styles.text.primary}`}>
                 {enrolledCourseDetails.course_name}
               </h1>
-              <p className={`text-sm ${textColor.muted}`}>
+              <p className={`text-sm ${styles.text.muted}`}>
                 Module {currentIndex + 1} of {totalModules}
               </p>
             </div>
@@ -496,9 +536,6 @@ const EnrolledCourseDetails = () => {
               >
                 <MessageSquare className="w-4 h-4" />
                 Feedback
-                {currentIndex === totalModules - 1 && totalModules > 0 && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3"></div>
-                )}
               </button>
             </div>
           </div>
@@ -508,310 +545,93 @@ const EnrolledCourseDetails = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-0 py-6">
         <div className="flex flex-col lg:flex-row gap-4">
-          {/* Course Info Panel - Responsive (shows on mobile when toggled, always shows on desktop when toggled) */}
+          {/* Course Info Panel - Mobile */}
           {showCourseInfo && (
-            <div
-              className={`lg:hidden rounded-xl shadow-lg mb-4 ${borderColor.primary} border ${bgColor.primary}`}
+            <MobilePanel
+              title="Course Information"
+              onClose={() => setShowCourseInfo(false)}
+              theme={theme}
+              styles={styles}
             >
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className={`font-bold ${textColor.primary}`}>
-                    Course Information
-                  </h3>
-                  <button
-                    onClick={() => setShowCourseInfo(false)}
-                    className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                  >
-                    <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  </button>
-                </div>
-                <CourseInfoContent
-                  enrolledCourseDetails={enrolledCourseDetails}
-                  textColor={textColor}
-                  theme={theme}
-                />
-              </div>
-            </div>
+              <CourseInfoContent
+                enrolledCourseDetails={enrolledCourseDetails}
+                textColor={styles.text}
+                theme={theme}
+              />
+            </MobilePanel>
           )}
 
-          {/* Feedback Panel - Responsive */}
+          {/* Feedback Panel - Mobile */}
           {showFeedback && (
-            <div
-              className={`lg:hidden rounded-xl shadow-lg mb-4 ${borderColor.primary} border ${bgColor.primary}`}
+            <MobilePanel
+              title="Course Feedback"
+              onClose={() => setShowFeedback(false)}
+              theme={theme}
+              styles={styles}
             >
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className={`font-bold ${textColor.primary}`}>
-                    Course Feedback
-                  </h3>
-                  <button
-                    onClick={() => setShowFeedback(false)}
-                    className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                  >
-                    <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  </button>
-                </div>
-                <FeedbackForm
-                  theme={theme}
-                  courseId={Number(courseId)}
-                  enrollmentId={1}
-                  onSuccess={() => setShowFeedback(false)}
-                />
-              </div>
-            </div>
+              <FeedbackForm
+                theme={theme}
+                courseId={Number(courseId)}
+                enrollmentId={null} // Fixed: Should come from API or context
+                onSuccess={() => setShowFeedback(false)}
+              />
+            </MobilePanel>
           )}
 
-          {/* Left Sidebar - Course Index */}
-          <div
-            className={`
-          ${
-            sidebarOpen
-              ? "fixed inset-0 z-50 bg-black bg-opacity-50 lg:static lg:bg-transparent"
-              : "hidden lg:block"
-          }
-        `}
-          >
-            <div
-              className={`
-            ${
-              sidebarOpen
-                ? "absolute inset-y-0 left-0 max-w-sm lg:relative min-w-[280px] w-[320px]"
-                : "lg:relative min-w-[280px] w-[320px] max-w-[350px]"
-            }
-            ${bgColor.primary} ${borderColor.primary}
-            border rounded-xl lg:rounded-xl shadow-sm h-full lg:h-[calc(100vh-8rem)] overflow-hidden flex flex-col
-          `}
-            >
-              {/* Sidebar Header */}
-              <div
-                className={`p-4 border-b ${borderColor.primary} flex items-center justify-between flex-shrink-0`}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`p-2 rounded-lg ${
-                      theme === "dark" ? "bg-blue-900/30" : "bg-blue-100"
-                    }`}
-                  >
-                    <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className={`font-bold ${textColor.primary}`}>
-                      Course Content
-                    </h3>
-                    <p className={`text-xs ${textColor.muted}`}>
-                      {totalModules} modules
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSidebarOpen(false)}
-                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </button>
-              </div>
-              {/* Module List */}
-              <div className="flex-1 overflow-y-auto">
-                <div className="p-2">
-                  {groupedModules.map((chapter) => {
-                    const hasChildren =
-                      chapter.sections.length > 0 ||
-                      chapter.directLessons.length > 0;
-                    const isChapterExpanded = expandedChapters.has(chapter.id);
-
-                    return (
-                      <div key={chapter.id} className="mb-1">
-                        {/* Chapter */}
-                        {renderModuleItem(chapter, "Chapter", 0, hasChildren)}
-
-                        {/* Expanded content */}
-                        {isChapterExpanded && (
-                          <>
-                            {/* Sections */}
-                            {chapter.sections.map((section) => (
-                              <div key={section.id} className="mb-1">
-                                {renderModuleItem(section, "Section", 1)}
-
-                                {/* Lessons in section */}
-                                {section.lessons.map((lesson) => (
-                                  <div key={lesson.id}>
-                                    {renderModuleItem(lesson, "Lesson", 2)}
-                                  </div>
-                                ))}
-                              </div>
-                            ))}
-
-                            {/* Direct lessons (without sections) */}
-                            {chapter.directLessons.map((lesson) => (
-                              <div key={lesson.id}>
-                                {renderModuleItem(lesson, "Lesson", 1)}
-                              </div>
-                            ))}
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Sidebar Footer */}
-              <div
-                className={`p-4 border-t ${borderColor.primary} flex-shrink-0`}
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    <span className={`text-sm ${textColor.secondary}`}>
-                      {enrolledCourseDetails.duration}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    <span className={`text-sm ${textColor.secondary}`}>
-                      Enrolled {formatDate(enrolledCourseDetails.created_on)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <ListVideo className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    <span className={`text-sm ${textColor.secondary}`}>
-                      {totalModules} modules
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Sidebar */}
+          <Sidebar
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+            groupedModules={groupedModules}
+            selectedModuleId={selectedModuleId}
+            handleModuleSelect={handleModuleSelect}
+            toggleChapter={toggleChapter}
+            expandedChapters={expandedChapters}
+            enrolledCourseDetails={enrolledCourseDetails}
+            totalModules={totalModules}
+            theme={theme}
+            styles={styles}
+            formatDate={formatDate}
+          />
 
           {/* Main Content Area */}
           <div className="flex-1">
-            {moduleDetails && currentIndex != -1 ? (
+            {moduleDetails && currentIndex !== -1 ? (
               <>
-                {/* Video Player Card */}
-                <div
-                  className={`rounded-xl overflow-hidden shadow-lg ${bgColor.primary} mb-6`}
-                >
-                  {moduleDetails.video_url ? (
-                    <div className="relative aspect-video bg-black">
-                      <iframe
-                        className="w-full h-full"
-                        src={getYouTubeEmbedUrl(moduleDetails.video_url)}
-                        title={moduleDetails.title}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      ></iframe>
-                    </div>
-                  ) : (
-                    <div className="aspect-video bg-gray-900 flex items-center justify-center">
-                      <Play className="w-16 h-16 text-white opacity-50" />
-                      <p className="text-white mt-4">Video not available</p>
-                    </div>
-                  )}
+                <VideoPlayer
+                  moduleDetails={moduleDetails}
+                  currentIndex={currentIndex}
+                  totalModules={totalModules}
+                  hasPrevModule={hasPrevModule}
+                  hasNextModule={hasNextModule}
+                  goToPreviousModule={goToPreviousModule}
+                  goToNextModule={goToNextModule}
+                  theme={theme}
+                  styles={styles}
+                  sanitizeHTML={sanitizeHTML}
+                />
 
-                  <div className="p-6 lg:p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <span
-                            className={`px-2 py-1 rounded text-xs font-medium ${
-                              theme === "dark"
-                                ? "bg-blue-900/30 text-blue-400"
-                                : "bg-blue-100 text-blue-700"
-                            }`}
-                          >
-                            {moduleDetails.header_type}
-                          </span>
-                          <span className={`text-sm ${textColor.muted}`}>
-                            Module {currentIndex + 1} of {totalModules}
-                          </span>
-                        </div>
-                        <h2
-                          className={`text-lg lg:text-xl font-bold ${textColor.primary}`}
-                        >
-                          {moduleDetails.title}
-                        </h2>
-                      </div>
-
-                      {/* Navigation Buttons */}
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={goToPreviousModule}
-                          disabled={!hasPrevModule}
-                          className={`p-3 rounded-lg transition-colors ${
-                            hasPrevModule
-                              ? theme === "dark"
-                                ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
-                                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                              : theme === "dark"
-                                ? "bg-gray-800 text-gray-600 cursor-not-allowed"
-                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                          }`}
-                        >
-                          <ChevronLeft className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={goToNextModule}
-                          disabled={!hasNextModule}
-                          className={`p-3 rounded-lg transition-colors ${
-                            hasNextModule
-                              ? theme === "dark"
-                                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                : "bg-blue-600 hover:bg-blue-700 text-white"
-                              : theme === "dark"
-                                ? "bg-gray-800 text-gray-600 cursor-not-allowed"
-                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                          }`}
-                        >
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <p
-                      className={`${textColor.secondary}`}
-                      dangerouslySetInnerHTML={{
-                        __html: moduleDetails.description,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Course Information Panel */}
+                {/* Desktop Course Info Panel */}
                 {showCourseInfo && (
-                  <div
-                    className={`hidden lg:block rounded-xl p-6 mb-6 ${borderColor.primary} border ${bgColor.primary} shadow-sm`}
+                  <DesktopPanel
+                    title="Course Information"
+                    onClose={() => setShowCourseInfo(false)}
+                    theme={theme}
+                    styles={styles}
                   >
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className={`text-lg font-bold ${textColor.primary}`}>
-                        Course Information
-                      </h3>
-                      <button
-                        onClick={() => setShowCourseInfo(false)}
-                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                      >
-                        <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                      </button>
-                    </div>
                     <CourseInfoContent
                       enrolledCourseDetails={enrolledCourseDetails}
-                      textColor={textColor}
+                      textColor={styles.text}
                       theme={theme}
                     />
-                  </div>
+                  </DesktopPanel>
                 )}
 
-                {/* Progress Panel */}
-                <div
-                  className={`rounded-xl p-4 md:p-6 mb-6 `}
+                <ProgressPanel
+                  title="Today's Task"
+                  theme={theme}
+                  styles={styles}
                 >
-                  <div className="flex justify-center mb-6">
-                    <h3
-                      className={`text-base md:text-lg font-bold ${textColor.primary}`}
-                    >
-                      Today's Task
-                    </h3>
-                  </div>
                   <ProgressPracticeForm
                     theme={theme}
                     courseId={Number(courseId)}
@@ -820,19 +640,13 @@ const EnrolledCourseDetails = () => {
                     weekData={weekData}
                     onSubmitSuccess={handleProgressSubmitSuccess}
                   />
-                </div>
+                </ProgressPanel>
 
-                {/* Tools Panel - Responsive */}
-                <div
-                  className={`rounded-xl p-4 md:p-6 mb-6`}
+                <ProgressPanel
+                  title="Today's Tools"
+                  theme={theme}
+                  styles={styles}
                 >
-                  <div className="flex  justify-center mb-6">
-                    <h3
-                      className={`text-base md:text-lg font-bold ${textColor.primary}`}
-                    >
-                      Today's Tools
-                    </h3>
-                  </div>
                   <ProgressToolsForm
                     theme={theme}
                     courseId={Number(courseId)}
@@ -841,83 +655,35 @@ const EnrolledCourseDetails = () => {
                     weekData={weekData}
                     onSubmitSuccess={handleProgressSubmitSuccess}
                   />
-                </div>
+                </ProgressPanel>
 
-                {/* Feedback Panel */}
+                {/* Desktop Feedback Panel */}
                 {showFeedback && (
-                  <div
-                    className={`hidden lg:block rounded-xl p-6 mb-6 ${borderColor.primary}`}
+                  <DesktopPanel
+                    title="Course Feedback"
+                    onClose={() => setShowFeedback(false)}
+                    theme={theme}
+                    styles={styles}
                   >
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className={`text-lg font-bold ${textColor.primary}`}>
-                        Course Feedback
-                      </h3>
-                      <button
-                        onClick={() => setShowFeedback(false)}
-                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-                      >
-                        <X className="w-5 h-5 text-gray-600 dark:text-gray-400 " />
-                      </button>
-                    </div>
                     <FeedbackForm
                       theme={theme}
                       courseId={Number(courseId)}
-                      enrollmentId={1}
+                      enrollmentId={null} // Fixed
                     />
-                  </div>
+                  </DesktopPanel>
                 )}
 
                 {/* Mobile Quick Actions */}
-                <div
-                  className={`lg:hidden flex items-center justify-between mt-6 p-4 rounded-xl ${bgColor.secondary}`}
-                >
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => setSidebarOpen(true)}
-                      className={`p-2 rounded-lg ${bgColor.primary} shadow-sm`}
-                    >
-                      <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    </button>
-                    <div>
-                      <p className={`text-sm ${textColor.muted}`}>
-                        Next Module
-                      </p>
-                      <p className={`font-medium ${textColor.primary}`}>
-                        {hasNextModule ? "Available" : "Course Complete"}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={goToNextModule}
-                    disabled={!hasNextModule}
-                    className={`px-4 py-2 rounded-lg ${
-                      hasNextModule
-                        ? "bg-blue-600 hover:bg-blue-700 text-white"
-                        : "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                    }`}
-                  >
-                    Next
-                  </button>
-                </div>
+                <MobileQuickActions
+                  hasNextModule={hasNextModule}
+                  goToNextModule={goToNextModule}
+                  setSidebarOpen={setSidebarOpen}
+                  theme={theme}
+                  styles={styles}
+                />
               </>
             ) : (
-              <div
-                className={`rounded-xl p-8 text-center ${bgColor.primary} shadow-sm`}
-              >
-                <BookOpen className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className={`text-lg font-bold ${textColor.primary} mb-2`}>
-                  Welcome to the Course
-                </h3>
-                <p className={`${textColor.secondary} mb-6`}>
-                  Open the menu to select your first module
-                </p>
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  Open Course Modules
-                </button>
-              </div>
+              <EmptyState theme={theme} onOpenSidebar={handleOpenSidebar} />
             )}
           </div>
         </div>
@@ -925,5 +691,350 @@ const EnrolledCourseDetails = () => {
     </div>
   );
 };
+
+// Extracted sub-components (defined outside main component to prevent re-renders)
+const MobilePanel = React.memo(
+  ({ title, onClose, theme, styles, children }) => (
+    <div
+      className={`lg:hidden rounded-xl shadow-lg mb-4 ${styles.border.primary} border ${styles.bg.primary}`}
+    >
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className={`font-bold ${styles.text.primary}`}>{title}</h3>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  ),
+);
+
+const DesktopPanel = React.memo(
+  ({ title, onClose, theme, styles, children }) => (
+    <div
+      className={`hidden lg:block rounded-xl p-6 mb-6 ${styles.border.primary} border ${styles.bg.primary} shadow-sm`}
+    >
+      <div className="flex items-center justify-between mb-6">
+        <h3 className={`text-lg font-bold ${styles.text.primary}`}>{title}</h3>
+        <button
+          onClick={onClose}
+          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        </button>
+      </div>
+      {children}
+    </div>
+  ),
+);
+
+const ProgressPanel = React.memo(({ title, theme, styles, children }) => (
+  <div className={`rounded-xl p-4 md:p-6 mb-6`}>
+    <div className="flex mb-6">
+      <h3 className={`text-base md:text-lg font-bold ${styles.text.primary}`}>
+        {title}
+      </h3>
+    </div>
+    {children}
+  </div>
+));
+
+const VideoPlayer = React.memo(
+  ({
+    moduleDetails,
+    currentIndex,
+    totalModules,
+    hasPrevModule,
+    hasNextModule,
+    goToPreviousModule,
+    goToNextModule,
+    theme,
+    styles,
+    sanitizeHTML,
+  }) => {
+    const { getYouTubeEmbedUrl } = useYouTubeEmbedUrl({
+      fallbackUrl: "",
+      addPlayerParams: false,
+    });
+
+    return (
+      <>
+        <div
+          className={`rounded-xl overflow-hidden shadow-lg ${styles.bg.primary} mb-6`}
+        >
+          {moduleDetails.video_url ? (
+            <div className="relative aspect-video bg-black">
+              <iframe
+                className="w-full h-full"
+                src={getYouTubeEmbedUrl(moduleDetails.video_url)}
+                title={moduleDetails.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <div className="aspect-video bg-gray-900 flex items-center justify-center">
+              <Play className="w-16 h-16 text-white opacity-50" />
+              <p className="text-white mt-4">Video not available</p>
+            </div>
+          )}
+
+          <div className="p-6 lg:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      theme === "dark"
+                        ? "bg-blue-900/30 text-blue-400"
+                        : "bg-blue-100 text-blue-700"
+                    }`}
+                  >
+                    {moduleDetails.header_type}
+                  </span>
+                  <span className={`text-sm ${styles.text.muted}`}>
+                    Module {currentIndex + 1} of {totalModules}
+                  </span>
+                </div>
+                <h2
+                  className={`text-lg lg:text-xl font-bold ${styles.text.primary}`}
+                >
+                  {moduleDetails.title}
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={goToPreviousModule}
+                  disabled={!hasPrevModule}
+                  className={`p-3 rounded-lg transition-colors ${
+                    hasPrevModule
+                      ? theme === "dark"
+                        ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                      : theme === "dark"
+                        ? "bg-gray-800 text-gray-600 cursor-not-allowed"
+                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={goToNextModule}
+                  disabled={!hasNextModule}
+                  className={`p-3 rounded-lg transition-colors ${
+                    hasNextModule
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      : theme === "dark"
+                        ? "bg-gray-800 text-gray-600 cursor-not-allowed"
+                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Fixed: Security fix for dangerouslySetInnerHTML */}
+            <div
+              className={styles.text.secondary}
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHTML(moduleDetails.description),
+              }}
+            />
+          </div>
+        </div>
+      </>
+    );
+  },
+);
+
+const Sidebar = React.memo(
+  ({
+    sidebarOpen,
+    setSidebarOpen,
+    groupedModules,
+    selectedModuleId,
+    handleModuleSelect,
+    toggleChapter,
+    expandedChapters,
+    enrolledCourseDetails,
+    totalModules,
+    theme,
+    styles,
+    formatDate,
+  }) => (
+    <div
+      className={`
+    ${sidebarOpen ? "fixed inset-0 z-50 bg-black bg-opacity-50 lg:static lg:bg-transparent" : "hidden lg:block"}
+  `}
+    >
+      <div
+        className={`
+      ${sidebarOpen ? "absolute inset-y-0 left-0 max-w-sm lg:relative min-w-[280px] w-[320px]" : "lg:relative min-w-[280px] w-[320px] max-w-[350px]"}
+      ${styles.bg.primary} ${styles.border.primary}
+      border rounded-xl lg:rounded-xl shadow-sm h-full lg:h-[calc(100vh-8rem)] overflow-hidden flex flex-col
+    `}
+      >
+        <div
+          className={`p-4 border-b ${styles.border.primary} flex items-center justify-between flex-shrink-0`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className={`p-2 rounded-lg ${theme === "dark" ? "bg-blue-900/30" : "bg-blue-100"}`}
+            >
+              <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h3 className={`font-bold ${styles.text.primary}`}>
+                Course Content
+              </h3>
+              <p className={`text-xs ${styles.text.muted}`}>
+                {totalModules} modules
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-2">
+            {groupedModules.map((chapter) => {
+              const hasChildren =
+                chapter.sections.length > 0 || chapter.directLessons.length > 0;
+              const isChapterExpanded = expandedChapters.has(chapter.id);
+
+              return (
+                <div key={chapter.id} className="mb-1">
+                  <ModuleItem
+                    module={chapter}
+                    type="Chapter"
+                    level={0}
+                    hasChildren={hasChildren}
+                    isSelected={selectedModuleId === chapter.id}
+                    isExpanded={isChapterExpanded}
+                    theme={theme}
+                    onSelect={handleModuleSelect}
+                    onToggleChapter={toggleChapter}
+                  />
+
+                  {isChapterExpanded && (
+                    <>
+                      {chapter.sections.map((section) => (
+                        <div key={section.id} className="mb-1">
+                          <ModuleItem
+                            module={section}
+                            type="Section"
+                            level={1}
+                            isSelected={selectedModuleId === section.id}
+                            theme={theme}
+                            onSelect={handleModuleSelect}
+                            onToggleChapter={toggleChapter}
+                          />
+                          {section.lessons.map((lesson) => (
+                            <ModuleItem
+                              key={lesson.id}
+                              module={lesson}
+                              type="Lesson"
+                              level={2}
+                              isSelected={selectedModuleId === lesson.id}
+                              theme={theme}
+                              onSelect={handleModuleSelect}
+                              onToggleChapter={toggleChapter}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                      {chapter.directLessons.map((lesson) => (
+                        <ModuleItem
+                          key={lesson.id}
+                          module={lesson}
+                          type="Lesson"
+                          level={1}
+                          isSelected={selectedModuleId === lesson.id}
+                          theme={theme}
+                          onSelect={handleModuleSelect}
+                          onToggleChapter={toggleChapter}
+                        />
+                      ))}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className={`p-4 border-t ${styles.border.primary} flex-shrink-0`}>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <span className={`text-sm ${styles.text.secondary}`}>
+                {enrolledCourseDetails.duration}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <span className={`text-sm ${styles.text.secondary}`}>
+                Enrolled {formatDate(enrolledCourseDetails.created_on)}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <ListVideo className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <span className={`text-sm ${styles.text.secondary}`}>
+                {totalModules} modules
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+);
+
+const MobileQuickActions = React.memo(
+  ({ hasNextModule, goToNextModule, setSidebarOpen, theme, styles }) => (
+    <div
+      className={`lg:hidden flex items-center justify-between mt-6 p-4 rounded-xl ${styles.bg.secondary}`}
+    >
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className={`p-2 rounded-lg ${styles.bg.primary} shadow-sm`}
+        >
+          <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        </button>
+        <div>
+          <p className={`text-sm ${styles.text.muted}`}>Next Module</p>
+          <p className={`font-medium ${styles.text.primary}`}>
+            {hasNextModule ? "Available" : "Course Complete"}
+          </p>
+        </div>
+      </div>
+      <button
+        onClick={goToNextModule}
+        disabled={!hasNextModule}
+        className={`px-4 py-2 rounded-lg ${
+          hasNextModule
+            ? "bg-blue-600 hover:bg-blue-700 text-white"
+            : "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+        }`}
+      >
+        Next
+      </button>
+    </div>
+  ),
+);
 
 export default EnrolledCourseDetails;

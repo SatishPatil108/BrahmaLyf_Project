@@ -14,7 +14,7 @@ import GetAllCoaches from "@/pages/User/getAllCoaches";
 import Header from "@/components/header/Header";
 import { Login } from "@/pages/User/Login";
 import Register from "@/pages/User/Register";
-import { About, Contact, Homepage } from "@/pages/User/Homepage";
+import { Contact, Homepage } from "@/pages/User/Homepage";
 import { CourseList } from "@/pages/User/courses";
 import EnrolledCourses from "@/pages/User/myCourses";
 import EnrolledCourseDetails from "@/pages/User/enrolledCourseDetails";
@@ -24,7 +24,6 @@ import MusicList from "@/pages/User/Homepage/components/getAllMusicList/MusicLis
 import BannerImage from "@/pages/User/Homepage/components/bannerImages/BannerImage";
 import Categories from "@/pages/User/Homepage/components/getAllCategories/Categories";
 import SubCategories from "@/pages/User/Homepage/components/getAllSubCategories/SubCategories";
-import FAQPage from "@/pages/User/Homepage/components/FAQsSections/FAQPage";
 import MusicPlayer from "@/pages/User/Music/MusicPlayer";
 import ForgotPassword from "@/pages/User/forgotPassword/ForgotPassword";
 import ChangePassword from "@/pages/User/changePassword/ChangePassword";
@@ -41,6 +40,7 @@ import RefundCancellationPolicy from "@/pages/User/FooterLinks/RefundCancellatio
 import SubscriptionTerms from "@/pages/User/FooterLinks/SubscriptionTerms/SubscriptionTerms";
 import CoachingDisclaimer from "@/pages/User/FooterLinks/Coaching Disclaimar/CoachingDisclaimer";
 import CopyrightNotice from "@/pages/User/FooterLinks/CopyrightNotice/CopyrightNotice";
+import FreeTrial from "@/pages/User/Homepage/components/FAQsSections/FreeTrial";
 
 const UserRoutes = () => {
   const { theme } = useTheme();
@@ -82,7 +82,6 @@ const UserRoutes = () => {
         <Routes>
           <Route path="/home" element={<Navigate to="/" replace />} />
           <Route path="/" element={<Homepage />} />
-          <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/categories" element={<CourseList />} />
           <Route
@@ -118,18 +117,19 @@ const UserRoutes = () => {
           <Route path="/view-profile" element={<ViewProfile />} />
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/change-password" element={<ChangePassword />} />
-          <Route path="/faqs" element={<FAQPage />} />
+          <Route path="/free-trial" element={<FreeTrial />} />
           <Route path="/notes" element={<PersonalNotes />} />
+
 
           
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route
-            path="/refund cancellation policy"
+            path="/refund-cancellation-policy"
             element={<RefundCancellationPolicy />}
           />
-          <Route path="/subscription terms" element={<SubscriptionTerms />} />
-          <Route path="/coaching disclaimer" element={<CoachingDisclaimer />} />
+          <Route path="/subscription-terms" element={<SubscriptionTerms />} />
+          <Route path="/coaching-disclaimer" element={<CoachingDisclaimer />} />
           <Route path="/copyright" element={<CopyrightNotice />} />
         </Routes>
 

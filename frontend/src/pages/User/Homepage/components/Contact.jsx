@@ -76,7 +76,7 @@ function Contact() {
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 transition-colors duration-300 ${colors.bg}`}>
+    <div className={`min-h-screen flex items-center justify-center p-20  sm:p-6 md:p-36 transition-colors duration-300 ${colors.bg}`}>
       <motion.section
         initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}

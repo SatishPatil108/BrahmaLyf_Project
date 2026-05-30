@@ -65,6 +65,8 @@ const getScopedCourseState = (rootState, section, courseId) => {
 
 const initialState = {
   language: "en",
+  loading: null,
+  isError: null,
   isLoading: false,
   isSpin: false,
   error: {
@@ -121,7 +123,7 @@ const initialState = {
   },
 
   CompletedMessageDetails: {
-    messages: [],
+    messagesByDay: {},
     courseId: null,
     weekNo: null,
     dayNo: null,
@@ -264,8 +266,20 @@ const userSlice = createSlice({
         state.dashboardData = action.payload?.data || null;
       })
 
+      .addCase(fetchFAQsAPI.pending, (state) => {
+        state.loading = true;
+        state.isError = null;
+      })
+
       .addCase(fetchFAQsAPI.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isError = null;
         state.FAQsDetails = action.payload;
+      })
+
+      .addCase(fetchFAQsAPI.rejected, (state, action) => {
+        state.loading = false;
+        state.isError = action.payload || action.error;
       })
 
       .addCase(fetchMusicListAPI.fulfilled, (state, action) => {
@@ -314,7 +328,10 @@ const userSlice = createSlice({
 
       // fetch user themes by specific week
       .addCase(fetchUserProgressThemesAPI.fulfilled, (state, action) => {
-        const { themes, courseId, weekNo, totalRecords } = action.payload;
+        const { themes, totalRecords } = action.payload;
+
+        const { courseId, weekNo } = action.meta.arg;
+
         state.ThemeDetails.themes = themes;
         state.ThemeDetails.courseId = courseId;
         state.ThemeDetails.weekNo = weekNo;
@@ -323,12 +340,13 @@ const userSlice = createSlice({
 
       // fetch user completed messages by specific day wise
       .addCase(fetchUserCompletedMessageAPI.fulfilled, (state, action) => {
-        const { messages, courseId, weekNo, dayNo, totalRecords } =
-          action.payload;
-        state.CompletedMessageDetails.messages = messages;
+        const { messages, totalRecords } = action.payload;
+
+        const { courseId, weekNo, dayNo } = action.meta.arg;
+
+        state.CompletedMessageDetails.messagesByDay[dayNo] = messages;
         state.CompletedMessageDetails.courseId = courseId;
         state.CompletedMessageDetails.weekNo = weekNo;
-        state.CompletedMessageDetails.dayNo = dayNo;
         state.CompletedMessageDetails.totalRecords = totalRecords;
       })
 
@@ -377,7 +395,7 @@ const userSlice = createSlice({
 
         const normalizedAnswers = {};
         const submittedQuestions = {};
-        const completedDays = {}; 
+        const completedDays = {};
 
         submissions.forEach(({ day_no, answers }) => {
           if (!normalizedAnswers[day_no]) normalizedAnswers[day_no] = {};

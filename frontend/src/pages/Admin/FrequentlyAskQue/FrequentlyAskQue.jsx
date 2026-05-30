@@ -27,7 +27,7 @@ import { stripHtml } from "@/components/RichTextEditor/stripHtml";
 
 const FrequentlyAskQue = () => {
   const dispatch = useDispatch();
-  const { pageNo, pageSize, setPageNo } = usePagination(1, 10);
+  const { pageNo, pageSize, setPageNo } = usePagination(1, 12);
   const { faqsDetails, loading, error } = useFrequentlyAskQue(pageNo, pageSize);
   const faqList = faqsDetails?.faqs || [];
 
@@ -55,6 +55,12 @@ const FrequentlyAskQue = () => {
   };
 
   const resetForm = () => {
+    setFormData({
+      id: null,
+      question: "",
+      answer: "",
+    });
+
     setIsDrawerOpen(false);
     setIsEditing(false);
     setErrors({});
@@ -425,7 +431,7 @@ const FrequentlyAskQue = () => {
                 Question *
               </label>
               <RichTextEditor
-                key={formData.id ?? "new"}
+                key={`question-${isEditing ? formData.id : "new"}-${isDrawerOpen}`}
                 value={formData.question}
                 onChange={handleQuestionChange}
                 placeholder="Enter the question (e.g., How do I reset my password?)"
@@ -446,7 +452,7 @@ const FrequentlyAskQue = () => {
                 Answer *
               </label>
               <RichTextEditor
-                key={formData.id ?? "new"}
+                key={`answer-${isEditing ? formData.id : "new"}-${isDrawerOpen}`}
                 value={formData.answer}
                 onChange={handleAnswerChange}
                 placeholder="Enter the detailed answer..."
