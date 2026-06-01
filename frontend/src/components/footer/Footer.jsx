@@ -215,9 +215,9 @@ function Footer() {
               {[
                 "Terms",
                 "Privacy",
-                "Refund Cancellation Policy",
-                "Subscription Terms",
-                "Coaching Disclaimer",
+                "Refund-Cancellation-Policy",
+                "Subscription-Terms",
+                "Coaching-Disclaimer",
               ].map((item, index) => (
                 <Link
                   key={index}

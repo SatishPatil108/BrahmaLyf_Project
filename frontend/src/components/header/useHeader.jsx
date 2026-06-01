@@ -18,7 +18,7 @@ export function useHeader() {
   const links = [
     { to: "/", label: "Home", icon: Home },
     { to: "/contact", label: "Contact", icon: Mail },
-    { to: "/free-trial", label: "Free Trial", icon: FileSpreadsheetIcon },
+    { to: "/trial-resources", label: "Trial", icon: FileSpreadsheetIcon },
   ];
 
   if (!user) {

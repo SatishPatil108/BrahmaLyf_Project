@@ -275,6 +275,10 @@ export default function TermsAndConditions() {
             </div>
           ))}
         </div>
+
+        <div className={`text-center text-sm ${c.mutedText} mb-6`}>
+          <p>BrahmaLYF / Brahma Life School is a brand owned and operated by Markets and Clients.</p>
+        </div>
       </main>
     </div>
   );

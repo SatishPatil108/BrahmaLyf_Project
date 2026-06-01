@@ -172,7 +172,8 @@ export default function PrivacyPolicy() {
                   <div
                     className={`border-t ${c.accordionDivider}  ${c.accordionContentBg} px-6 py-4 sm:px-8 sm:py-6`}
                   >
-                    <RichTextContent content={section.content} 
+                    <RichTextContent
+                      content={section.content}
                       className={c.richText}
                       bulletClassName="text-blue-400"
                     />
@@ -181,6 +182,12 @@ export default function PrivacyPolicy() {
               </div>
             );
           })}
+        </div>
+        <div className={`text-center text-sm ${c.mutedText} mb-6`}>
+          <p>
+            BrahmaLYF / Brahma Life School is a brand owned and operated by
+            Markets and Clients.
+          </p>
         </div>
       </main>
     </div>

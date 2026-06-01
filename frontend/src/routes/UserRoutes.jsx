@@ -117,11 +117,8 @@ const UserRoutes = () => {
           <Route path="/view-profile" element={<ViewProfile />} />
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/change-password" element={<ChangePassword />} />
-          <Route path="/free-trial" element={<FreeTrial />} />
+          <Route path="/trial-resources" element={<FreeTrial />} />
           <Route path="/notes" element={<PersonalNotes />} />
-
-
-          
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route

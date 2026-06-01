@@ -33,6 +33,7 @@ import introVideo from "@/assets/intro.mp4";
 import DailyShorts from "./components/getAllDailyshorts/DailyShorts";
 import { useTranslation } from "react-i18next";
 import { philosophies, uspFeatures } from "./homepagedata";
+import { useInView, useReducedMotion, motion } from "framer-motion";
 
 // Optimized noise overlay with hardware acceleration
 const NoiseOverlay = () => (
@@ -53,116 +54,239 @@ const NoiseOverlay = () => (
   </svg>
 );
 
-// Enhanced StatPill with better accessibility
-const StatPill = ({ value, label, isDark }) => (
-  <div
-    className={`
-      flex flex-col items-center px-6 py-3 rounded-2xl 
-      border backdrop-blur-sm transition-all duration-200
-      hover:scale-[1.02] active:scale-[0.98]
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500
-      ${
-        isDark
-          ? "bg-white/5 border-white/10 hover:bg-white/8"
-          : "bg-black/[0.02] border-black/8 hover:bg-black/[0.04]"
-      }
-    `}
-  >
-    <span
-      className={`
-      text-2xl sm:text-3xl font-bold tracking-tight
-      ${isDark ? "text-white" : "text-gray-900"}
-    `}
-    >
-      {value}
-    </span>
-    <span
-      className={`
-      text-xs font-medium mt-1 tracking-wide uppercase
-      ${isDark ? "text-gray-400" : "text-gray-500"}
-    `}
-    >
-      {label}
-    </span>
-  </div>
-);
-
 // Feature Card Component for USP section
-const FeatureCard = ({ icon: Icon, title, description, isDark }) => (
-  <div
-    className={`
-    group relative p-6 rounded-2xl border transition-all duration-300
-    hover:scale-[1.02] hover:shadow-xl
-    ${
-      isDark
-        ? "bg-white/5 border-white/10 hover:bg-white/8 hover:border-violet-500/30"
-        : "bg-white border-gray-200 hover:border-violet-300 hover:shadow-lg"
-    }
-  `}
-  >
-    <div className="flex items-start gap-4">
+const FeatureCard = ({ icon: Icon, title, description, isDark, index }) => {
+  const cardRef = useRef(null);
+  const isInView = useInView(cardRef, { once: true, margin: "-50px" });
+  const prefersReducedMotion = useReducedMotion();
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, transition: { duration: 0.4 } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        delay: prefersReducedMotion ? 0 : index * 0.1,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      variants={cardVariants}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      whileHover={!prefersReducedMotion ? { y: -4 } : {}}
+      className="group relative h-full"
+    >
+      <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-violet-500/0 via-violet-500/0 to-violet-500/0 group-hover:from-violet-500/20 group-hover:via-fuchsia-500/20 group-hover:to-violet-500/20 transition-all duration-500 blur-xl " />
+
       <div
         className={`
-        flex-shrink-0 p-3 rounded-xl transition-all duration-300
-        group-hover:scale-110
-        ${
-          isDark
-            ? "bg-violet-500/20 text-violet-400"
-            : "bg-violet-100 text-violet-600"
-        }
-      `}
+          relative h-full p-6 rounded-2xl border transition-all duration-300   overflow-hidden
+          hover:scale-[1.02] hover:shadow-xl
+          ${
+            isDark
+              ? "bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:bg-gray-900/70 hover:border-violet-500/30"
+              : "bg-white border-gray-100 hover:border-violet-200 hover:shadow-violet-500/5"
+          }
+        `}
       >
-        <Icon className="w-6 h-6" />
+        {/* Decorative gradient orb */}
+        <div
+          className={`
+            absolute -top-24 -right-24 w-48 h-48 rounded-full blur-3xl opacity-0 
+            group-hover:opacity-20 transition-opacity duration-700
+            ${isDark ? "bg-violet-600" : "bg-violet-400"}
+          `}
+        />
+
+        <div className="relative z-10">
+          {/* Icon container with animation */}
+          <div className="flex flex-col items-center justify-center">
+            <motion.div
+              whileHover={
+                !prefersReducedMotion ? { scale: 1.1, rotate: 5 } : {}
+              }
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className={`
+      inline-flex items-center justify-center
+      p-3 sm:p-3.5 rounded-xl mb-5 transition-all duration-300
+      ${
+        isDark
+          ? "bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 text-violet-400 group-hover:from-violet-500/30 group-hover:to-fuchsia-500/30"
+          : "bg-gradient-to-br from-violet-100 to-fuchsia-100 text-violet-600 group-hover:from-violet-200 group-hover:to-fuchsia-200"
+      }
+    `}
+            >
+              <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.8} />
+            </motion.div>
+          </div>
+
+          {/* Title */}
+          <h3
+            className={`
+              text-lg sm:text-lg font-semibold mb-3 tracking-tight text-center
+              ${isDark ? "text-white" : "text-gray-900"}
+              group-hover:text-violet-500 dark:group-hover:text-violet-400
+              transition-colors duration-200
+            `}
+          >
+            {title}
+          </h3>
+
+          {/* Description */}
+          <p
+            className={`
+              text-sm sm:text-base leading-relaxed text-center
+              ${isDark ? "text-gray-400" : "text-gray-600"}
+            `}
+          >
+            {description}
+          </p>
+
+          {/* Decorative dash on hover */}
+          <motion.div
+            initial={{ width: 0, opacity: 0 }}
+            whileHover={{ width: 30, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className={`
+              h-px mt-4 rounded-full
+              ${isDark ? "bg-violet-500" : "bg-violet-400"}
+            `}
+          />
+        </div>
       </div>
-      <div>
-        <h3
-          className={`font-semibold text-lg mb-2 ${isDark ? "text-white" : "text-gray-900"}`}
-        >
-          {title}
-        </h3>
-        <p
-          className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-gray-600"}`}
-        >
-          {description}
-        </p>
-      </div>
-    </div>
-  </div>
-);
+    </motion.div>
+  );
+};
 
 // Philosophy Card Component
-const PhilosophyCard = ({ icon: Icon, title, description, isDark }) => (
-  <div
-    className={`
-    text-center p-6 rounded-2xl border transition-all duration-300
-    hover:-translate-y-1
-    ${
-      isDark
-        ? "bg-white/5 border-white/10 hover:bg-white/8"
-        : "bg-white border-gray-200 hover:shadow-md"
-    }
-  `}
-  >
-    <div
-      className={`
-      inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4
-      ${isDark ? "bg-violet-500/20" : "bg-violet-100"}
-    `}
+const PhilosophyCard = ({
+  icon: Icon,
+  title,
+  description,
+  isDark,
+  index = 0,
+}) => {
+  const cardRef = useRef(null);
+  const isInView = useInView(cardRef, { once: true, margin: "-50px" });
+  const prefersReducedMotion = useReducedMotion();
+
+  // Card variants for staggered animation
+  const cardVariants = {
+    hidden: {
+      opacity: 0,
+      y: 30,
+      transition: { duration: 0.4 },
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        delay: prefersReducedMotion ? 0 : index * 0.1,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      variants={cardVariants}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      whileHover={!prefersReducedMotion ? { y: -4 } : {}}
+      className="group relative h-full"
     >
-      <Icon
-        className={`w-6 h-6 ${isDark ? "text-violet-400" : "text-violet-600"}`}
-      />
-    </div>
-    <h3
-      className={`font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}
-    >
-      {title}
-    </h3>
-    <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-      {description}
-    </p>
-  </div>
-);
+      {/* Animated gradient border */}
+      <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-violet-500/0 via-violet-500/0 to-violet-500/0 group-hover:from-violet-500/20 group-hover:via-fuchsia-500/20 group-hover:to-violet-500/20 transition-all duration-500 blur-xl" />
+
+      {/* Card content */}
+      <div
+        className={`
+          relative h-full p-6 sm:p-8 rounded-2xl border transition-all duration-300 flex flex-col items-center text-center  overflow-hidden  hover:shadow-2xl focus-within:ring-2 focus-within:ring-violet-500 focus-within:ring-offset-2
+          ${
+            isDark
+              ? "bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:bg-gray-900/70 hover:border-violet-500/30"
+              : "bg-white border-gray-100 hover:border-violet-200 hover:shadow-violet-500/5"
+          }
+        `}
+      >
+        {/* Decorative gradient orb */}
+        <div
+          className={`
+            absolute -top-24 -right-24 w-48 h-48 rounded-full blur-3xl opacity-0 
+            group-hover:opacity-20 transition-opacity duration-700
+            ${isDark ? "bg-violet-600" : "bg-violet-400"}
+          `}
+        />
+
+        <div className="relative z-10 w-full">
+          {/* Icon container with animation */}
+          <div className="flex flex-col items-center justify-center">
+            <motion.div
+              whileHover={
+                !prefersReducedMotion ? { scale: 1.1, rotate: 5 } : {}
+              }
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className={`
+                inline-flex items-center justify-center
+                p-3 sm:p-3.5 rounded-xl mb-5 transition-all duration-300
+                ${
+                  isDark
+                    ? "bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 text-violet-400 group-hover:from-violet-500/30 group-hover:to-fuchsia-500/30"
+                    : "bg-gradient-to-br from-violet-100 to-fuchsia-100 text-violet-600 group-hover:from-violet-200 group-hover:to-fuchsia-200"
+                }
+              `}
+            >
+              <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.8} />
+            </motion.div>
+          </div>
+
+          {/* Title */}
+          <h3
+            className={`
+              text-lg sm:text-xl font-semibold mb-3 tracking-tight
+              ${isDark ? "text-white" : "text-gray-900"}
+              group-hover:text-violet-500 dark:group-hover:text-violet-400
+              transition-colors duration-200
+            `}
+          >
+            {title}
+          </h3>
+
+          {/* Description */}
+          <p
+            className={`
+              text-sm sm:text-base leading-relaxed
+              ${isDark ? "text-gray-400" : "text-gray-600"}
+            `}
+          >
+            {description}
+          </p>
+
+          {/* Decorative dash on hover */}
+          <motion.div
+            initial={{ width: 0, opacity: 0 }}
+            whileHover={{ width: 40, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className={`
+              h-px mt-5 rounded-full mx-auto
+              ${isDark ? "bg-violet-500" : "bg-violet-400"}
+            `}
+          />
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// Fixed Homepage - Main changes in the MusicList section
 
 function Homepage() {
   const { theme } = useTheme();
@@ -342,37 +466,25 @@ function Homepage() {
               </button>
             </div>
           </div>
-
-          {/* Search bar */}
-          {/* <div
-            className={`relative flex items-center mx-auto max-w-md rounded-2xl border transition-all duration-200 overflow-hidden animate-fadeInUp ${
-              isDark
-                ? "bg-white/5 border-white/10 focus-within:border-violet-500/60 focus-within:bg-white/8 shadow-[0_0_0_3px_transparent] focus-within:shadow-[0_0_0_3px_rgba(139,92,246,0.15)]"
-                : "bg-white border-gray-200 focus-within:border-violet-400 shadow-sm focus-within:shadow-[0_0_0_3px_rgba(139,92,246,0.1)]"
-            }`}
-            style={{ animationDelay: "320ms" }}
-          >
-            <Search
-              className={`absolute left-4 w-4 h-4 pointer-events-none ${isDark ? "text-gray-500" : "text-gray-400"}`}
-            />
-            <input
-              type="text"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              placeholder={t("search.placeholder")}
-              className={`w-full pl-11 pr-4 py-3.5 bg-transparent text-sm outline-none placeholder:text-gray-400 ${
-                isDark ? "text-gray-100" : "text-gray-800"
-              }`}
-            />
-            <button
-              type="button"
-              className="mr-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-500 hover:to-violet-600 text-white text-xs font-semibold rounded-xl transition-all duration-200 hover:scale-[1.03] active:scale-95 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
-            >
-              {t("buttons.submit")}
-            </button>
-          </div> */}
         </div>
       </section>
+
+      {/* ══════════════════════════════════════  DAILY SHORTS SECTION ══════════════════════════════════════ */}
+      <div
+        className={`
+        relative border-t border-b transition-colors duration-300
+        ${
+          isDark
+            ? "bg-gradient-to-b from-[#0a0a0f] via-[#0d0d18] to-[#0a0a0f] border-white/5"
+            : "bg-gradient-to-b from-[#fafafa] via-white to-[#fafafa] border-black/5"
+        }
+      `}
+      >
+        <DailyShorts />
+      </div>
+
+      {/* ══════════════════════════════════════  MUSIC SECTIONS - FIXED CONTAINER ══════════════════════════════════════ */}
+      <MusicList />
 
       {/* ══════════════════════════════════════  WHAT IS BRAHMALYF SECTION ══════════════════════════════════════ */}
       <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
@@ -472,7 +584,7 @@ function Homepage() {
       <section
         className={`
         py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8
-        ${isDark ? "bg-white/[0.02]" : "bg-black/[0.01]"}
+        ${isDark ? "bg-white/[0.02]" : "bg-black/[0.02]"}
       `}
       >
         <div className="max-w-7xl mx-auto">
@@ -516,9 +628,9 @@ function Homepage() {
             </div>
             <h2
               className={`
-              text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight
-              ${isDark ? "text-white" : "text-gray-900"}
-            `}
+                   text-3xl sm:text-4xl lg:text-5xl font-bold mb-4
+                    ${isDark ? "text-white" : "text-gray-900"}
+              `}
             >
               ही 52-Week Mind–Soul Fitness Journey
               <br />
@@ -533,7 +645,7 @@ function Homepage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
             {uspFeatures.map((feature, index) => (
               <FeatureCard
                 key={index}
@@ -546,25 +658,6 @@ function Homepage() {
           </div>
         </div>
       </section>
-
-      {/* ══════════════════════════════════════  DAILY SHORTS SECTION ══════════════════════════════════════ */}
-      <div
-        className={`
-        relative border-t border-b transition-colors duration-300
-        ${
-          isDark
-            ? "bg-gradient-to-b from-[#0a0a0f] via-[#0d0d18] to-[#0a0a0f] border-white/5"
-            : "bg-gradient-to-b from-[#fafafa] via-white to-[#fafafa] border-black/5"
-        }
-      `}
-      >
-        <DailyShorts />
-      </div>
-
-      {/* ══════════════════════════════════════  MUSIC SECTIONS ══════════════════════════════════════ */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-16 sm:space-y-20">
-        <MusicList />
-      </div>
 
       {/* ══════════════════════════════════════  FINAL CTA SECTION ══════════════════════════════════════ */}
       <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
@@ -639,7 +732,7 @@ function Homepage() {
                     }
                   `}
                 >
-                  Explore Free Resources
+                  Explore Trial Resources
                 </Link>
               </div>
             </div>
