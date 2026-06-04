@@ -8,6 +8,7 @@ import music_thumbnail from "../assets/music_thumbnail.png";
 import aavidsoft_logo from "../assets/aavidsoft_logo.png";
 import logo_light from "../assets/logo_light.png";
 import logo_dark from "../assets/logo_dark.png";
+import favicon from "../assets/favicon.png"
 
 export const assets = {
   bannerimage1,
@@ -17,6 +18,7 @@ export const assets = {
   mindimage,
   coach1,
   music_thumbnail,
+  favicon,
   aavidsoft_logo,
   logo_dark,
   logo_light,

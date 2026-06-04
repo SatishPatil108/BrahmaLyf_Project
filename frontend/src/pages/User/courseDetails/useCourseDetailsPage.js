@@ -18,10 +18,8 @@ const useCourseDetailsPage = (videoId) => {
 
   const { user } = useSelector((state) => state.auth);
 
-  // Added `user` from redux state
-
   const [enrolling, setEnrolling] = useState(false);
-  const [message, setMessage] = useState(""); // Inline message for login / success / error
+  const [message, setMessage] = useState("");
 
   // Fetch coach details
   useEffect(() => {

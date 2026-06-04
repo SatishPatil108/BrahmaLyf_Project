@@ -1,5 +1,6 @@
 import {
   getQuestionsWithOptionsModel,
+  getShowPracticeQuestionModel,
   getUserCompletedMessageModel,
   getUserProgressThemeModel,
   getUserResponseModel,
@@ -19,3 +20,6 @@ export const postUserProgressController = postUserProgressModel;
 export const getUserCompletedMessageController = getUserCompletedMessageModel;
 
 export const getUserProgressThemeController = getUserProgressThemeModel;
+
+export const getShowPracticeQuestionController = getShowPracticeQuestionModel;
+

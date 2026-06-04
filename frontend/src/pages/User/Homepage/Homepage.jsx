@@ -719,7 +719,7 @@ function Homepage() {
                 </Link>
 
                 <Link
-                  to="/free-trial"
+                  to="/trial-resources"
                   className={`
                     inline-flex items-center justify-center gap-2 px-8 py-4 
                     rounded-full font-medium text-sm border transition-all duration-300 

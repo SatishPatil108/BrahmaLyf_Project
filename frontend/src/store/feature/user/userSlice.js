@@ -32,10 +32,10 @@ import {
   postUserToolsProgressAPI,
   fetchUserToolsResponseAPI,
   updateUserToolsResponseAPI,
-  fetchUserTaskQuestionsAPI,
-  fetchUserToolQuestionsAPI,
   fetchUserProgressThemesAPI,
   fetchUserCompletedMessageAPI,
+  fetchShowToolsQuestionsAPI,
+  fetchShowPracticeQuestionsAPI,
 } from "./userThunk";
 
 const createCourseScopedState = () => ({
@@ -108,11 +108,12 @@ const initialState = {
     byCourse: {},
   },
 
-  PracticeDetails: {
-    tasks: [],
-    courseId: null,
-    weekNo: null,
-    totalRecords: 0,
+  practiceDetails: {
+    questions: [],
+  },
+
+  toolsDetails: {
+    questions: [],
   },
 
   ThemeDetails: {
@@ -127,13 +128,6 @@ const initialState = {
     courseId: null,
     weekNo: null,
     dayNo: null,
-    totalRecords: 0,
-  },
-
-  ToolsDetails: {
-    tools: [],
-    courseId: null,
-    weekNo: null,
     totalRecords: 0,
   },
 };
@@ -550,26 +544,12 @@ const userSlice = createSlice({
       })
 
       // Tasks and Tools API for only week 1
-      .addCase(fetchUserTaskQuestionsAPI.fulfilled, (state, action) => {
-        const payload = action.payload || {};
-
-        state.PracticeDetails = {
-          courseId: payload.courseId,
-          weekNo: payload.weekNo,
-          totalRecords: payload.totalRecords || 0,
-          tasks: payload.questions || [],
-        };
+      .addCase(fetchShowPracticeQuestionsAPI.fulfilled, (state, action) => {
+        state.practiceDetails.questions = action.payload?.questions || [];
       })
 
-      .addCase(fetchUserToolQuestionsAPI.fulfilled, (state, action) => {
-        const payload = action.payload || {};
-
-        state.ToolsDetails = {
-          courseId: payload.courseId,
-          weekNo: payload.weekNo,
-          totalRecords: payload.totalRecords || 0,
-          tools: payload.questions || [],
-        };
+      .addCase(fetchShowToolsQuestionsAPI.fulfilled, (state, action) => {
+        state.toolsDetails.questions = action.payload?.questions || [];
       })
 
       // user Notes

@@ -2,6 +2,7 @@ import verifyUserToken from "../../middleware/verifyUserToken.js";
 
 import {
   getQuestionsWithOptionsController,
+  getShowPracticeQuestionController,
   getUserCompletedMessageController,
   getUserProgressThemeController,
   getUserResponseController,
@@ -44,4 +45,9 @@ export default (app) => {
     verifyUserToken,
     getUserProgressThemeController,
   );
+
+  app.get(
+    "/apis/user/fetchShowPracticeQuestions",
+    getShowPracticeQuestionController,
+  )
 };

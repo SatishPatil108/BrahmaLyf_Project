@@ -12,13 +12,14 @@ import {
 import { useSelector } from "react-redux";
 
 export function useHeader() {
-  // Safe access: use optional chaining and default to null
   const user = useSelector((state) => state.auth?.user || null);
 
   const links = [
     { to: "/", label: "Home", icon: Home },
     { to: "/contact", label: "Contact", icon: Mail },
     { to: "/trial-resources", label: "Trial", icon: FileSpreadsheetIcon },
+    { to: "/categories", label: "Categories", icon: BookOpen },
+
   ];
 
   if (!user) {
@@ -26,7 +27,7 @@ export function useHeader() {
   } else {
     links.splice(2, 0, {
       to: "/my-courses",
-      label: "Courses",
+      label: "Enrolled",
       icon: BookOpenText,
     });
     links.push({ to: "/notes", label: "Notes", icon: NotebookTabs });

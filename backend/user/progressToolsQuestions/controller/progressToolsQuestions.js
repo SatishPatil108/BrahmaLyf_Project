@@ -1,6 +1,7 @@
 import {
   getProgressToolsQuestionsModel,
   getProgressToolsUserResponseModel,
+  getShowToolsQuestionModel,
   getUserToolsWeekQuestionsModel,
   postProgressToolsUserResponseModel,
   updateProgressToolsUserResponseModel,
@@ -20,3 +21,5 @@ export const postProgressToolsUserResponseController =
 
 export const updateProgressToolsUserResponseController =
   updateProgressToolsUserResponseModel;
+
+export const getShowToolsQuestionController = getShowToolsQuestionModel;

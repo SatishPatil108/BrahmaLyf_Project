@@ -91,8 +91,6 @@ const SectionHeader = ({ isDark }) => (
       Discover your perfect soundscape for focus, relaxation, and deep
       meditation
     </p>
-
-     
   </motion.div>
 );
 
@@ -213,7 +211,11 @@ const MusicCard = React.memo(
 
           {/* Content Below Circle */}
           <div className="text-center mt-2.5 space-y-2">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm  line-clamp-1 transition-colors group-hover:text-violet-600 dark:group-hover:text-violet-400">
+            <h3
+              className={`font-semibold text-sm line-clamp-1 transition-colors ${
+                isDark ? "text-white" : "text-black"
+              }`}
+            >
               {music.music_title}
             </h3>
 
@@ -400,7 +402,7 @@ const MusicList = () => {
   const displayMusics = allMusics.length > 0 ? allMusics : musics;
 
   return (
-    <section className="relative min-h-screen py-16 sm:py-20 lg:py-24 overflow-hidden">
+    <section className="relative  py-16 sm:py-20 lg:py-24 overflow-hidden">
       <GlowEffect isDark={isDark} />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

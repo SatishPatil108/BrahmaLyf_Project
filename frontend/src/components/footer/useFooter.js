@@ -1,10 +1,6 @@
 import { useTheme } from "@/contexts/ThemeContext";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
-  Instagram,
-  Twitter,
-  Facebook,
-  Youtube,
   Mail,
   Phone,
   MapPin,
@@ -40,7 +36,7 @@ const useFooter = () => {
 
     try {
       const res = await dispatch(
-        subscribeToNewsletterAPI(txtEmail.current.value)
+        subscribeToNewsletterAPI(txtEmail.current.value),
       ).unwrap();
 
       setResponseObj({
@@ -59,48 +55,28 @@ const useFooter = () => {
     }
   };
 
-  const linkSections = [
+  const linkSections = useMemo(() => [
     {
       title: "Company",
       links: [
-        { name: "About Us", path: "/about" },
-        { name: "Our Mission", path: "/mission" },
-        { name: "Careers", path: "/careers" },
-        { name: "Blog", path: "/blog" },
+        { name: "Home", path: "/" },
+        { name: "About Us", path: "/trial-resources" },
+        { name: "Contact", path: "/contact" },
+        { name: "Categories", path: "/categories" },
       ],
     },
-    {
-      title: "Courses",
-      links: [
-        { name: "All Courses", path: "/courses" },
-        { name: "New Arrivals", path: "/courses/new" },
-        { name: "Popular", path: "/courses/popular" },
-        { name: "Free Resources", path: "/resources" },
-      ],
-    },
-    {
-      title: "Support",
-      links: [
-        { name: "Help Center", path: "/help" },
-        { name: "FAQs", path: "/faqs" },
-        { name: "Contact Us", path: "/contact" },
-        { name: "Privacy Policy", path: "/privacy" },
-      ],
-    },
-  ];
 
-  const socialLinks = [
-    { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
-    { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-    { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
-    { icon: Youtube, href: "https://youtube.com", label: "YouTube" },
-  ];
-
-  const contactInfo = [
-    { icon: Mail, text: "support@brahmayf.com" },
-    { icon: Phone, text: "+1 (555) 123-4567" },
-    { icon: MapPin, text: "123 Wellness St, Mindful City" },
-  ];
+    {
+      title: "Legal",
+      links: [
+        { name: "Terms", path: "/terms" },
+        { name: "Privacy", path: "/privacy" },
+        { name: "Refund", path: "/refund-cancellation-policy" },
+        { name: "Subscription", path: "/subscription-terms" },
+        { name: "Disclaimer", path: "/coaching-disclaimer" },
+      ],
+    },
+  ]);
 
   // Theme colors
   const themeColors = {
@@ -118,6 +94,19 @@ const useFooter = () => {
       bottomBg: "bg-gray-900",
       socialBg: "bg-gray-800 hover:bg-purple-900/40",
       socialText: "text-gray-400 hover:text-purple-300",
+      footerBg: "bg-gray-900",
+      footerBorder: "border-gray-800",
+      headingText: "text-white",
+      linkText: "text-gray-400",
+      linkHover: "hover:text-purple-400",
+      descriptionText: "text-gray-400",
+      newsletterText: "text-gray-300",
+      inputPlaceholder: "placeholder-gray-500",
+      inputFocus: "ring-purple-400",
+      buttonBg: "bg-purple-600 hover:bg-purple-700",
+      buttonText: "text-white",
+      copyrightText: "text-gray-500",
+      poweredByText: "text-gray-500",
     },
     light: {
       bg: "bg-gray-50",
@@ -133,6 +122,19 @@ const useFooter = () => {
       bottomBg: "bg-gray-50",
       socialBg: "bg-gray-100 hover:bg-purple-100",
       socialText: "text-gray-600 hover:text-purple-600",
+      footerBg: "from-gray-50 to-white",
+      footerBorder: "border-gray-200",
+      headingText: "text-gray-900",
+      linkText: "text-gray-600",
+      linkHover: "hover:text-purple-600",
+      descriptionText: "text-gray-600",
+      newsletterText: "text-gray-700",
+      inputPlaceholder: "placeholder-gray-400",
+      inputFocus: "ring-purple-500",
+      buttonBg: "bg-purple-500 hover:bg-purple-600",
+      buttonText: "text-white",
+      copyrightText: "text-gray-500",
+      poweredByText: "text-gray-500",
     },
   };
 
@@ -144,10 +146,9 @@ const useFooter = () => {
     txtEmail,
     handleSubmit,
     linkSections,
-    socialLinks,
-    contactInfo,
     colors,
     responseObj,
+    setResponseObj,
   };
 };
 export default useFooter;

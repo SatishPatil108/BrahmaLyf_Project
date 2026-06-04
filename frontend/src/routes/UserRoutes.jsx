@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import SubCategoriesPage from "@/pages/User/subCategories";
 import CoachesInfoPage from "@/pages/User/coachesInfo";
-import CourseDetailsPage from "@/pages/User/coachDetails";
+import CourseDetailsPage from "@/pages/User/courseDetails";
 import CoachProfile from "@/pages/User/coachProfile";
 import GetAllCoaches from "@/pages/User/getAllCoaches";
 import Header from "@/components/header/Header";
@@ -106,7 +106,7 @@ const UserRoutes = () => {
           <Route
             path="/course-details/:videoId"
             element={<CourseDetailsPage />}
-          />{" "}
+          />
           <Route path="/coach/:coachId" element={<CoachProfile />} />
           <Route path="/coaches" element={<GetAllCoaches />} />
           <Route path="/my-courses" element={<EnrolledCourses />} />

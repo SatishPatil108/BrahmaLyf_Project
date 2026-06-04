@@ -18,10 +18,12 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useFAQPage } from "../../useHomepage";
 import HtmlContent from "@/components/RichTextContent/HtmlContent";
 import TrialSection from "./TrialSection";
+import { assets } from "@/assets/assets";
+import EmpowermentCard from "./MessageQuote";
 
 const PAGE_SIZE = 12;
 
@@ -320,9 +322,9 @@ const FreeTrial = () => {
   // ── Main ──
   return (
     <div className={`min-h-screen ${t.page}`}>
-      <div className="pt-16 lg:pt-20">
-        <TrialSection />
-      </div>
+      <TrialSection />
+      <EmpowermentCard />
+
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:py-16">
         {/* ── Header ── */}
         <div className="mb-10 text-center">
@@ -416,6 +418,99 @@ const FreeTrial = () => {
           </button>
         </div>
       </div>
+      {/* mobile footer */}
+      <footer
+        className={`lg:hidden flex flex-col gap-4 items-center justify-center w-full px-4 py-5 text-xs sm:text-sm border-t ${
+          theme === "dark"
+            ? "bg-gray-900 border-white/5 text-white/70"
+            : "bg-white border-black/5 text-slate-700"
+        }`}
+      >
+        <Link
+          to="/copyright"
+          className={`transition-colors ${
+            t ? "hover:text-white" : "hover:text-slate-900"
+          }`}
+        >
+          Copyright © 2026 BrahmaLYF. All rights reserved.
+        </Link>
+
+        <div className="flex flex-wrap items-center justify-center gap-3 text-center">
+          <Link
+            to="/terms"
+            className={`transition-colors ${
+              t ? "hover:text-white" : "hover:text-slate-900"
+            }`}
+          >
+            Terms
+          </Link>
+
+          <span className={t ? "text-white/30" : "text-slate-300"}>|</span>
+
+          <Link
+            to="/privacy"
+            className={`transition-colors ${
+              t ? "hover:text-white" : "hover:text-slate-900"
+            }`}
+          >
+            Privacy
+          </Link>
+
+          <span className={t ? "text-white/30" : "text-slate-300"}>|</span>
+
+          <Link
+            to="/refund-cancellation-policy"
+            className={`transition-colors ${
+              t ? "hover:text-white" : "hover:text-slate-900"
+            }`}
+          >
+            Refund Policy
+          </Link>
+
+          <span className={t ? "text-white/30" : "text-slate-300"}>|</span>
+
+          <Link
+            to="/subscription-terms"
+            className={`transition-colors ${
+              t ? "hover:text-white" : "hover:text-slate-900"
+            }`}
+          >
+            Subscription Terms
+          </Link>
+
+          <span className={t ? "text-white/30" : "text-slate-300"}>|</span>
+
+          <Link
+            to="/coaching-disclaimer"
+            className={`transition-colors ${
+              t ? "hover:text-white" : "hover:text-slate-900"
+            }`}
+          >
+            Coaching Disclaimer
+          </Link>
+
+          {/* Powered by */}
+          <div
+            className={`flex items-center justify-center gap-1 sm:gap-1.5 order-3 shrink-0`}
+          >
+            <span className="text-xs sm:text-sm whitespace-nowrap">
+              powered by
+            </span>
+
+            <a
+              href="https://aavidsoft.in"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src={assets.aavidsoft_logo}
+                alt="AavidSoft Logo"
+                className={`w-12 sm:w-14 md:w-16 lg:w-20 h-auto object-contain cursor-pointer`}
+              />
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

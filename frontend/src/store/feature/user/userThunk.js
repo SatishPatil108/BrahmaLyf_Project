@@ -479,14 +479,15 @@ export const updateUserToolsResponseAPI = createAsyncThunk(
 );
 
 // fetch user progress tracking tasks questions and options for a specific week
-export const fetchUserTaskQuestionsAPI = createAsyncThunk(
-  "user/fetchUserTasksWeekQuestions",
+export const fetchShowPracticeQuestionsAPI = createAsyncThunk(
+  "user/fetchShowPracticeQuestions",
   async ({ courseId, weekNo }, thunkAPI) => {
     try {
-      const response = await userAPI.fetchUserTasksWeekQuestions(
+      const response = await userAPI.fetchShowPracticeQuestions(
         courseId,
         weekNo,
       );
+
 
       return response.data;
     } catch (error) {
@@ -499,14 +500,11 @@ export const fetchUserTaskQuestionsAPI = createAsyncThunk(
 );
 
 // fetch user progress tracking tools questions and options for a specific week
-export const fetchUserToolQuestionsAPI = createAsyncThunk(
-  "user/fetchUserToolsWeekQuestions",
+export const fetchShowToolsQuestionsAPI = createAsyncThunk(
+  "user/fetchShowToolsQuestions",
   async ({ courseId, weekNo }, thunkAPI) => {
     try {
-      const response = await userAPI.fetchUserToolsWeekQuestions(
-        courseId,
-        weekNo,
-      );
+      const response = await userAPI.fetchShowToolsQuestions(courseId, weekNo);
 
       return response.data;
     } catch (error) {

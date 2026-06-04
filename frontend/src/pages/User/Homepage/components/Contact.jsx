@@ -10,150 +10,10 @@ import { contactAPI } from "@/store/feature/user";
 import { toast } from "react-toastify";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Icon, Mail, SendHorizonal, User, Verified } from "lucide-react";
 
 /* ─── utils ────────────────────────────────────────────────────────────── */
 const cls = (...c) => c.filter(Boolean).join(" ");
-
-/* ─── premium icons (optimized with useMemo) ─────────────────────────── */
-const Icons = {
-  Clock: () => (
-    <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-      <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M10 6v4l2.5 2.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  ),
-  Shield: () => (
-    <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-      <path
-        d="M10 2L3 7v6c0 3.31 3.13 6 7 6s7-2.69 7-6V7L10 2Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M7.5 10.5l2 2 3-3"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  Mail: () => (
-    <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-      <rect
-        x="2"
-        y="5"
-        width="16"
-        height="12"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M2 8l8 5 8-5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  ),
-  User: () => (
-    <svg viewBox="0 0 18 18" fill="none" className="w-4 h-4">
-      <circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.4" />
-      <path
-        d="M2 16c0-3.314 3.134-6 7-6s7 2.686 7 6"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
-    </svg>
-  ),
-  EmailIcon: () => (
-    <svg viewBox="0 0 18 18" fill="none" className="w-4 h-4">
-      <rect
-        x="2"
-        y="4"
-        width="14"
-        height="10"
-        rx="1.5"
-        stroke="currentColor"
-        strokeWidth="1.4"
-      />
-      <path
-        d="M2 7l7 4 7-4"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
-    </svg>
-  ),
-  Send: () => (
-    <svg viewBox="0 0 16 16" fill="none" className="w-4 h-4">
-      <path
-        d="M2 8h12M9 4l5 4-5 4"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  Check: () => (
-    <svg viewBox="0 0 32 32" fill="none" className="w-8 h-8">
-      <path
-        d="M6 17l8 8L26 9"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  Verified: () => (
-    <svg viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5">
-      <path
-        d="M13 5L7 11l-3-3"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  ArrowRight: () => (
-    <svg viewBox="0 0 16 16" fill="none" className="w-4 h-4">
-      <path
-        d="M2 8h12M9 4l5 4-5 4"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  Sparkles: () => (
-    <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-      <path
-        d="M10 3L12 8L17 10L12 12L10 17L8 12L3 10L8 8L10 3Z"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M17 4L18 6L20 7L18 8L17 10L16 8L14 7L16 6L17 4Z"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-};
 
 /* ─── trust signals data ──────────────────────────────────────────────── */
 const TRUST_SIGNALS = [
@@ -521,7 +381,6 @@ export default function Contact() {
               </h3>
               <div className="grid gap-3">
                 {TRUST_SIGNALS.map((signal, idx) => {
-                  const Icon = Icons[signal.icon];
                   return (
                     <motion.div
                       key={signal.label}
@@ -538,7 +397,6 @@ export default function Contact() {
                             : "bg-gray-100 text-purple-600 group-hover:bg-gray-200",
                         )}
                       >
-                        <Icon />
                       </div>
                       <span
                         className={cls(
@@ -579,7 +437,7 @@ export default function Contact() {
                       : "bg-gray-100 text-gray-500 group-hover:bg-gray-200 group-hover:text-purple-600",
                   )}
                 >
-                  <Icons.Mail />
+                  <Mail />
                 </div>
                 <span
                   className={cls(isDark ? "text-gray-300" : "text-gray-700")}
@@ -626,7 +484,7 @@ export default function Contact() {
                           error={errors.name}
                         >
                           <span className="pl-4 text-gray-400">
-                            <Icons.User />
+                            <User />
                           </span>
                           <input
                             id="name"
@@ -647,7 +505,7 @@ export default function Contact() {
                               className="pr-3 text-purple-500"
                               title="Pre-filled from your account"
                             >
-                              <Icons.Verified />
+                              <Verified />
                             </span>
                           )}
                         </InputWrapper>
@@ -665,7 +523,7 @@ export default function Contact() {
                           error={errors.email}
                         >
                           <span className="pl-4 text-gray-400">
-                            <Icons.EmailIcon />
+                            <Mail />
                           </span>
                           <input
                             id="email"
@@ -686,7 +544,7 @@ export default function Contact() {
                               className="pr-3 text-purple-500"
                               title="Pre-filled from your account"
                             >
-                              <Icons.Verified />
+                              <Verified />
                             </span>
                           )}
                         </InputWrapper>
@@ -773,7 +631,7 @@ export default function Contact() {
                         ) : (
                           <>
                             <span>Send message</span>
-                            <Icons.Send />
+                            <SendHorizonal  className="w-4 h-4"/>
                           </>
                         )}
                       </motion.button>

@@ -331,18 +331,18 @@ export const updateUserToolsResponse = async (questionId, toolsData) => {
 };
 
 // fetch User Tasks Questions and options for a specific week
-export const fetchUserTasksWeekQuestions = async (courseId, weekNo) => {
+export const fetchShowPracticeQuestions = async (courseId, weekNo) => {
   return await makeRequest({
-    service: `user/fetchUserTasksWeekQuestions?courseId=${1}&weekNo=${1}`,
+    service: `user/fetchShowPracticeQuestions?courseId=${1}&weekNo=${1}`,
     method: API_METHODS.GET,
     authRequired: false,
   });
 };
 
 // fetch User Tools Questions and options for a specific week
-export const fetchUserToolsWeekQuestions = async (courseId, weekNo) => {
+export const fetchShowToolsQuestions = async (courseId, weekNo) => {
   return await makeRequest({
-    service: `user/fetchUserToolsWeekQuestions?courseId=${1}&weekNo=${1}`,
+    service: `user/fetchShowToolsQuestions?courseId=${1}&weekNo=${1}`,
     method: API_METHODS.GET,
     authRequired: false,
   });

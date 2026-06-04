@@ -127,7 +127,7 @@ const TrialSection = () => {
 
   return (
     <section
-      className={`relative isolate overflow-hidden px-6 py-24 transition-all duration-500 sm:py-32 lg:px-8 ${styles.page}`}
+      className={`relative isolate overflow-hidden px-6 py-24 transition-all duration-500 sm:py-20 lg:px-8 ${styles.page}`}
     >
       {/* Premium animated background elements */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -232,7 +232,7 @@ const TrialSection = () => {
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                className="group relative inline-flex w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-purple-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/40 hover:from-purple-500 hover:to-pink-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 sm:w-auto"
+                className="group relative inline-flex w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 px-8 py-4 text-base sm:text-lg font-semibold text-white shadow-lg shadow-purple-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/40 hover:from-purple-500 hover:to-pink-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 sm:w-auto"
               >
                 <span>Start Free Trial on WhatsApp</span>
                 <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
