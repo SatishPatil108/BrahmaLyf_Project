@@ -36,6 +36,7 @@ import {
   fetchUserCompletedMessageAPI,
   fetchShowToolsQuestionsAPI,
   fetchShowPracticeQuestionsAPI,
+  fetchCourseCartDetailsAPI,
 } from "./userThunk";
 
 const createCourseScopedState = () => ({
@@ -98,6 +99,9 @@ const initialState = {
   allCoursesFeedback: [],
   userNotesDetails: { notes: [] },
   courses: [],
+
+  courseCartDetails: null,
+
   moduleDetails: null,
 
   userProgressDetails: {
@@ -246,6 +250,10 @@ const userSlice = createSlice({
 
       .addCase(fetchMyCoursesAPI.fulfilled, (state, action) => {
         state.myCoursesDetails = action.payload;
+      })
+
+      .addCase(fetchCourseCartDetailsAPI.fulfilled, (state, action) => {
+        state.courseCartDetails = action.payload;
       })
 
       .addCase(fetchEnrolledCourseDetailsAPI.fulfilled, (state, action) => {

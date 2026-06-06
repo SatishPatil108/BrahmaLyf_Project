@@ -186,7 +186,7 @@ const TrialSection = () => {
 
             {/* Main heading */}
             <h1
-              className={`text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl ${styles.heading}`}
+              className={`text-4xl  font-bold tracking-tight sm:text-5xl lg:text-6xl ${styles.heading}`}
             >
               Start your 7-day{" "}
               <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">

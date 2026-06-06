@@ -3,6 +3,7 @@ import AdminLoginPage from "@/pages/Admin/AdminLogin";
 import CoachesList from "@/pages/Admin/CoachList";
 import CourseList from "@/pages/Admin/CourseList";
 import CourseDetails from "@/pages/Admin/CourseList/CourseDetails";
+import CustomVideoList from "@/pages/Admin/CustomVideos/CustomVideoList";
 import ShortsList from "@/pages/Admin/DailyShorts/ShortsList";
 import AdminDashboard from "@/pages/Admin/Dashboard/AdminDashboard";
 import DomainsList from "@/pages/Admin/Domains";
@@ -33,6 +34,8 @@ const AdminRoutes = () => {
 
         <Route path="musics" element={<MusicList />} />
         <Route path="short-video" element={<ShortsList />} />
+        <Route path="custom-video" element={<CustomVideoList />} />
+
         <Route path="courses/:courseId" element={<CourseDetails />} />
         <Route
           path="frequently-asked-questions"

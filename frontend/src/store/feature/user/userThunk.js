@@ -553,3 +553,22 @@ export const fetchUserProgressThemesAPI = createAsyncThunk(
     }
   },
 );
+
+
+export const fetchCourseCartDetailsAPI = createAsyncThunk(
+  "user/fetchCourseCartDetails",
+  async ({ courseId }, thunkAPI) => {
+    try {
+      const response = await userAPI.fetchCourseCartDetails(
+        courseId         
+      );
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch course cart details",
+      );
+    }
+  },
+);

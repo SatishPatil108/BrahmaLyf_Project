@@ -10,6 +10,7 @@ import shortVideoRoutes from "./shortvideos/routes/video.js";
 import contactUs from "./contactUs/routes/contactUs.js";
 import questionRoutes from "./progressTasksQuestions/routes/question.js";
 import toolsRoutes from "./progressToolsQuestions/routes/tools.js";
+import customVideoRoutes from "./customVideos/routes/video.js";
 
 export default (app) => {
   app.get("/", (req, res) => {
@@ -28,4 +29,5 @@ export default (app) => {
   contactUs(app);
   questionRoutes(app);
   toolsRoutes(app);
+  customVideoRoutes(app);
 };

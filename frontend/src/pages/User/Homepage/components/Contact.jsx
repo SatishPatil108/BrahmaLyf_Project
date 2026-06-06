@@ -351,7 +351,7 @@ export default function Contact() {
                   Let's start a
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-purple-500 via-orange-500 to-purple-700 bg-clip-text text-transparent animate-gradient">
+                <span className="bg-gradient-to-r from-purple-500 to-pink-500  bg-clip-text text-transparent">
                   conversation
                 </span>
               </h1>
@@ -619,8 +619,8 @@ export default function Contact() {
                           status === "loading"
                             ? "bg-gray-600 text-gray-300 cursor-not-allowed"
                             : isDark
-                              ? "bg-gradient-to-r from-purple-500 to-orange-500 hover:from-purple-700 hover:to-orange-400 text-black shadow-lg shadow-purple-500/25"
-                              : "bg-gradient-to-r from-purple-500 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white shadow-lg shadow-purple-500/30",
+                              ? "bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-400 text-white shadow-lg "
+                              : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white shadow-lg shadow-purple-500/30",
                         )}
                       >
                         {status === "loading" ? (

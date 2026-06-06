@@ -41,6 +41,7 @@ import SubscriptionTerms from "@/pages/User/FooterLinks/SubscriptionTerms/Subscr
 import CoachingDisclaimer from "@/pages/User/FooterLinks/Coaching Disclaimar/CoachingDisclaimer";
 import CopyrightNotice from "@/pages/User/FooterLinks/CopyrightNotice/CopyrightNotice";
 import FreeTrial from "@/pages/User/Homepage/components/FAQsSections/FreeTrial";
+import CourseCartDetails from "@/pages/User/PaymentDetails/CourseCartDetails";
 
 const UserRoutes = () => {
   const { theme } = useTheme();
@@ -91,6 +92,7 @@ const UserRoutes = () => {
           <Route path="/musics" element={<MusicList />} />
           <Route path="/music/:musicId" element={<MusicPlayer />} />
           <Route path="/short-video" element={<DailyShorts />} />
+
           <Route
             path="/short-video/:shortVideoId"
             element={<ShortVideoPlayer />}
@@ -114,6 +116,9 @@ const UserRoutes = () => {
             path="/enrolled-course/:courseId"
             element={<EnrolledCourseDetails />}
           />
+          
+          <Route path="/cart/details" element={<CourseCartDetails />} />
+
           <Route path="/view-profile" element={<ViewProfile />} />
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/change-password" element={<ChangePassword />} />

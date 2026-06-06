@@ -391,8 +391,8 @@ function Homepage() {
             <h1 className="text-[clamp(2rem,8vw,4.5rem)] font-bold leading-[1.15] tracking-tighter mb-4 animate-fadeInUp">
               <span
                 className={`
-                bg-gradient-to-r from-gray-900 via-violet-600 to-violet-700
-                dark:from-gray-100 dark:via-violet-300 dark:to-violet-400
+                bg-gradient-to-r from-violet-500 via-violet-600 to-violet-700
+                dark:from-violet-100 dark:via-violet-300 dark:to-violet-400
                 bg-clip-text text-transparent
               `}
               >
@@ -704,7 +704,7 @@ function Homepage() {
                 मजबूत आणि समजूतदारपणे सामोरे जायची वेळ आली आहे.
               </p>
 
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+              <div className="flex flex-col sm:text-sm text-xs sm:flex-row justify-center items-center gap-4">
                 <Link
                   to="/register"
                   className="group relative inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 overflow-hidden shadow-lg"
@@ -721,8 +721,8 @@ function Homepage() {
                 <Link
                   to="/trial-resources"
                   className={`
-                    inline-flex items-center justify-center gap-2 px-8 py-4 
-                    rounded-full font-medium text-sm border transition-all duration-300 
+                    inline-flex items-center justify-center gap-2 px-8 py-4 sm:text-sm text-xs
+                    rounded-full font-medium  border transition-all duration-300 
                     hover:scale-105 active:scale-95 focus-visible:outline-none 
                     focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2
                     ${

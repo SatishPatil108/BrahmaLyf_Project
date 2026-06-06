@@ -228,7 +228,6 @@ const CourseCard = memo(({ course, index, onClick, themeStyles }) => {
           </div>
         </div>
 
-
         {/* Action Button */}
         <motion.div
           whileHover={{ x: 4 }}
@@ -295,7 +294,7 @@ const PremiumEmptyState = ({ themeStyles, onExplore }) => (
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-center pt-4">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -305,14 +304,6 @@ const PremiumEmptyState = ({ themeStyles, onExplore }) => (
           <Sparkles className="w-5 h-5" />
           Explore Courses
         </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="px-8 py-3.5 rounded-xl font-semibold border border-white/20 backdrop-blur-sm hover:bg-white/5 transition-colors"
-        >
-          View Recommendations
-        </motion.button>
       </div>
 
       {/* Trust Badges */}
@@ -320,7 +311,6 @@ const PremiumEmptyState = ({ themeStyles, onExplore }) => (
         {[
           { icon: Shield, label: "Lifetime Access" },
           { icon: Award, label: "Certified" },
-          { icon: Users, label: "10k+ Students" },
         ].map((badge, idx) => (
           <div key={idx} className="flex items-center gap-2">
             <badge.icon className="w-4 h-4 text-purple-400" />
@@ -387,6 +377,7 @@ const EnrolledCourses = () => {
     pageSize,
   );
   const myCourses = myCoursesDetails?.courses || [];
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

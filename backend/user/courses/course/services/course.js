@@ -1,8 +1,8 @@
 import connection from "../../../../database/database.js";
 
 export const getCourseByIdService = (courseId) => {
-	return new Promise((resolve, reject) => {
-		const query = `
+  return new Promise((resolve, reject) => {
+    const query = `
 			SELECT
 				c.id AS course_id,
 				c.course_name,
@@ -16,33 +16,33 @@ export const getCourseByIdService = (courseId) => {
 			FROM bm.courses c
 			WHERE c.id = $1 AND c.status = 1
 		`;
-		connection.query(query, [courseId], (err, result) => {
-			if (err) return reject(err);
-			if (result.rows.length === 0) return resolve(-1);
-			resolve(result.rows[0]);
-		});
-	});
+    connection.query(query, [courseId], (err, result) => {
+      if (err) return reject(err);
+      if (result.rows.length === 0) return resolve(-1);
+      resolve(result.rows[0]);
+    });
+  });
 };
 export const isUserAlreadyEnrolledService = (userId, courseId) => {
-	return new Promise((resolve, reject) => {
-		const query = `
+  return new Promise((resolve, reject) => {
+    const query = `
 			SELECT id
 			FROM bm.course_enrollments
 			WHERE user_id = $1
 			AND course_id = $2
 			AND status = 1
 		`;
-		connection.query(query, [userId, courseId], (err, result) => {
-			if (err) return reject(err);
-			if (result.rows.length > 0) return resolve(-2);
-			resolve(result.rows);
-		});
-	});
+    connection.query(query, [userId, courseId], (err, result) => {
+      if (err) return reject(err);
+      if (result.rows.length > 0) return resolve(-2);
+      resolve(result.rows);
+    });
+  });
 };
 
 export const enrollInCourseService = (userId, courseId, enrolledOn, status) => {
-	return new Promise((resolve, reject) => {
-		const query = `
+  return new Promise((resolve, reject) => {
+    const query = `
 			WITH ins AS (
 				INSERT INTO bm.course_enrollments (
 					user_id, course_id, enrolled_on, status
@@ -60,12 +60,16 @@ export const enrollInCourseService = (userId, courseId, enrolledOn, status) => {
 			JOIN bm.users u ON ins.user_id = u.id
 			JOIN bm.courses c ON ins.course_id = c.id
 		`;
-		connection.query(query, [userId, courseId, enrolledOn, status], (err, result) => {
-			if (err) return reject(err);
-			if (result.rows.length === 0) return resolve(-1);
-			resolve(result.rows[0]);
-		});
-	});
+    connection.query(
+      query,
+      [userId, courseId, enrolledOn, status],
+      (err, result) => {
+        if (err) return reject(err);
+        if (result.rows.length === 0) return resolve(-1);
+        resolve(result.rows[0]);
+      },
+    );
+  });
 };
 
 export const getMyCoursesService = (userId, pageNo, pageSize) => {
@@ -82,6 +86,7 @@ export const getMyCoursesService = (userId, pageNo, pageSize) => {
         ON c.id = ce.course_id
       WHERE c.status = 1
       AND ce.user_id = $1
+      AND ce.status = 1
     `;
     connection.query(countQuery, [userId], (err, countResult) => {
       if (err) return reject(err);
@@ -101,36 +106,41 @@ export const getMyCoursesService = (userId, pageNo, pageSize) => {
           ON c.id = ce.course_id
         WHERE c.status = 1
         AND ce.user_id = $1
+        AND ce.status = 1
         ORDER BY c.id ASC
         LIMIT $2 OFFSET $3
       `;
-      connection.query(dataQuery, [userId, pageSize, offset], (err, dataResult) => {
-        if (err) return reject(err);
-        return resolve({
-          current_page: pageNo,
-          page_size: pageSize,
-          total_records: totalRecords,
-          total_pages: totalPages,
-          has_next_page: pageNo < totalPages,
-          has_prev_page: pageNo > 1,
-          courses: dataResult.rows
-        });
-      });
+      connection.query(
+        dataQuery,
+        [userId, pageSize, offset],
+        (err, dataResult) => {
+          if (err) return reject(err);
+          return resolve({
+            current_page: pageNo,
+            page_size: pageSize,
+            total_records: totalRecords,
+            total_pages: totalPages,
+            has_next_page: pageNo < totalPages,
+            has_prev_page: pageNo > 1,
+            courses: dataResult.rows,
+          });
+        },
+      );
     });
   });
 };
 
 export const courseFeedbackService = (
-	enrollmentId,
-	userId,
-	courseId,
-	rating,
-	comments,
-	createdOn,
-	status
+  enrollmentId,
+  userId,
+  courseId,
+  rating,
+  comments,
+  createdOn,
+  status,
 ) => {
-	return new Promise((resolve, reject) => {
-		const query = `
+  return new Promise((resolve, reject) => {
+    const query = `
 			INSERT INTO bm.course_feedbacks (
 				enrollment_id, user_id, course_id, rating,
 				comments, created_on, status
@@ -138,19 +148,23 @@ export const courseFeedbackService = (
 			VALUES ($1, $2, $3, $4, $5, $6, $7)
 			RETURNING *
 		`;
-		connection.query(
-			query,
-			[enrollmentId, userId, courseId, rating, comments, createdOn, status],
-			(err, result) => {
-				if (err) return reject(err);
-				if (result.rows.length === 0) return resolve(-1);
-				resolve(result.rows[0]);
-			}
-		);
-	});
+    connection.query(
+      query,
+      [enrollmentId, userId, courseId, rating, comments, createdOn, status],
+      (err, result) => {
+        if (err) return reject(err);
+        if (result.rows.length === 0) return resolve(-1);
+        resolve(result.rows[0]);
+      },
+    );
+  });
 };
 
-export const getCourseFeedbacksByCourseIdService = (courseId, pageNo, pageSize) => {
+export const getCourseFeedbacksByCourseIdService = (
+  courseId,
+  pageNo,
+  pageSize,
+) => {
   return new Promise((resolve, reject) => {
     pageNo = parseInt(pageNo, 10);
     pageSize = parseInt(pageSize, 10);
@@ -180,18 +194,22 @@ export const getCourseFeedbacksByCourseIdService = (courseId, pageNo, pageSize) 
         ORDER BY cf.created_on DESC
         LIMIT $2 OFFSET $3
       `;
-      connection.query(dataQuery, [courseId, pageSize, offset], (err, dataResult) => {
-        if (err) return reject(err);
-        return resolve({
-          current_page: pageNo,
-          page_size: pageSize,
-          total_records: totalRecords,
-          total_pages: totalPages,
-          has_next_page: pageNo < totalPages,
-          has_prev_page: pageNo > 1,
-          feedbacks: dataResult.rows
-        });
-      });
+      connection.query(
+        dataQuery,
+        [courseId, pageSize, offset],
+        (err, dataResult) => {
+          if (err) return reject(err);
+          return resolve({
+            current_page: pageNo,
+            page_size: pageSize,
+            total_records: totalRecords,
+            total_pages: totalPages,
+            has_next_page: pageNo < totalPages,
+            has_prev_page: pageNo > 1,
+            feedbacks: dataResult.rows,
+          });
+        },
+      );
     });
   });
 };
@@ -235,7 +253,7 @@ export const getCourseFeedbacksService = (pageNo, pageSize) => {
           total_pages: totalPages,
           has_next_page: pageNo < totalPages,
           has_prev_page: pageNo > 1,
-          feedbacks: dataResult.rows
+          feedbacks: dataResult.rows,
         });
       });
     });
@@ -287,7 +305,7 @@ export const searchCourseService = (pageNo, pageSize, whereClause = "") => {
           total_pages: totalPages,
           has_next_page: pageNo < totalPages,
           has_prev_page: pageNo > 1,
-          courses: dataResult.rows
+          courses: dataResult.rows,
         });
       });
     });

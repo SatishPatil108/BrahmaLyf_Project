@@ -365,3 +365,12 @@ export const fetchProgressPracticeThemes = async (courseId, weekNo) => {
     tokenType: "user",
   });
 };
+
+export const fetchCourseCartDetails = async (courseId) => {
+  return await makeRequest({
+    service: `user/course/cart/details/${courseId}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "user",
+  });
+};

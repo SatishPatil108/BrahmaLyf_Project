@@ -9,9 +9,11 @@ import {
 } from "@/store/feature/user";
 
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const useCourseDetailsPage = (videoId) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { coachDetails, courseDetails, isLoading, error, allCoursesFeedback } =
     useSelector((state) => state.user);
@@ -53,9 +55,10 @@ const useCourseDetailsPage = (videoId) => {
     if (!courseDetails?.course_id) return;
     try {
       setEnrolling(true);
-      const res = await dispatch(
-        enrollInCourseAPI(courseDetails.course_id),
-      ).unwrap();
+      navigate('/cart/details', { state: { courseId: courseDetails.course_id } });
+      // const res = await dispatch(
+      //   enrollInCourseAPI(courseDetails.course_id),
+      // ).unwrap();
 
       if (res?.data) {
         const { user_name, course_name } = res.data;

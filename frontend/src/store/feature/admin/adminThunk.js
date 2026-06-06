@@ -46,7 +46,7 @@ import {
   fetchProgressToolsQuestions,
   updateProgressToolsQuestion,
   deleteProgressToolsQuestion,
-  postProgressToolsQuestion,  
+  postProgressToolsQuestion,
   postCompletedMessage,
   updateCompletedMessage,
   deleteCompletedMessage,
@@ -55,6 +55,10 @@ import {
   fetchProgressPracticeThemes,
   updateProgressPracticeThemes,
   deleteProgressPracticeThemes,
+  fetchCustomVideos,
+  postCustomVideo,
+  updateCustomVideo,
+  deleteCustomVideo,
 } from "./adminApi";
 
 export const getAdminDashboardData = createAsyncThunk(
@@ -886,6 +890,68 @@ export const deleteCompletedMessageAPI = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to delete completed messages",
+      );
+    }
+  },
+);
+
+
+// Custom Videos
+export const postCustomVideoAPI = createAsyncThunk(
+  "admin/postCustomVideo",
+  async (customVideoData, thunkAPI) => {
+    try {
+      const response = await postCustomVideo(customVideoData);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to add custom video",
+      );
+    }
+  },
+);
+
+// fetch All Custom Videos
+export const fetchAllCustomVideosAPI = createAsyncThunk(
+  "admin/get/custom-videos",
+  async ({ pageNo, pageSize }, thunkAPI) => {
+    try {
+      const response = await fetchCustomVideos(pageNo, pageSize);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.message || "Failed to fetch Custom Videos",
+      );
+    }
+  },
+);
+
+// update short video details
+export const updateCustomVideosAPI = createAsyncThunk(
+  "admin/update/custom-video",
+  async ({ customVideoId, customVideoData }, thunkAPI) => {
+    try {
+      const response = await updateCustomVideo(customVideoId, customVideoData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to update custom video",
+      );
+    }
+  },
+);
+
+// delete short video
+export const deleteCustomVideosAPI = createAsyncThunk(
+  "admin/delete/custom-video",
+  async (customVideoId, thunkAPI) => {
+    try {
+      await deleteCustomVideo(customVideoId);
+      return customVideoId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to delete custom Video",
       );
     }
   },

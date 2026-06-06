@@ -611,3 +611,46 @@ export const deleteCompletedMessage = async (messageId) => {
     tokenType: "admin",
   });
 };
+
+
+// post custom video
+export const postCustomVideo = async (customData) => {
+  return await makeRequest({
+    service: `admin/custom-video`,
+    method: API_METHODS.POST,
+    data: customData,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// fetch all Custom shorts videos
+export const fetchCustomVideos = async (pageNo, pageSize) => {
+  return await makeRequest({
+    service: `admin/custom-videos/${pageNo}/${pageSize}`,
+    method: API_METHODS.GET,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// update daily Custom videos details
+export const updateCustomVideo = async (id, data) => {
+  return await makeRequest({
+    service: `admin/custom-video/${id}`,
+    method: API_METHODS.PUT,
+    data: data,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};
+
+// delete daily Custom video
+export const deleteCustomVideo = async (custom_id) => {
+  return await makeRequest({
+    service: `admin/custom-video/${custom_id}`,
+    method: API_METHODS.DELETE,
+    authRequired: true,
+    tokenType: "admin",
+  });
+};

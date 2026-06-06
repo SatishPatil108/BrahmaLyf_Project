@@ -52,6 +52,10 @@ import {
   fetchProgressPracticeThemesAPI,
   updateProgressPracticeThemesAPI,
   deleteProgressPracticeThemesAPI,
+  deleteCustomVideosAPI,
+  updateCustomVideosAPI,
+  fetchAllCustomVideosAPI,
+  postCustomVideoAPI,
 } from "./adminThunk";
 
 const adminSlice = createSlice({
@@ -70,6 +74,7 @@ const adminSlice = createSlice({
     progressToolsQuestions: { tools: [] },
     progressPracticeThemes: { themes: [] },
     completedMessages: { messages: [] },
+    customVideosDetails: { videos: [] },
     coachesList: [],
     courseDetails: null,
     loading: false,
@@ -473,6 +478,36 @@ const adminSlice = createSlice({
         state.loading = false;
         state.completedMessages.messages =
           state.completedMessages.messages.filter(
+            (m) => m.id !== action.payload.id,
+          );
+      })
+
+      // Custom Videos
+      .addCase(postCustomVideoAPI.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customVideosDetails.videos.unshift(action.payload);
+      })
+
+      .addCase(fetchAllCustomVideosAPI.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customVideosDetails.videos = action.payload?.videos || [];
+      })
+
+      .addCase(updateCustomVideosAPI.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customVideosDetails.videos = state.customVideosDetails.videos.map(
+          (video) => {
+            if (video.id == action.payload.id)
+              video = { id: action.payload.id, ...action.payload };
+            return video;
+          },
+        );
+      })
+
+      .addCase(deleteCustomVideosAPI.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customVideosDetails.videos =
+          state.customVideosDetails.videos.filter(
             (m) => m.id !== action.payload.id,
           );
       })
