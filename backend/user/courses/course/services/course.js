@@ -94,21 +94,21 @@ export const getMyCoursesService = (userId, pageNo, pageSize) => {
       const totalPages = Math.ceil(totalRecords / pageSize);
       const dataQuery = `
         SELECT
-          c.id AS course_id,
-          c.course_name,
-          c.duration,
-          c.coach_id,
-          c.created_on,
-          ce.enrolled_on,
-          c.status
+           c.id AS course_id,
+           c.course_name,
+           c.duration,
+           c.coach_id,
+           c.created_on,
+           ce.enrolled_on,
+           c.status
         FROM bm.courses c
         INNER JOIN bm.course_enrollments ce
-          ON c.id = ce.course_id
+        ON c.id = ce.course_id
         WHERE c.status = 1
-        AND ce.user_id = $1
-        AND ce.status = 1
+           AND ce.user_id = $1
+           AND ce.status = 1
         ORDER BY c.id ASC
-        LIMIT $2 OFFSET $3
+        LIMIT $2 OFFSET $3;
       `;
       connection.query(
         dataQuery,

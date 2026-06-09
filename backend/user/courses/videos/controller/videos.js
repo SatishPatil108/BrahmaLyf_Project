@@ -13,4 +13,5 @@ export const getVideosBySubdomainIdController = getVideosBySubdomainIdModel;
 export const getVideoByIdController = getVideoByIdModel;
 
 export const getMyCourseVideosController = getMyCourseVideosModel;
+
 export const getModuleController = getModuleModel;

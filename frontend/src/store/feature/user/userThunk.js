@@ -131,15 +131,20 @@ export const fetchMyCoursesAPI = createAsyncThunk(
 // Fetch enrolled course details
 export const fetchEnrolledCourseDetailsAPI = createAsyncThunk(
   "user/fetchEnrolledCourseDetails",
-  async (courseId, thunkAPI) => {
+  async ({ courseId, userId }, thunkAPI) => {
     try {
-      const response = await userAPI.fetchEnrolledCourseDetails(courseId);
+      const response = await userAPI.fetchEnrolledCourseDetails(
+        courseId,
+        userId,
+      );
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
   },
 );
+
+
 // Fetch enrolled course details
 export const fetchModuleDetailsAPI = createAsyncThunk(
   "user/fetchModuleDetails",
@@ -488,7 +493,6 @@ export const fetchShowPracticeQuestionsAPI = createAsyncThunk(
         weekNo,
       );
 
-
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -554,20 +558,16 @@ export const fetchUserProgressThemesAPI = createAsyncThunk(
   },
 );
 
-
 export const fetchCourseCartDetailsAPI = createAsyncThunk(
   "user/fetchCourseCartDetails",
   async ({ courseId }, thunkAPI) => {
     try {
-      const response = await userAPI.fetchCourseCartDetails(
-        courseId         
-      );
+      const response = await userAPI.fetchCourseCartDetails(courseId);
 
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message ||
-          "Failed to fetch course cart details",
+        error.response?.data?.message || "Failed to fetch course cart details",
       );
     }
   },

@@ -91,9 +91,9 @@ export const fetchMyCourses = async (pageNo, pageSize) => {
 };
 
 //enrolled course details
-export const fetchEnrolledCourseDetails = async (courseId) => {
+export const fetchEnrolledCourseDetails = async (courseId, userId) => {
   return await makeRequest({
-    service: `user/coaches/my-course-videos/${courseId}`,
+    service: `user/coaches/my-course-videos/${courseId}/${userId}`,
     method: API_METHODS.GET,
     authRequired: true,
   });

@@ -18,6 +18,7 @@ const useCourseDetailsPage = (videoId) => {
   const { coachDetails, courseDetails, isLoading, error, allCoursesFeedback } =
     useSelector((state) => state.user);
 
+
   const { user } = useSelector((state) => state.auth);
 
   const [enrolling, setEnrolling] = useState(false);

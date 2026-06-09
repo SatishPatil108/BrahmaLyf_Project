@@ -1,387 +1,452 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { postCourseFeedbackAPI } from "@/store/feature/user";
-import { Star, Send, CheckCircle, MessageSquare, ThumbsUp } from "lucide-react";
+import { Send, CheckCircle, Lock, AlertCircle, Loader2 } from "lucide-react";
 
-const FeedbackForm = ({ courseId, enrollmentId, theme, onSuccess }) => {
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const RATING_LABELS = {
+  1: "Not what I expected",
+  2: "Could be better",
+  3: "Pretty good",
+  4: "Really enjoyed it",
+  5: "Excellent — highly recommend",
+};
+
+const QUICK_TAGS = [
+  "Great content",
+  "Clear explanations",
+  "Well paced",
+  "Practical examples",
+  "Needs more depth",
+  "Too fast",
+];
+
+const MAX_CHARS = 500;
+
+// ─── Sub-components ──────────────────────────────────────────────────────────
+
+function StarIcon({ filled, hovered }) {
+  const path =
+    "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z";
+  if (filled)
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        className="w-full h-full fill-amber-400 stroke-amber-400"
+      >
+        <path d={path} />
+      </svg>
+    );
+  if (hovered)
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        className="w-full h-full fill-amber-100 stroke-amber-400 dark:fill-amber-900/30"
+      >
+        <path d={path} />
+      </svg>
+    );
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="w-full h-full fill-none stroke-gray-300 dark:stroke-gray-600"
+    >
+      <path d={path} />
+    </svg>
+  );
+}
+
+function FieldError({ message }) {
+  if (!message) return null;
+  return (
+    <p
+      role="alert"
+      className="mt-2 flex items-center gap-1.5 text-xs text-rose-500"
+    >
+      <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden />
+      {message}
+    </p>
+  );
+}
+
+function SectionLabel({ children }) {
+  return (
+    <p className="text-[11px] font-medium uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2.5">
+      {children}
+    </p>
+  );
+}
+
+function ProgressSteps({ hasRating, hasComment }) {
+  const steps = [
+    { done: hasRating, label: "Rate the course" },
+    { done: hasComment, label: "Add a comment" },
+  ];
+  return (
+    <div className="flex flex-col gap-1.5">
+      {steps.map(({ done, label }) => (
+        <div key={label} className="flex items-center gap-2">
+          <span
+            className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors duration-300 ${
+              done ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-600"
+            }`}
+          />
+          <span
+            className={`text-xs transition-colors duration-300 ${
+              done
+                ? "text-gray-600 dark:text-gray-300"
+                : "text-gray-400 dark:text-gray-500"
+            }`}
+          >
+            {label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Main component ──────────────────────────────────────────────────────────
+
+const FeedbackForm = ({ courseId, enrollmentId, onSuccess }) => {
   const dispatch = useDispatch();
 
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [comments, setComments] = useState("");
+  const [comment, setComment] = useState("");
+  const [activeTags, setActiveTags] = useState(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errors, setErrors] = useState({ rating: "", comment: "" });
 
-  // Theme configurations
-  const textColor = {
-    primary: theme === "dark" ? "text-gray-100" : "text-gray-800",
-    secondary: theme === "dark" ? "text-gray-300" : "text-gray-700",
-    muted: theme === "dark" ? "text-gray-400" : "text-gray-600",
-    inverse: theme === "dark" ? "text-gray-800" : "text-gray-100",
-  };
+  const hasRating = rating > 0;
+  const hasComment = comment.trim().length > 0;
+  const canSubmit = hasRating && hasComment && !isSubmitting;
+  const progress =
+    hasRating && hasComment ? 100 : hasRating || hasComment ? 50 : 0;
 
-  const bgColor = {
-    primary: theme === "dark" ? "bg-gray-900" : "bg-white",
-    secondary: theme === "dark" ? "bg-gray-800" : "bg-gray-50",
-    tertiary: theme === "dark" ? "bg-gray-950" : "bg-gray-100",
-    card: theme === "dark" ? "bg-gray-800/90" : "bg-white",
-    hover: theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100",
-  };
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
-  const borderColor = {
-    primary: theme === "dark" ? "border-gray-800" : "border-gray-200",
-    secondary: theme === "dark" ? "border-gray-700" : "border-gray-300",
-    focus: theme === "dark" ? "border-blue-500" : "border-blue-500",
-  };
+  const handleRating = useCallback((value) => {
+    setRating(value);
+    setErrors((e) => ({ ...e, rating: "" }));
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleStarKeyDown = useCallback(
+    (e, star) => {
+      if (e.key === "ArrowRight" && star < 5) {
+        document.getElementById(`star-${star + 1}`)?.focus();
+        handleRating(star + 1);
+      }
+      if (e.key === "ArrowLeft" && star > 1) {
+        document.getElementById(`star-${star - 1}`)?.focus();
+        handleRating(star - 1);
+      }
+    },
+    [handleRating],
+  );
 
-    if (rating === 0) {
-      alert("Please select a rating before submitting.");
-      return;
-    }
+  const handleCommentChange = useCallback((e) => {
+    setComment(e.target.value.slice(0, MAX_CHARS));
+    setErrors((err) => ({ ...err, comment: "" }));
+  }, []);
 
-    if (!comments.trim()) {
-      alert("Please enter your comments before submitting.");
-      return;
-    }
+  const handleTagToggle = useCallback((tag) => {
+    setActiveTags((prev) => {
+      const next = new Set(prev);
+      if (next.has(tag)) {
+        next.delete(tag);
+        setComment((c) =>
+          c
+            .replace(
+              new RegExp(
+                `(?:, |^)${tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+                "g",
+              ),
+              "",
+            )
+            .replace(/^, /, "")
+            .trim(),
+        );
+      } else {
+        next.add(tag);
+        setComment((c) => (c ? `${c}, ${tag}` : tag));
+      }
+      return next;
+    });
+    setErrors((err) => ({ ...err, comment: "" }));
+  }, []);
+
+  const handleSubmit = useCallback(async () => {
+    const newErrors = {
+      rating: rating === 0 ? "Please select a rating" : "",
+      comment: !comment.trim() ? "Please add a comment" : "",
+    };
+    setErrors(newErrors);
+    if (newErrors.rating || newErrors.comment) return;
 
     setIsSubmitting(true);
-
-    const feedbackData = {
-      enrollment_id: enrollmentId,
-      course_id: courseId,
-      rating,
-      comments: comments.trim(),
-    };
-
     try {
-      await dispatch(postCourseFeedbackAPI(feedbackData)).unwrap();
+      await dispatch(
+        postCourseFeedbackAPI({
+          enrollment_id: enrollmentId,
+          course_id: courseId,
+          rating,
+          comments: comment.trim(),
+        }),
+      ).unwrap();
       setIsSubmitted(true);
       setTimeout(() => {
         setIsSubmitted(false);
-        setComments("");
+        setComment("");
         setRating(0);
+        setActiveTags(new Set());
         if (onSuccess) onSuccess();
-      }, 3000);
+      }, 4000);
     } catch (err) {
-      alert("Failed to submit feedback. Please try again.");
-      console.error("Error:", err);
+      setErrors((e) => ({
+        ...e,
+        comment: "Submission failed — please try again.",
+      }));
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [rating, comment, courseId, enrollmentId, dispatch, onSuccess]);
 
-  const getRatingLabel = () => {
-    const labels = {
-      1: { text: "Poor", emoji: "😕", color: "text-red-500" },
-      2: { text: "Fair", emoji: "😐", color: "text-orange-500" },
-      3: { text: "Good", emoji: "🙂", color: "text-yellow-500" },
-      4: { text: "Very Good", emoji: "😊", color: "text-blue-500" },
-      5: { text: "Excellent", emoji: "🌟", color: "text-green-500" },
-    };
-    return (
-      labels[rating] || {
-        text: "Select rating",
-        emoji: "⭐",
-        color: textColor.muted,
-      }
-    );
-  };
-
-  const ratingInfo = getRatingLabel();
+  // ── Success state ─────────────────────────────────────────────────────────
 
   if (isSubmitted) {
     return (
-      <div
-        className={`${bgColor.card} rounded-xl p-6 md:p-8 text-center animate-fadeIn`}
-      >
-        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-          <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-600 dark:text-green-400" />
-        </div>
-        <h3
-          className={`text-lg sm:text-xl font-bold ${textColor.primary} mb-2`}
-        >
-          Thank You for Your Feedback!
-        </h3>
-        <p className={`text-sm sm:text-base ${textColor.secondary} mb-4`}>
-          Your insights help us improve the learning experience.
-        </p>
-        <div className="flex items-center justify-center gap-1">
-          {[...Array(rating)].map((_, i) => (
-            <Star
-              key={i}
-              className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400"
-            />
-          ))}
+      <div className="w-full max-w-lg mx-auto">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden">
+          <div className="h-0.5 bg-blue-500" />
+          <div className="px-5 py-10 sm:px-8 sm:py-12 text-center">
+            <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-6 h-6 text-emerald-500" />
+            </div>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              Feedback received
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-xs mx-auto">
+              Thank you — this helps instructors improve the course for everyone
+              who takes it next.
+            </p>
+            <div className="flex justify-center gap-1 mt-4">
+              {[...Array(rating)].map((_, i) => (
+                <div key={i} className="w-5 h-5">
+                  <StarIcon filled />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="w-full max-w-full md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-4 md:px-0">
-      <form
-        onSubmit={handleSubmit}
-        className={`
-          relative overflow-hidden
-          ${bgColor.card} rounded-lg sm:rounded-xl shadow-sm 
-          border ${borderColor.primary}
-          transition-all duration-300 hover:shadow-md
-        `}
-      >
-        {/* Decorative gradient line */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+  // ── Form ──────────────────────────────────────────────────────────────────
 
-        <div className="p-4 sm:p-5 md:p-6 lg:p-8">
-          {/* Header - Responsive */}
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
-            <div className="flex items-center gap-3">
-              <div
-                className={`p-2 sm:p-2.5 rounded-lg ${
-                  theme === "dark" ? "bg-purple-900/30" : "bg-purple-100"
-                }`}
-              >
-                <MessageSquare
-                  className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                    theme === "dark" ? "text-purple-400" : "text-purple-600"
-                  }`}
-                />
-              </div>
-              <div>
-                <h2
-                  className={`text-base sm:text-lg md:text-xl font-bold ${textColor.primary}`}
+  return (
+    <div className="w-full max-w-lg mx-auto">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden">
+        <div className="p-5 sm:p-7">
+          {/* Header */}
+          <div className="mb-6">
+            <h2 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100 mb-0.5">
+              How was this course?
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500">
+              Takes 30 seconds · helps future learners
+            </p>
+          </div>
+
+          {/* ── Rating ── */}
+          <fieldset className="border-none p-0 m-0">
+            <legend className="sr-only">Course rating</legend>
+            <SectionLabel>Your rating</SectionLabel>
+
+            {/*
+              Stars: 44px tap targets on mobile (w-11 h-11), scale up on desktop.
+              No hover state on touch — onMouseEnter only fires on pointer devices.
+            */}
+            <div
+              className="flex items-center gap-0.5 mb-2"
+              role="radiogroup"
+              aria-label="Course rating"
+            >
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  id={`star-${star}`}
+                  type="button"
+                  aria-label={`${star} star${star > 1 ? "s" : ""}`}
+                  aria-checked={rating === star}
+                  role="radio"
+                  onClick={() => handleRating(star)}
+                  onMouseEnter={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  onKeyDown={(e) => handleStarKeyDown(e, star)}
+                  className="
+                    w-11 h-11 sm:w-10 sm:h-10 p-1.5 sm:p-1
+                    rounded-xl flex items-center justify-center
+                    transition-transform duration-150
+                    active:scale-95 hover:scale-110
+                    focus-visible:outline-none focus-visible:ring-2
+                    focus-visible:ring-blue-500 focus-visible:ring-offset-2
+                    dark:focus-visible:ring-offset-gray-900
+                    -webkit-tap-highlight-color-transparent
+                  "
                 >
-                  Share Your Experience
-                </h2>
-                <p className={`text-xs sm:text-sm ${textColor.muted}`}>
-                  Your feedback helps us improve
-                </p>
-              </div>
+                  <StarIcon
+                    filled={star <= (hoverRating || rating)}
+                    hovered={
+                      hoverRating > 0 && star <= hoverRating && star > rating
+                    }
+                  />
+                </button>
+              ))}
             </div>
 
-            {/* Course completion badge - responsive */}
-            <span
-              className={`self-start sm:self-auto px-2 py-1 text-xs font-medium rounded-full ${
-                theme === "dark"
-                  ? "bg-green-900/30 text-green-400"
-                  : "bg-green-100 text-green-700"
+            <p
+              className={`text-sm min-h-[20px] transition-colors duration-200 ${
+                rating > 0
+                  ? "text-gray-700 dark:text-gray-300"
+                  : "text-gray-400 dark:text-gray-500"
               }`}
             >
-              Course Completed
-            </span>
-          </div>
+              {rating > 0 ? RATING_LABELS[rating] : "Tap to rate"}
+            </p>
+            <FieldError message={errors.rating} />
+          </fieldset>
 
-          {/* Rating Section - Responsive */}
-          <div className="mb-6 sm:mb-8">
-            <label
-              className={`block text-xs sm:text-sm font-medium ${textColor.secondary} mb-2 sm:mb-3`}
-            >
-              How would you rate this course?
-              <span className="text-red-500 ml-1">*</span>
-            </label>
+          <div className="my-5 border-t border-gray-100 dark:border-gray-800" />
 
-            <div className="flex flex-col items-center">
-              {/* Interactive Stars - Fully responsive sizing */}
-              <div className="flex items-center justify-center gap-1 sm:gap-1.5 md:gap-2 mb-3 sm:mb-4">
-                {[1, 2, 3, 4, 5].map((star) => {
-                  const isFilled = star <= (hoverRating || rating);
-
-                  return (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setRating(star)}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(0)}
-                      className={`
-                        relative p-0.5 sm:p-1 rounded-lg transition-all duration-200
-                        ${bgColor.hover} focus:outline-none focus:ring-2 
-                        focus:ring-blue-500 focus:ring-offset-1 sm:focus:ring-offset-2
-                        ${theme === "dark" ? "focus:ring-offset-gray-800" : "focus:ring-offset-white"}
-                      `}
-                    >
-                      <Star
-                        className={`
-                          w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12
-                          transition-all duration-200
-                          ${
-                            isFilled
-                              ? "fill-yellow-400 text-yellow-400 scale-105 sm:scale-110"
-                              : "text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500"
-                          }
-                          ${hoverRating >= star ? "animate-pulse" : ""}
-                        `}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Rating Label with Emoji - Responsive */}
-              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-                <div
-                  className={`
-                  px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium
-                  ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}
-                `}
-                >
-                  <span className={`${ratingInfo.color} text-xs sm:text-sm`}>
-                    {ratingInfo.emoji} {ratingInfo.text}
-                  </span>
-                </div>
-                {rating > 0 && (
-                  <span className={`text-xs sm:text-sm ${textColor.muted}`}>
-                    {rating}/5 stars
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Comments Section - Responsive */}
-          <div className="mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-2">
-              <label
-                className={`block text-xs sm:text-sm font-medium ${textColor.secondary}`}
-              >
-                Your Comments
-                <span className="text-red-500 ml-1">*</span>
-              </label>
+          {/* ── Comment ── */}
+          <div>
+            <div className="flex items-center justify-between mb-2.5">
+              <SectionLabel>Your thoughts</SectionLabel>
               <span
-                className={`
-                text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full w-fit
-                ${comments.length > 0 ? bgColor.secondary : ""}
-                ${textColor.muted}
-              `}
+                className={`text-[11px] tabular-nums transition-colors ${
+                  comment.length > MAX_CHARS * 0.9
+                    ? "text-amber-500"
+                    : "text-gray-400 dark:text-gray-500"
+                }`}
               >
-                {comments.length}/500
+                {comment.length} / {MAX_CHARS}
               </span>
             </div>
 
             <textarea
-              value={comments}
-              onChange={(e) => setComments(e.target.value.slice(0, 500))}
+              id="comment"
+              value={comment}
+              onChange={handleCommentChange}
               rows={4}
-              placeholder="What did you think about the course content, instructor, and your overall learning experience?"
-              className={`
-                w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base
-                transition-all duration-200
-                ${bgColor.secondary} ${textColor.primary}
-                border ${borderColor.secondary}
-                placeholder:text-xs sm:placeholder:text-sm placeholder:${textColor.muted}
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                resize-none
-              `}
+              placeholder="What worked well? What could be better? Be as specific as you like."
+              className="
+                w-full px-3.5 py-3
+                text-sm leading-relaxed
+                rounded-xl border border-gray-200 dark:border-gray-700
+                bg-white dark:bg-gray-900
+                text-gray-900 dark:text-gray-100
+                placeholder-gray-400 dark:placeholder-gray-600
+                resize-none outline-none
+                transition-all duration-150
+                focus:border-blue-500 focus:ring-4 focus:ring-blue-500/[0.08]
+                hover:border-gray-300 dark:hover:border-gray-600
+                /* Remove iOS inner shadow */
+                appearance-none [-webkit-appearance:none]
+              "
             />
+            <FieldError message={errors.comment} />
 
-            {/* Quick feedback tags - Responsive grid */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-1.5 sm:gap-2 mt-3">
-              {[
-                "Excellent content",
-                "Great instructor",
-                "Well structured",
-                "Practical examples",
-                "Good pace",
-                "Challenging",
-              ].map((tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() =>
-                    setComments((prev) =>
-                      prev.includes(tag)
-                        ? prev
-                        : prev + (prev ? `, ${tag}` : tag),
-                    )
-                  }
-                  className={`
-                    px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full
-                    transition-all duration-200
-                    ${bgColor.secondary} ${textColor.secondary}
-                    border ${borderColor.primary}
-                    hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20
-                    focus:outline-none focus:ring-2 focus:ring-blue-500
-                    whitespace-nowrap hover:text-gray-800 hover:font-semibold cursor-pointer
-                  `}
-                >
-                  + {tag}
-                </button>
-              ))}
+            {/* Quick tags — natural flex-wrap, full touch targets */}
+            <div
+              className="flex flex-wrap gap-2 mt-3"
+              role="group"
+              aria-label="Quick tags"
+            >
+              {QUICK_TAGS.map((tag) => {
+                const active = activeTags.has(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => handleTagToggle(tag)}
+                    className={`
+                      px-3 py-1.5 text-xs rounded-full border
+                      min-h-[32px] /* minimum tap height */
+                      transition-all duration-150 outline-none
+                      focus-visible:ring-2 focus-visible:ring-blue-500
+                      active:scale-95
+                      ${
+                        active
+                          ? "bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400"
+                          : "bg-transparent border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400"
+                      }
+                    `}
+                  >
+                    {active ? "✓ " : ""}
+                    {tag}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Submit Button - Responsive */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-            <p
-              className={`text-xs ${textColor.muted} flex items-center justify-center sm:justify-start gap-1`}
-            >
-              <span className="text-red-500">*</span> Required fields
-            </p>
+          <div className="my-5 border-t border-gray-100 dark:border-gray-800" />
 
-            <button
-              type="submit"
-              disabled={isSubmitting || rating === 0 || !comments.trim()}
-              className={`
-                relative px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-sm sm:text-base
-                transition-all duration-200
-                flex items-center justify-center gap-2
-                w-full sm:w-auto
-                ${
-                  rating > 0 && comments.trim()
-                    ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg"
-                    : theme === "dark"
-                      ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                }
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                ${theme === "dark" ? "focus:ring-offset-gray-800" : "focus:ring-offset-white"}
-                transform hover:-translate-y-0.5 active:translate-y-0
-              `}
-            >
-              {isSubmitting ? (
-                <>
-                  <svg
-                    className="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  <span>Submitting...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span>Submit Feedback</span>
-                </>
-              )}
-            </button>
+          {/* ── Progress checklist ── */}
+          <div className="px-3 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl mb-4">
+            <ProgressSteps hasRating={hasRating} hasComment={hasComment} />
           </div>
 
-          {/* Footer note - Responsive */}
-          <div className={`mt-4 pt-4 border-t ${borderColor.primary}`}>
-            <p className={`text-xs ${textColor.muted} text-center px-2`}>
-              Your feedback is anonymous and will only be used to improve course
-              quality. Thank you for helping us grow! 🌟
-            </p>
-          </div>
+          {/* ── Submit — full-width on mobile ── */}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            aria-disabled={!canSubmit}
+            className={`
+              w-full flex items-center justify-center gap-2
+              px-5 py-3.5 sm:py-3
+              rounded-xl text-sm font-medium
+              transition-all duration-200 outline-none
+              min-h-[48px] /* WCAG touch target */
+              focus-visible:ring-2 focus-visible:ring-blue-500
+              focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900
+              active:scale-[0.98]
+              ${
+                canSubmit
+                  ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm"
+                  : isSubmitting
+                    ? "bg-blue-600 text-white opacity-75 cursor-default"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-default"
+              }
+            `}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
+                <span>Submitting…</span>
+              </>
+            ) : (
+              <>
+                <Send className="w-3.5 h-3.5" aria-hidden />
+                <span>Submit feedback</span>
+              </>
+            )}
+          </button>
+
+          {/* Trust signal */}
+          <p className="flex items-center justify-center gap-1.5 mt-3 text-[11px] text-gray-400 dark:text-gray-500">
+            <Lock className="w-3 h-3" aria-hidden />
+            Anonymous · used internally only
+          </p>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

@@ -366,7 +366,7 @@ const CourseCartDetails = () => {
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`sticky top-0 z-50 ${styles.cardBg} backdrop-blur-md border-b ${styles.cardBorder}`}
+        className={`sticky top-0 z-50 ${styles.cardBg} backdrop-blur-md `}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -379,14 +379,10 @@ const CourseCartDetails = () => {
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back</span>
               </motion.button>
-              <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
-              <h1 className={`text-lg font-semibold ${styles.textPrimary}`}>
-                Secure Checkout
-              </h1>
             </div>
             <div className="flex items-center gap-2">
               <div
-                className={`px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500`}
+                className={`px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-500`}
               >
                 Step 1 of 2
               </div>
@@ -425,33 +421,6 @@ const CourseCartDetails = () => {
                     </p>
                   )}
                 </div>
-              </div>
-
-              <div className="p-6 space-y-4">
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center gap-2">
-                    <Clock className={`w-4 h-4 ${styles.textSecondary}`} />
-                    <span className={`text-sm ${styles.textSecondary}`}>
-                      20+ hours
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className={`w-4 h-4 ${styles.textSecondary}`} />
-                    <span className={`text-sm ${styles.textSecondary}`}>
-                      5,000+ students
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className={`w-4 h-4 ${styles.textSecondary}`} />
-                    <span className={`text-sm ${styles.textSecondary}`}>
-                      Beginner to Advanced
-                    </span>
-                  </div>
-                </div>
-                <p className={`${styles.textSecondary} leading-relaxed`}>
-                  Master the fundamentals and advanced concepts with hands-on
-                  projects and real-world applications.
-                </p>
               </div>
             </div>
 
@@ -546,7 +515,7 @@ const CourseCartDetails = () => {
                   </a>
                   <span className={styles.textMuted}>•</span>
                   <a
-                    href="/refund"
+                    href="/refund-cancellation-policy"
                     className={`${styles.textMuted} hover:${styles.textSecondary} transition-colors`}
                   >
                     Refund Policy
@@ -555,7 +524,7 @@ const CourseCartDetails = () => {
               </div>
 
               {/* Coupon Section */}
-              <div className="p-6 border-t border-gray-200 dark:border-gray-800">
+              <div className={`p-6 border-t  ${styles.cardBorder}`}>
                 <CouponSection
                   appliedCoupon={appliedCoupon}
                   onApply={setAppliedCoupon}
@@ -564,7 +533,7 @@ const CourseCartDetails = () => {
               </div>
 
               {/* GST Toggle */}
-              <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800">
+              <div className={`p-6 border-t ${styles.cardBorder}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span
@@ -594,10 +563,10 @@ const CourseCartDetails = () => {
               </div>
 
               {/* Price Breakdown */}
-              <div className="border-t border-gray-200 dark:border-gray-800">
+              <div className={`p-6 border-t  ${styles.cardBorder}`}>
                 <motion.button
                   onClick={() => setShowBreakdown(!showBreakdown)}
-                  className="w-full flex items-center justify-between p-6 hover:bg-gray-600 dark:hover:bg-gray-800/50 transition-colors"
+                  className="w-full flex items-center justify-between p-6 transition-colors"
                 >
                   <span
                     className={`text-sm font-semibold ${styles.textPrimary}`}
@@ -647,7 +616,7 @@ const CourseCartDetails = () => {
                             : "Not applicable"
                         }
                       />
-                      <div className="pt-3 mt-3 border-t border-gray-200 dark:border-gray-800">
+                      <div className={`pt-3 mt-3 border-t  ${styles.cardBorder}`}>
                         <PriceBreakdownItem
                           label="Total Payable"
                           value={`₹${formatCurrency(total)}`}

@@ -26,7 +26,7 @@ export default (app) => {
 	);
 	// Protected: My course videos
 	app.get(
-		"/apis/user/coaches/my-course-videos/:courseId",
+		"/apis/user/coaches/my-course-videos/:courseId/:userId",
 		verifyUserToken,
 		getMyCourseVideosController
 	);

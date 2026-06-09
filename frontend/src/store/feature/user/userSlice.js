@@ -40,20 +40,11 @@ import {
 } from "./userThunk";
 
 const createCourseScopedState = () => ({
-  lastSubmittedDate: null,
-  alreadySubmitted: false,
-  loading: false,
-  error: null,
-
-  weekNo: 1,
-  currentDayIndex: 0,
-
-  submittedQuestions: {},
   submittedAnswers: {},
-
+  submittedQuestions: {},
   completedDays: {},
-
-  userResponse: null,
+  alreadySubmitted: false,
+  lastSubmittedDate: null,
 });
 
 const getScopedCourseState = (rootState, section, courseId) => {
@@ -393,17 +384,36 @@ const userSlice = createSlice({
         const submissions = action.payload?.submission ?? [];
         const courseId = action.payload?.courseId;
 
-        if (!courseId || !submissions.length) return;
+        if (!courseId) return;
 
-        const normalizedAnswers = {};
-        const submittedQuestions = {};
-        const completedDays = {};
+        // Initialize course state if it doesn't exist
+        if (!state.userProgressDetails.byCourse[courseId]) {
+          state.userProgressDetails.byCourse[courseId] =
+            createCourseScopedState();
+        }
+
+        // If no submissions, just return existing state
+        if (!submissions.length) return;
+
+        // Get existing data
+        const existing = state.userProgressDetails.byCourse[courseId];
+
+        // Create new objects that merge with existing
+        const normalizedAnswers = { ...existing.submittedAnswers };
+        const submittedQuestions = { ...existing.submittedQuestions };
+        const completedDays = { ...existing.completedDays };
 
         submissions.forEach(({ day_no, answers }) => {
-          if (!normalizedAnswers[day_no]) normalizedAnswers[day_no] = {};
+          if (!answers?.length) return;
+
+          // Initialize day if not exists
+          if (!normalizedAnswers[day_no]) {
+            normalizedAnswers[day_no] = {};
+          }
 
           answers.forEach(
             ({ questionId, optionId, multipleAnswers, textAnswer }) => {
+              // Store answer based on type
               if (optionId !== undefined) {
                 normalizedAnswers[day_no][questionId] = optionId;
               } else if (multipleAnswers !== undefined) {
@@ -411,43 +421,65 @@ const userSlice = createSlice({
               } else if (textAnswer !== undefined) {
                 normalizedAnswers[day_no][questionId] = textAnswer;
               }
+
+              // Mark question as submitted
               submittedQuestions[questionId] = true;
             },
           );
 
-          // ✅ mark day completed if it has any submissions
-          if (answers.length > 0) {
+          // Mark day as completed if it has any answers
+          if (answers.length > 0 && !completedDays[day_no]) {
             completedDays[day_no] = true;
           }
         });
 
-        if (!state.userProgressDetails.byCourse[courseId]) {
-          state.userProgressDetails.byCourse[courseId] =
-            createCourseScopedState();
-        }
-
+        // Update state with merged data
         state.userProgressDetails.byCourse[courseId].submittedAnswers =
           normalizedAnswers;
-        state.userProgressDetails.byCourse[courseId].submittedQuestions = {
-          ...state.userProgressDetails.byCourse[courseId].submittedQuestions,
-          ...submittedQuestions,
-        };
-
-        state.userProgressDetails.byCourse[courseId].completedDays = {
-          ...state.userProgressDetails.byCourse[courseId].completedDays,
-          ...completedDays,
-        };
+        state.userProgressDetails.byCourse[courseId].submittedQuestions =
+          submittedQuestions;
+        state.userProgressDetails.byCourse[courseId].completedDays =
+          completedDays;
       })
 
       // post user progress answer
       .addCase(postUserProgressAPI.fulfilled, (state, action) => {
         const courseId = action.payload?.courseId;
+        const weekNo = action.meta?.arg?.weekNo;
+        const dayNo = action.meta?.arg?.dayNo;
+        const answers = action.meta?.arg?.answers;
+
+        if (!courseId) return;
+
+        // Initialize if needed
         if (!state.userProgressDetails.byCourse[courseId]) {
-          state.userProgressDetails.byCourse[courseId] = {};
+          state.userProgressDetails.byCourse[courseId] =
+            createCourseScopedState();
         }
-        state.userProgressDetails.byCourse[courseId].alreadySubmitted = true;
-        state.userProgressDetails.byCourse[courseId].lastSubmittedDate =
-          new Date().toISOString();
+
+        const courseState = state.userProgressDetails.byCourse[courseId];
+
+        // Update answers for the specific day
+        if (answers && dayNo) {
+          if (!courseState.submittedAnswers) {
+            courseState.submittedAnswers = {};
+          }
+          if (!courseState.submittedAnswers[dayNo]) {
+            courseState.submittedAnswers[dayNo] = {};
+          }
+
+          // Merge new answers with existing
+          Object.entries(answers).forEach(([questionId, answer]) => {
+            courseState.submittedAnswers[dayNo][questionId] = answer;
+            courseState.submittedQuestions = {
+              ...courseState.submittedQuestions,
+              [questionId]: true,
+            };
+          });
+        }
+
+        courseState.alreadySubmitted = true;
+        courseState.lastSubmittedDate = new Date().toISOString();
       })
 
       .addCase(postUserProgressAPI.rejected, (state, action) => {

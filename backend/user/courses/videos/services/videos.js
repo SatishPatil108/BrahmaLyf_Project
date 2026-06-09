@@ -1,4 +1,4 @@
-import connection from '../../../../database/database.js';
+import connection from "../../../../database/database.js";
 
 export const getAllVideosService = (pageNo, pageSize) => {
   return new Promise((resolve, reject) => {
@@ -60,14 +60,19 @@ export const getAllVideosService = (pageNo, pageSize) => {
           total_pages: totalPages,
           has_next_page: pageNo < totalPages,
           has_prev_page: pageNo > 1,
-          videos: dataResult.rows
+          videos: dataResult.rows,
         });
       });
     });
   });
 };
 
-export const getVideosBySubdomainIdService = (pageNo, pageSize, subdomainId, coachId) => {
+export const getVideosBySubdomainIdService = (
+  pageNo,
+  pageSize,
+  subdomainId,
+  coachId,
+) => {
   return new Promise((resolve, reject) => {
     pageNo = parseInt(pageNo, 10);
     pageSize = parseInt(pageSize, 10);
@@ -140,18 +145,22 @@ export const getVideosBySubdomainIdService = (pageNo, pageSize, subdomainId, coa
       ORDER BY v.id ASC
       LIMIT $2 OFFSET $3;
     `;
-      connection.query(dataQuery, [param1, pageSize, offset], (err, dataResult) => {
-        if (err) return reject(err);
-        return resolve({
-          current_page: pageNo,
-          page_size: pageSize,
-          total_records: totalRecords,
-          total_pages: totalPages,
-          has_next_page: pageNo < totalPages,
-          has_prev_page: pageNo > 1,
-          videos: dataResult.rows
-        });
-      });
+      connection.query(
+        dataQuery,
+        [param1, pageSize, offset],
+        (err, dataResult) => {
+          if (err) return reject(err);
+          return resolve({
+            current_page: pageNo,
+            page_size: pageSize,
+            total_records: totalRecords,
+            total_pages: totalPages,
+            has_next_page: pageNo < totalPages,
+            has_prev_page: pageNo > 1,
+            videos: dataResult.rows,
+          });
+        },
+      );
     });
   });
 };
@@ -196,24 +205,31 @@ export const getVideoByIdService = (videoId) => {
   });
 };
 
-export const getMyCourseVideosService = (courseId) => {
+export const getMyCourseVideosService = (courseId, userId) => {
   return new Promise((resolve, reject) => {
     const query = `
-      SELECT
-        c.id AS course_id,
-        c.course_name,
-        c.target_audience,
-        c.learning_outcomes,
-        c.curriculum_description,
-        c.duration,
-        c.coach_id,
-        c.created_on,
-        c.status
-      FROM bm.courses c
-      WHERE c.id = $1 AND c.status = 1
+    SELECT
+      c.id AS course_id,
+      ce.id AS enrollment_id,
+      c.course_name,
+      c.target_audience,
+      c.learning_outcomes,
+      c.curriculum_description,
+      c.duration,
+      c.coach_id,
+      c.created_on,
+      c.status
+    FROM bm.courses c
+    INNER JOIN bm.course_enrollments ce
+      ON c.id = ce.course_id
+    WHERE
+      c.id = $1
+      AND ce.user_id = $2
+      AND c.status = 1
+      AND ce.status = 1
     `;
 
-    connection.query(query, [courseId], (err, courseResult) => {
+    connection.query(query, [courseId, userId], (err, courseResult) => {
       if (err) return reject(err);
       if (courseResult.rows.length === 0) return resolve(-1);
 
@@ -241,19 +257,16 @@ export const getMyCourseVideosService = (courseId) => {
       connection.query(modulesQuery, [courseId], (err, modulesResult) => {
         if (err) return reject(err);
 
-        const modules = modulesResult.rows.map(module => ({
+        const modules = modulesResult.rows.map((module) => ({
           id: module.id,
           week_no: module.week_no,
           title: module.title,
-          // description: module.description,
-          // video_url: module.video_url,
-          // thumbnail_url: module.thumbnail_url
         }));
 
         // Construct response
         const response = {
           ...courseDetails,
-          modules: modules
+          modules: modules,
         };
 
         resolve(response);
@@ -317,7 +330,7 @@ export const getModuleService = (moduleId) => {
         has_prev_module: moduleData.prev_module_id !== null,
         has_next_module: moduleData.next_module_id !== null,
         prev_module_id: moduleData.prev_module_id,
-        next_module_id: moduleData.next_module_id
+        next_module_id: moduleData.next_module_id,
       };
 
       resolve(response);

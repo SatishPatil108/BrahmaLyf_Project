@@ -72,7 +72,8 @@ export const getVideoByIdModel = async (req, res) => {
 
 export const getMyCourseVideosModel = async (req, res) => {
 	const courseId = req.params.courseId;
-	const response = await getMyCourseVideosService(courseId);
+	const userId = req.params.userId;
+	const response = await getMyCourseVideosService(courseId, userId);
 	if (response == -1) {
 		return error(res, HTTP_OK, APP_RESPONSE_CODE_ERROR, NO_RECORD_FOUND, null);
 	}

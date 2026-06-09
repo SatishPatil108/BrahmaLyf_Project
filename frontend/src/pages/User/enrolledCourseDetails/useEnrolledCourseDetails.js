@@ -6,7 +6,7 @@ import {
 } from "@/store/feature/user/userThunk";
 import { clearEnrolledCourseDetails } from "@/store/feature/user/userSlice";
 
-const useEnrolledCourseDetails = (courseId) => {
+const useEnrolledCourseDetails = (courseId, userId) => {
   const dispatch = useDispatch();
   const { enrolledCourseDetails, moduleDetails, isLoading, error } =
     useSelector((state) => state.user);
@@ -17,7 +17,7 @@ const useEnrolledCourseDetails = (courseId) => {
     if (courseId) {
       // setSelectedModuleId(null);
       dispatch(clearEnrolledCourseDetails());
-      dispatch(fetchEnrolledCourseDetailsAPI(courseId));
+      dispatch(fetchEnrolledCourseDetailsAPI({courseId, userId}));
     }
   }, [dispatch, courseId]);
 

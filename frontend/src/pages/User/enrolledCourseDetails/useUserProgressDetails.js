@@ -36,7 +36,6 @@ const useUserProgressDetails = (courseId) => {
 
   const reduxWeekNo = courseState?.weekNo || null;
 
-
   // refs
   const prevWeekNoRef = useRef(null);
 
@@ -155,14 +154,18 @@ const useUserProgressDetails = (courseId) => {
   }, [courseId, dispatch]);
 
   return {
-    weekData,
+    weekData: weekData
+      ? {
+          ...weekData,
+          submittedQuestions,
+          submittedAnswers,
+          completedDays,
+          currentDayIndex,
+        }
+      : null,
     isLoading: isFetching,
     error,
     submittedToday: alreadySubmitted,
-    submittedQuestions,
-    submittedAnswers,
-    completedDays,
-    currentDayIndex,
   };
 };
 

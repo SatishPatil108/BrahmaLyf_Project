@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Play,
   ChevronLeft,
@@ -14,7 +14,7 @@ import {
   BookOpen,
   Clock,
   Calendar,
-  CheckCircle,
+  CheckCircle2,
   ListVideo,
   MessageSquare,
   X,
@@ -25,6 +25,13 @@ import {
   Folder,
   FolderOpen,
   Video,
+  Layers,
+  ArrowRight,
+  Sparkles,
+  BarChart2,
+  Wrench,
+  GraduationCap,
+  PlayCircle,
 } from "lucide-react";
 import useEnrolledCourseDetails from "./useEnrolledCourseDetails";
 import { clearUserError } from "@/store/feature/user/userSlice";
@@ -35,57 +42,93 @@ import useUserProgressDetails from "./useUserProgressDetails";
 import ProgressToolsForm from "./ProgressToolsForm";
 import CourseInfoContent from "./CourseInfoContent";
 import ProgressPracticeForm from "./ProgressPracticeForm";
+import useUserToolsDetails from "./useUserToolsDetails";
+import CustomDrawer from "@/components/CustomDrawer";
 
-// Extracted constant for theme-based styling
-const THEME_STYLES = {
-  dark: {
-    text: {
-      primary: "text-gray-100",
-      secondary: "text-gray-300",
-      muted: "text-gray-400",
-      inverse: "text-gray-800",
-    },
-    bg: {
-      primary: "bg-gray-900",
-      secondary: "bg-gray-800",
-      tertiary: "bg-gray-950",
-    },
-    border: {
-      primary: "border-gray-800",
-      secondary: "border-gray-700",
-    },
-  },
-  light: {
-    text: {
-      primary: "text-gray-800",
-      secondary: "text-gray-700",
-      muted: "text-gray-600",
-      inverse: "text-gray-100",
-    },
-    bg: {
-      primary: "bg-white",
-      secondary: "bg-gray-50",
-      tertiary: "bg-gray-100",
-    },
-    border: {
-      primary: "border-gray-200",
-      secondary: "border-gray-300",
-    },
-  },
-};
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-// Extracted helper function for date formatting
 const formatDate = (dateStr) => {
   if (!dateStr) return "N/A";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString(undefined, {
+  return new Date(dateStr).toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
 };
 
-// Extracted Module Item component to prevent re-renders
+const sanitizeHTML = (html) => {
+  if (!html) return "";
+  return html.replace(
+    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+    "",
+  );
+};
+
+// ─── Design tokens (static — no dynamic Tailwind interpolation) ──────────────
+
+const dk = {
+  // backgrounds
+  base: "bg-[#0a0a0f]",
+  surface: "bg-[#111118]",
+  raised: "bg-[#16161f]",
+  hover: "hover:bg-[#1c1c28]",
+  // text
+  hi: "text-gray-50",
+  mid: "text-gray-400",
+  lo: "text-gray-600",
+  // border
+  line: "border-white/[0.07]",
+  lineHi: "border-white/[0.12]",
+};
+
+const lk = {
+  base: "bg-[#f5f5f7]",
+  surface: "bg-white",
+  raised: "bg-[#fafafa]",
+  hover: "hover:bg-gray-50",
+  hi: "text-gray-900",
+  mid: "text-gray-500",
+  lo: "text-gray-400",
+  line: "border-gray-200/80",
+  lineHi: "border-gray-300",
+};
+
+const useTokens = (theme) =>
+  useMemo(() => (theme === "dark" ? dk : lk), [theme]);
+
+// ─── Skeleton ────────────────────────────────────────────────────────────────
+
+const Skeleton = ({ className = "" }) => (
+  <div
+    className={`animate-pulse rounded-lg bg-white/[0.05] dark:bg-white/[0.04] ${className}`}
+  />
+);
+
+// ─── Module type configs (static classes only) ───────────────────────────────
+
+const MODULE_CONFIGS = {
+  Chapter: {
+    accent: "text-blue-400",
+    dot: "bg-blue-400",
+    ring: "ring-blue-500/30",
+    selBg: "bg-blue-500/10",
+  },
+  Section: {
+    accent: "text-emerald-400",
+    dot: "bg-emerald-400",
+    ring: "ring-emerald-500/30",
+    selBg: "bg-emerald-500/10",
+  },
+  Lesson: {
+    accent: "text-violet-400",
+    dot: "bg-violet-400",
+    ring: "ring-violet-500/30",
+    selBg: "bg-violet-500/10",
+  },
+};
+
+// ─── ModuleItem ───────────────────────────────────────────────────────────────
+
 const ModuleItem = React.memo(
   ({
     module,
@@ -98,762 +141,113 @@ const ModuleItem = React.memo(
     onSelect,
     onToggleChapter,
   }) => {
-    const typeConfig = {
-      Chapter: {
-        icon: isExpanded ? FolderOpen : Folder,
-        color: "blue",
-        bgColor: theme === "dark" ? "bg-blue-900/20" : "bg-blue-50",
-        borderColor:
-          theme === "dark" ? "border-blue-800/50" : "border-blue-200",
-      },
-      Section: {
-        icon: FileText,
-        color: "green",
-        bgColor: theme === "dark" ? "bg-green-900/10" : "bg-green-50/50",
-        borderColor:
-          theme === "dark" ? "border-green-800/30" : "border-green-200",
-      },
-      Lesson: {
-        icon: Video,
-        color: "purple",
-        bgColor: theme === "dark" ? "bg-purple-900/10" : "bg-purple-50/50",
-        borderColor:
-          theme === "dark" ? "border-purple-800/30" : "border-purple-200",
-      },
-    };
-
-    const config = typeConfig[type];
-    const Icon = config.icon;
-    const textColor = THEME_STYLES[theme].text;
-    const paddingLeft = 16 + level * 20;
+    const cfg = MODULE_CONFIGS[type];
+    const Icon =
+      type === "Chapter"
+        ? isExpanded
+          ? FolderOpen
+          : Folder
+        : type === "Section"
+          ? FileText
+          : PlayCircle;
 
     const handleClick = useCallback(() => {
-      if (type === "Chapter" && hasChildren) {
-        onToggleChapter(module.id);
-      }
+      if (type === "Chapter" && hasChildren) onToggleChapter(module.id);
       onSelect(module.id);
     }, [type, hasChildren, module.id, onToggleChapter, onSelect]);
 
     return (
-      <div
-        className={`relative ${level > 0 ? "ml-6" : ""}`}
-        style={{ paddingLeft: `${paddingLeft}px` }}
-      >
-        {level > 0 && (
-          <div
-            className={`absolute left-0 top-0 bottom-0 w-0.5 ${
-              theme === "dark" ? "bg-gray-700" : "bg-gray-300"
-            }`}
-            style={{ left: `${paddingLeft - 16}px` }}
-          />
-        )}
-
+      <div className={level > 0 ? "pl-4" : ""}>
         <button
           onClick={handleClick}
-          className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-start gap-3 group relative
-          ${isSelected ? `${config.bgColor} border ${config.borderColor}` : "hover:bg-gray-100 dark:hover:bg-gray-800"}
-          ${type === "Lesson" ? "border-l-4 ml-[-4px]" : ""}
-          ${isSelected && type === "Lesson" ? "border-l-purple-500" : "border-l-transparent"}
-        `}
+          aria-expanded={type === "Chapter" ? isExpanded : undefined}
+          className={[
+            "w-full text-left rounded-xl transition-all duration-200 group flex items-center gap-3",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60",
+            "px-3 py-2.5",
+            isSelected
+              ? `${cfg.selBg} ring-1 ${cfg.ring}`
+              : theme === "dark"
+                ? "hover:bg-white/[0.05]"
+                : "hover:bg-gray-100/80",
+          ].join(" ")}
         >
+          {/* Icon */}
           <div
-            className={`flex-shrink-0 p-2 rounded-md ${
+            className={[
+              "flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-colors",
               isSelected
                 ? theme === "dark"
-                  ? `bg-${config.color}-900/40`
-                  : `bg-${config.color}-100`
+                  ? "bg-white/10"
+                  : "bg-white shadow-sm"
                 : theme === "dark"
-                  ? "bg-gray-800"
-                  : "bg-gray-100"
-            }`}
+                  ? "bg-white/[0.05]"
+                  : "bg-gray-100",
+            ].join(" ")}
           >
             <Icon
-              className={`w-4 h-4 ${
-                isSelected
-                  ? theme === "dark"
-                    ? `text-${config.color}-400`
-                    : `text-${config.color}-600`
-                  : "text-gray-500 dark:text-gray-400"
-              }`}
+              className={`w-3.5 h-3.5 ${isSelected ? cfg.accent : theme === "dark" ? "text-gray-500" : "text-gray-400"}`}
             />
           </div>
 
+          {/* Text */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <span
-                className={`font-medium truncate ${
-                  isSelected
-                    ? theme === "dark"
-                      ? `text-${config.color}-400`
-                      : `text-${config.color}-700`
-                    : textColor.primary
-                }`}
-              >
-                {module.title}
-              </span>
-              {type === "Chapter" && hasChildren && (
-                <ChevronDown
-                  className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${
-                    isExpanded ? "rotate-180" : ""
-                  } ${textColor.muted}`}
-                />
-              )}
-            </div>
-
+            <span
+              className={[
+                "block text-sm font-medium truncate leading-tight",
+                isSelected
+                  ? cfg.accent
+                  : theme === "dark"
+                    ? "text-gray-300"
+                    : "text-gray-700",
+              ].join(" ")}
+            >
+              {module.title}
+            </span>
             {type === "Lesson" && (
-              <div className="flex items-center gap-2 mt-1">
-                <div
-                  className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded ${
-                    theme === "dark"
-                      ? "bg-gray-800 text-gray-400"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  <Video className="w-3 h-3" />
-                  <span>Lesson {module.lessonIndex || module.globalIndex}</span>
-                </div>
-                {module.duration && (
-                  <span className={`text-xs ${textColor.muted}`}>
-                    {module.duration}
-                  </span>
-                )}
-              </div>
+              <span
+                className={`block text-xs mt-0.5 ${theme === "dark" ? "text-gray-600" : "text-gray-400"}`}
+              >
+                Lesson {module.lessonIndex || module.globalIndex}
+                {module.duration ? ` · ${module.duration}` : ""}
+              </span>
             )}
           </div>
 
-          {isSelected && (
-            <div
-              className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full ${
-                theme === "dark"
-                  ? `bg-${config.color}-400`
-                  : `bg-${config.color}-600`
-              }`}
+          {/* Right indicators */}
+          {type === "Chapter" && hasChildren && (
+            <ChevronDown
+              className={[
+                "w-4 h-4 flex-shrink-0 transition-transform duration-200",
+                isExpanded ? "rotate-180" : "",
+                theme === "dark" ? "text-gray-600" : "text-gray-400",
+              ].join(" ")}
             />
           )}
-
           {type === "Lesson" && module.isCompleted && (
-            <div className="absolute right-3 top-3">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-            </div>
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-400" />
           )}
         </button>
       </div>
     );
   },
 );
-
 ModuleItem.displayName = "ModuleItem";
 
-// Extracted Error Component
-const ErrorState = ({ message, onRetry, theme }) => {
-  const styles = THEME_STYLES[theme];
-  return (
+// ─── Progress bar ─────────────────────────────────────────────────────────────
+
+const ProgressBar = ({ value = 0, theme }) => (
+  <div
+    className={`h-1 w-full rounded-full overflow-hidden ${theme === "dark" ? "bg-white/[0.07]" : "bg-gray-200"}`}
+  >
     <div
-      className={`min-h-screen ${styles.bg.tertiary} transition-colors duration-300`}
-    >
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="text-center">
-          <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">⚠️</span>
-          </div>
-          <h2 className={`text-xl font-semibold ${styles.text.primary} mb-2`}>
-            Error Loading Course
-          </h2>
-          <p className={`${styles.text.secondary} mb-4`}>{message}</p>
-          <button
-            onClick={onRetry}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Extracted Loading/Empty State Component
-const EmptyState = ({ theme, onOpenSidebar }) => {
-  const styles = THEME_STYLES[theme];
-  return (
-    <div
-      className={`rounded-xl p-8 text-center ${styles.bg.primary} shadow-sm`}
-    >
-      <BookOpen className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-      <h3 className={`text-lg font-bold ${styles.text.primary} mb-2`}>
-        Welcome to the Course
-      </h3>
-      <p className={`${styles.text.secondary} mb-6`}>
-        Open the menu to select your first module
-      </p>
-      <button
-        onClick={onOpenSidebar}
-        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-      >
-        Open Course Modules
-      </button>
-    </div>
-  );
-};
-
-// Custom hook for theme styles (memoized)
-const useThemeStyles = (theme) => {
-  return useMemo(() => THEME_STYLES[theme], [theme]);
-};
-
-const EnrolledCourseDetails = () => {
-  const { courseId } = useParams();
-  const {
-    enrolledCourseDetails,
-    moduleDetails,
-    isLoading,
-    error,
-    selectedModuleId,
-    setSelectedModuleId,
-    currentIndex,
-    totalModules,
-    goToPreviousModule,
-    goToNextModule,
-    hasPrevModule,
-    hasNextModule,
-  } = useEnrolledCourseDetails(courseId);
-
-  const {
-    weekData,
-    isLoading: progressLoading,
-    error: progressError,
-  } = useUserProgressDetails(Number(courseId));
-
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { theme } = useTheme();
-  const styles = useThemeStyles(theme);
-
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showCourseInfo, setShowCourseInfo] = useState(false);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [expandedChapters, setExpandedChapters] = useState(() => new Set());
-
-  // Fixed: Correct dependency array for error handling
-  useEffect(() => {
-    if (error?.message === "Authorization token is missing.") {
-      dispatch(clearUserError());
-      navigate("/login");
-    }
-  }, [error, dispatch, navigate]); // Added missing dependencies
-
-  // Memoized grouped modules
-  const groupedModules = useMemo(() => {
-    if (!enrolledCourseDetails?.modules) return [];
-
-    const chapters = [];
-    let currentChapter = null;
-    let chapterIndex = 0;
-    let globalLessonIndex = 0;
-
-    enrolledCourseDetails.modules.forEach((module) => {
-      if (module.header_type === "Chapter") {
-        if (currentChapter) chapters.push(currentChapter);
-        chapterIndex++;
-        currentChapter = {
-          ...module,
-          chapterIndex,
-          sections: [],
-          directLessons: [],
-          isExpanded: expandedChapters.has(module.id),
-        };
-      } else if (module.header_type === "Section" && currentChapter) {
-        currentChapter.sections.push({
-          ...module,
-          lessons: [],
-          isExpanded: true,
-        });
-      } else if (module.header_type === "Lesson" && currentChapter) {
-        globalLessonIndex++;
-        const lastSection =
-          currentChapter.sections[currentChapter.sections.length - 1];
-        if (lastSection) {
-          lastSection.lessons.push({
-            ...module,
-            lessonIndex: lastSection.lessons.length + 1,
-            globalIndex: globalLessonIndex,
-          });
-        } else {
-          currentChapter.directLessons.push({
-            ...module,
-            lessonIndex: currentChapter.directLessons.length + 1,
-            globalIndex: globalLessonIndex,
-          });
-        }
-      }
-    });
-
-    if (currentChapter) chapters.push(currentChapter);
-    return chapters;
-  }, [enrolledCourseDetails?.modules, expandedChapters]);
-
-  // Memoized callbacks
-  const toggleChapter = useCallback((chapterId) => {
-    setExpandedChapters((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(chapterId)) {
-        newSet.delete(chapterId);
-      } else {
-        newSet.add(chapterId);
-      }
-      return newSet;
-    });
-  }, []);
-
-  const handleModuleSelect = useCallback(
-    (moduleId) => {
-      setSelectedModuleId(moduleId);
-      if (window.innerWidth < 1024) {
-        setSidebarOpen(false);
-      }
-    },
-    [setSelectedModuleId],
-  );
-
-  const handleProgressSubmitSuccess = useCallback(() => {
-    // Success handler - can be implemented if needed
-  }, []);
-
-  const handleRetry = useCallback(() => {
-    window.location.reload();
-  }, []);
-
-  const handleOpenSidebar = useCallback(() => {
-    setSidebarOpen(true);
-  }, []);
-
-  // Sanitize HTML content (fix security vulnerability)
-  const sanitizeHTML = useCallback((html) => {
-    if (!html) return "";
-    // Basic sanitization - in production, use DOMPurify or similar library
-    return html.replace(
-      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-      "",
-    );
-  }, []);
-
-  // Error and loading states
-  if (error) {
-    return (
-      <ErrorState message={error.message} onRetry={handleRetry} theme={theme} />
-    );
-  }
-
-  if (!enrolledCourseDetails) {
-    return <EmptyState theme={theme} onOpenSidebar={handleOpenSidebar} />;
-  }
-
-  return (
-    <div
-      className={`min-h-screen ${styles.bg.tertiary} transition-colors duration-300`}
-    >
-      {/* Header Component - Can be extracted further */}
-      <div className={`border-b ${styles.border.primary} ${styles.bg.primary}`}>
-        {/* Mobile Header */}
-        <div className="lg:hidden px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={`p-2 rounded-lg hover:${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}
-              >
-                {sidebarOpen ? (
-                  <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                ) : (
-                  <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                )}
-              </button>
-              <div>
-                <h1
-                  className={`text-sm font-bold ${styles.text.primary} truncate max-w-[180px]`}
-                >
-                  {enrolledCourseDetails.course_name}
-                </h1>
-                <p className={`text-xs ${styles.text.muted}`}>
-                  Module {currentIndex + 1}/{totalModules}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowCourseInfo(!showCourseInfo)}
-                className={`p-2 rounded-lg hover:${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}
-              >
-                <Info className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </button>
-
-              <button
-                onClick={() => setShowFeedback(!showFeedback)}
-                className={`p-2 rounded-lg hover:${theme === "dark" ? "bg-gray-800" : "bg-gray-100"} relative`}
-              >
-                <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Desktop Header */}
-        <div className="hidden lg:block max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className={`text-xl font-bold ${styles.text.primary}`}>
-                {enrolledCourseDetails.course_name}
-              </h1>
-              <p className={`text-sm ${styles.text.muted}`}>
-                Module {currentIndex + 1} of {totalModules}
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setShowCourseInfo(!showCourseInfo)}
-                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                  showCourseInfo
-                    ? "bg-blue-600 text-white"
-                    : theme === "dark"
-                      ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <Info className="w-4 h-4" />
-                {showCourseInfo ? "Hide Info" : "Show Course Info"}
-              </button>
-
-              <button
-                onClick={() => setShowFeedback(!showFeedback)}
-                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 relative ${
-                  showFeedback
-                    ? "bg-purple-600 text-white"
-                    : theme === "dark"
-                      ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <MessageSquare className="w-4 h-4" />
-                Feedback
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-0 py-6">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Course Info Panel - Mobile */}
-          {showCourseInfo && (
-            <MobilePanel
-              title="Course Information"
-              onClose={() => setShowCourseInfo(false)}
-              theme={theme}
-              styles={styles}
-            >
-              <CourseInfoContent
-                enrolledCourseDetails={enrolledCourseDetails}
-                textColor={styles.text}
-                theme={theme}
-              />
-            </MobilePanel>
-          )}
-
-          {/* Feedback Panel - Mobile */}
-          {showFeedback && (
-            <MobilePanel
-              title="Course Feedback"
-              onClose={() => setShowFeedback(false)}
-              theme={theme}
-              styles={styles}
-            >
-              <FeedbackForm
-                theme={theme}
-                courseId={Number(courseId)}
-                enrollmentId={null} // Fixed: Should come from API or context
-                onSuccess={() => setShowFeedback(false)}
-              />
-            </MobilePanel>
-          )}
-
-          {/* Sidebar */}
-          <Sidebar
-            sidebarOpen={sidebarOpen}
-            setSidebarOpen={setSidebarOpen}
-            groupedModules={groupedModules}
-            selectedModuleId={selectedModuleId}
-            handleModuleSelect={handleModuleSelect}
-            toggleChapter={toggleChapter}
-            expandedChapters={expandedChapters}
-            enrolledCourseDetails={enrolledCourseDetails}
-            totalModules={totalModules}
-            theme={theme}
-            styles={styles}
-            formatDate={formatDate}
-          />
-
-          {/* Main Content Area */}
-          <div className="flex-1">
-            {moduleDetails && currentIndex !== -1 ? (
-              <>
-                <VideoPlayer
-                  moduleDetails={moduleDetails}
-                  currentIndex={currentIndex}
-                  totalModules={totalModules}
-                  hasPrevModule={hasPrevModule}
-                  hasNextModule={hasNextModule}
-                  goToPreviousModule={goToPreviousModule}
-                  goToNextModule={goToNextModule}
-                  theme={theme}
-                  styles={styles}
-                  sanitizeHTML={sanitizeHTML}
-                />
-
-                {/* Desktop Course Info Panel */}
-                {showCourseInfo && (
-                  <DesktopPanel
-                    title="Course Information"
-                    onClose={() => setShowCourseInfo(false)}
-                    theme={theme}
-                    styles={styles}
-                  >
-                    <CourseInfoContent
-                      enrolledCourseDetails={enrolledCourseDetails}
-                      textColor={styles.text}
-                      theme={theme}
-                    />
-                  </DesktopPanel>
-                )}
-
-                <ProgressPanel
-                  title="Today's Task"
-                  theme={theme}
-                  styles={styles}
-                >
-                  <ProgressPracticeForm
-                    theme={theme}
-                    courseId={Number(courseId)}
-                    isLoading={progressLoading}
-                    error={progressError}
-                    weekData={weekData}
-                    onSubmitSuccess={handleProgressSubmitSuccess}
-                  />
-                </ProgressPanel>
-
-                <ProgressPanel
-                  title="Today's Tools"
-                  theme={theme}
-                  styles={styles}
-                >
-                  <ProgressToolsForm
-                    theme={theme}
-                    courseId={Number(courseId)}
-                    isLoading={progressLoading}
-                    error={progressError}
-                    weekData={weekData}
-                    onSubmitSuccess={handleProgressSubmitSuccess}
-                  />
-                </ProgressPanel>
-
-                {/* Desktop Feedback Panel */}
-                {showFeedback && (
-                  <DesktopPanel
-                    title="Course Feedback"
-                    onClose={() => setShowFeedback(false)}
-                    theme={theme}
-                    styles={styles}
-                  >
-                    <FeedbackForm
-                      theme={theme}
-                      courseId={Number(courseId)}
-                      enrollmentId={null} // Fixed
-                    />
-                  </DesktopPanel>
-                )}
-
-                {/* Mobile Quick Actions */}
-                <MobileQuickActions
-                  hasNextModule={hasNextModule}
-                  goToNextModule={goToNextModule}
-                  setSidebarOpen={setSidebarOpen}
-                  theme={theme}
-                  styles={styles}
-                />
-              </>
-            ) : (
-              <EmptyState theme={theme} onOpenSidebar={handleOpenSidebar} />
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Extracted sub-components (defined outside main component to prevent re-renders)
-const MobilePanel = React.memo(
-  ({ title, onClose, theme, styles, children }) => (
-    <div
-      className={`lg:hidden rounded-xl shadow-lg mb-4 ${styles.border.primary} border ${styles.bg.primary}`}
-    >
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className={`font-bold ${styles.text.primary}`}>{title}</h3>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  ),
-);
-
-const DesktopPanel = React.memo(
-  ({ title, onClose, theme, styles, children }) => (
-    <div
-      className={`hidden lg:block rounded-xl p-6 mb-6 ${styles.border.primary} border ${styles.bg.primary} shadow-sm`}
-    >
-      <div className="flex items-center justify-between mb-6">
-        <h3 className={`text-lg font-bold ${styles.text.primary}`}>{title}</h3>
-        <button
-          onClick={onClose}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-        >
-          <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-        </button>
-      </div>
-      {children}
-    </div>
-  ),
-);
-
-const ProgressPanel = React.memo(({ title, theme, styles, children }) => (
-  <div className={`rounded-xl p-4 md:p-6 mb-6`}>
-    <div className="flex mb-6">
-      <h3 className={`text-base md:text-lg font-bold ${styles.text.primary}`}>
-        {title}
-      </h3>
-    </div>
-    {children}
+      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-violet-500 transition-all duration-700 ease-out"
+      style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+    />
   </div>
-));
-
-const VideoPlayer = React.memo(
-  ({
-    moduleDetails,
-    currentIndex,
-    totalModules,
-    hasPrevModule,
-    hasNextModule,
-    goToPreviousModule,
-    goToNextModule,
-    theme,
-    styles,
-    sanitizeHTML,
-  }) => {
-    const { getYouTubeEmbedUrl } = useYouTubeEmbedUrl({
-      fallbackUrl: "",
-      addPlayerParams: false,
-    });
-
-    return (
-      <>
-        <div
-          className={`rounded-xl overflow-hidden shadow-lg ${styles.bg.primary} mb-6`}
-        >
-          {moduleDetails.video_url ? (
-            <div className="relative aspect-video bg-black">
-              <iframe
-                className="w-full h-full"
-                src={getYouTubeEmbedUrl(moduleDetails.video_url)}
-                title={moduleDetails.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          ) : (
-            <div className="aspect-video bg-gray-900 flex items-center justify-center">
-              <Play className="w-16 h-16 text-white opacity-50" />
-              <p className="text-white mt-4">Video not available</p>
-            </div>
-          )}
-
-          <div className="p-6 lg:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      theme === "dark"
-                        ? "bg-blue-900/30 text-blue-400"
-                        : "bg-blue-100 text-blue-700"
-                    }`}
-                  >
-                    {moduleDetails.header_type}
-                  </span>
-                  <span className={`text-sm ${styles.text.muted}`}>
-                    Module {currentIndex + 1} of {totalModules}
-                  </span>
-                </div>
-                <h2
-                  className={`text-lg lg:text-xl font-bold ${styles.text.primary}`}
-                >
-                  {moduleDetails.title}
-                </h2>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={goToPreviousModule}
-                  disabled={!hasPrevModule}
-                  className={`p-3 rounded-lg transition-colors ${
-                    hasPrevModule
-                      ? theme === "dark"
-                        ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                      : theme === "dark"
-                        ? "bg-gray-800 text-gray-600 cursor-not-allowed"
-                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={goToNextModule}
-                  disabled={!hasNextModule}
-                  className={`p-3 rounded-lg transition-colors ${
-                    hasNextModule
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                      : theme === "dark"
-                        ? "bg-gray-800 text-gray-600 cursor-not-allowed"
-                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Fixed: Security fix for dangerouslySetInnerHTML */}
-            <div
-              className={styles.text.secondary}
-              dangerouslySetInnerHTML={{
-                __html: sanitizeHTML(moduleDetails.description),
-              }}
-            />
-          </div>
-        </div>
-      </>
-    );
-  },
 );
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 const Sidebar = React.memo(
   ({
@@ -866,73 +260,116 @@ const Sidebar = React.memo(
     expandedChapters,
     enrolledCourseDetails,
     totalModules,
+    currentIndex,
     theme,
-    styles,
-    formatDate,
-  }) => (
-    <div
-      className={`
-    ${sidebarOpen ? "fixed inset-0 z-50 bg-black bg-opacity-50 lg:static lg:bg-transparent" : "hidden lg:block"}
-  `}
-    >
-      <div
-        className={`
-      ${sidebarOpen ? "absolute inset-y-0 left-0 max-w-sm lg:relative min-w-[280px] w-[320px]" : "lg:relative min-w-[280px] w-[320px] max-w-[350px]"}
-      ${styles.bg.primary} ${styles.border.primary}
-      border rounded-xl lg:rounded-xl shadow-sm h-full lg:h-[calc(100vh-8rem)] overflow-hidden flex flex-col
-    `}
-      >
-        <div
-          className={`p-4 border-b ${styles.border.primary} flex items-center justify-between flex-shrink-0`}
+  }) => {
+    const progress =
+      totalModules > 0
+        ? Math.round(((currentIndex + 1) / totalModules) * 100)
+        : 0;
+
+    return (
+      <>
+        {/* Backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Panel */}
+        <aside
+          className={[
+            "flex flex-col flex-shrink-0 w-72 xl:w-80",
+            "lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start",
+            // Mobile: slide-in drawer
+            "fixed inset-y-0 left-0 z-50 lg:z-auto",
+            "transition-transform duration-300 ease-out",
+            sidebarOpen
+              ? "translate-x-0"
+              : "-translate-x-full lg:translate-x-0",
+            theme === "dark"
+              ? "bg-[#111118] border-r border-white/[0.07] lg:border lg:rounded-2xl"
+              : "bg-white border-r border-gray-200 lg:border lg:rounded-2xl shadow-sm",
+          ].join(" ")}
         >
-          <div className="flex items-center gap-3">
-            <div
-              className={`p-2 rounded-lg ${theme === "dark" ? "bg-blue-900/30" : "bg-blue-100"}`}
-            >
-              <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          {/* Header */}
+          <div
+            className={`px-4 pt-5 pb-4 border-b ${theme === "dark" ? "border-white/[0.06]" : "border-gray-100"}`}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center bg-blue-500/15`}
+                >
+                  <GraduationCap className="w-4 h-4 text-blue-400" />
+                </div>
+                <div>
+                  <p
+                    className={`text-xs font-semibold uppercase tracking-wider ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}
+                  >
+                    Course Content
+                  </p>
+                  <p
+                    className={`text-sm font-semibold mt-0.5 ${theme === "dark" ? "text-gray-200" : "text-gray-800"}`}
+                  >
+                    {totalModules} modules
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close sidebar"
+                className={`lg:hidden p-1.5 rounded-lg transition-colors ${theme === "dark" ? "hover:bg-white/[0.06] text-gray-500" : "hover:bg-gray-100 text-gray-500"}`}
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <div>
-              <h3 className={`font-bold ${styles.text.primary}`}>
-                Course Content
-              </h3>
-              <p className={`text-xs ${styles.text.muted}`}>
-                {totalModules} modules
-              </p>
+
+            {/* Progress */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span
+                  className={`text-xs ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}
+                >
+                  Your progress
+                </span>
+                <span
+                  className={`text-xs font-semibold ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+                >
+                  {progress}%
+                </span>
+              </div>
+              <ProgressBar value={progress} theme={theme} />
             </div>
           </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          </button>
-        </div>
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-2">
+          {/* Module list */}
+          <div className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
             {groupedModules.map((chapter) => {
               const hasChildren =
                 chapter.sections.length > 0 || chapter.directLessons.length > 0;
-              const isChapterExpanded = expandedChapters.has(chapter.id);
+              const isExpanded = expandedChapters.has(chapter.id);
 
               return (
-                <div key={chapter.id} className="mb-1">
+                <div key={chapter.id}>
                   <ModuleItem
                     module={chapter}
                     type="Chapter"
                     level={0}
                     hasChildren={hasChildren}
                     isSelected={selectedModuleId === chapter.id}
-                    isExpanded={isChapterExpanded}
+                    isExpanded={isExpanded}
                     theme={theme}
                     onSelect={handleModuleSelect}
                     onToggleChapter={toggleChapter}
                   />
 
-                  {isChapterExpanded && (
-                    <>
+                  {isExpanded && (
+                    <div className="mt-0.5 mb-1 space-y-0.5">
                       {chapter.sections.map((section) => (
-                        <div key={section.id} className="mb-1">
+                        <div key={section.id}>
                           <ModuleItem
                             module={section}
                             type="Section"
@@ -968,73 +405,621 @@ const Sidebar = React.memo(
                           onToggleChapter={toggleChapter}
                         />
                       ))}
-                    </>
+                    </div>
                   )}
                 </div>
               );
             })}
           </div>
-        </div>
 
-        <div className={`p-4 border-t ${styles.border.primary} flex-shrink-0`}>
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <span className={`text-sm ${styles.text.secondary}`}>
-                {enrolledCourseDetails.duration}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <span className={`text-sm ${styles.text.secondary}`}>
-                Enrolled {formatDate(enrolledCourseDetails.created_on)}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <ListVideo className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <span className={`text-sm ${styles.text.secondary}`}>
-                {totalModules} modules
-              </span>
+          {/* Footer meta */}
+          <div
+            className={`px-4 py-4 border-t ${theme === "dark" ? "border-white/[0.06]" : "border-gray-100"}`}
+          >
+            <div className="space-y-2">
+              {[
+                { icon: Clock, label: enrolledCourseDetails.duration },
+                {
+                  icon: Calendar,
+                  label: `Enrolled ${formatDate(enrolledCourseDetails.created_on)}`,
+                },
+                { icon: ListVideo, label: `${totalModules} modules total` },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-2.5">
+                  <Icon
+                    className={`w-3.5 h-3.5 flex-shrink-0 ${theme === "dark" ? "text-gray-600" : "text-gray-400"}`}
+                  />
+                  <span
+                    className={`text-xs ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}
+                  >
+                    {label}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
+        </aside>
+      </>
+    );
+  },
+);
+Sidebar.displayName = "Sidebar";
+
+// ─── VideoPlayer ──────────────────────────────────────────────────────────────
+
+const VideoPlayer = React.memo(
+  ({
+    moduleDetails,
+    currentIndex,
+    totalModules,
+    hasPrevModule,
+    hasNextModule,
+    goToPreviousModule,
+    goToNextModule,
+    theme,
+  }) => {
+    const { getYouTubeEmbedUrl } = useYouTubeEmbedUrl({
+      fallbackUrl: "",
+      addPlayerParams: false,
+    });
+
+    return (
+      <div
+        className={[
+          "rounded-2xl overflow-hidden mb-5",
+          theme === "dark"
+            ? "bg-[#111118] border border-white/[0.07]"
+            : "bg-white border border-gray-200 shadow-sm",
+        ].join(" ")}
+      >
+        {/* Video */}
+        <div className="relative aspect-video bg-black group">
+          {moduleDetails.video_url ? (
+            <iframe
+              className="w-full h-full"
+              src={getYouTubeEmbedUrl(moduleDetails.video_url)}
+              title={moduleDetails.title}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-gray-900 to-black">
+              <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
+                <Play className="w-7 h-7 text-white/60 ml-1" />
+              </div>
+              <p className="text-sm text-white/40">No video available</p>
+            </div>
+          )}
+        </div>
+
+        {/* Meta bar */}
+        <div className="px-5 py-4">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+            {/* Title + badge */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <span
+                  className={[
+                    "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold",
+                    theme === "dark"
+                      ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                      : "bg-blue-50 text-blue-600 border border-blue-200/80",
+                  ].join(" ")}
+                >
+                  <Layers className="w-3 h-3" />
+                  {moduleDetails.header_type}
+                </span>
+                <span
+                  className={`text-xs ${theme === "dark" ? "text-gray-600" : "text-gray-400"}`}
+                >
+                  {currentIndex + 1} / {totalModules}
+                </span>
+              </div>
+              <h2
+                className={`text-lg font-semibold leading-snug ${theme === "dark" ? "text-gray-100" : "text-gray-900"}`}
+              >
+                {moduleDetails.title}
+              </h2>
+            </div>
+
+            {/* Navigation */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={goToPreviousModule}
+                disabled={!hasPrevModule}
+                aria-label="Previous module"
+                className={[
+                  "w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60",
+                  hasPrevModule
+                    ? theme === "dark"
+                      ? "bg-white/[0.06] hover:bg-white/[0.1] text-gray-300"
+                      : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    : theme === "dark"
+                      ? "bg-white/[0.03] text-gray-700 cursor-not-allowed"
+                      : "bg-gray-50 text-gray-300 cursor-not-allowed",
+                ].join(" ")}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={goToNextModule}
+                disabled={!hasNextModule}
+                aria-label="Next module"
+                className={[
+                  "flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-medium transition-all duration-150",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60",
+                  hasNextModule
+                    ? "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20"
+                    : theme === "dark"
+                      ? "bg-white/[0.03] text-gray-700 cursor-not-allowed"
+                      : "bg-gray-50 text-gray-300 cursor-not-allowed",
+                ].join(" ")}
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Description */}
+          {moduleDetails.description && (
+            <div
+              className={`
+               mt-4 pt-4 border-t text-sm leading-relaxed prose prose-sm max-w-none
+               ${theme === "dark" ? "border-white/[0.06] text-gray-200 prose-invert" : "border-gray-100 text-gray-900"}
+              `}
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHTML(moduleDetails.description),
+              }}
+            />
+          )}
         </div>
       </div>
+    );
+  },
+);
+VideoPlayer.displayName = "VideoPlayer";
+
+// ─── SectionCard ─────────────────────────────────────────────────────────────
+
+const SectionCard = ({ icon: Icon, title, accent, children, theme }) => (
+  <div
+    className={[
+      "rounded-2xl overflow-hidden mb-5",
+      theme === "dark"
+        ? "bg-[#111118] border border-white/[0.07]"
+        : "bg-white border border-gray-200 shadow-sm",
+    ].join(" ")}
+  >
+    <div
+      className={`flex items-center gap-3 px-5 py-4 border-b ${theme === "dark" ? "border-white/[0.06]" : "border-gray-100"}`}
+    >
+      <div
+        className={`w-7 h-7 rounded-lg flex items-center justify-center ${accent.iconBg}`}
+      >
+        <Icon className={`w-3.5 h-3.5 ${accent.iconColor}`} />
+      </div>
+      <h3
+        className={`text-sm font-semibold ${theme === "dark" ? "text-gray-200" : "text-gray-800"}`}
+      >
+        {title}
+      </h3>
     </div>
-  ),
+    <div className="px-5 py-4">{children}</div>
+  </div>
 );
 
-const MobileQuickActions = React.memo(
-  ({ hasNextModule, goToNextModule, setSidebarOpen, theme, styles }) => (
+// ─── EmptyState ───────────────────────────────────────────────────────────────
+
+const EmptyState = ({ theme, onOpenSidebar }) => (
+  <div
+    className={[
+      "rounded-2xl p-12 text-center border",
+      theme === "dark"
+        ? "bg-[#111118] border-white/[0.07]"
+        : "bg-white border-gray-200 shadow-sm",
+    ].join(" ")}
+  >
     <div
-      className={`lg:hidden flex items-center justify-between mt-6 p-4 rounded-xl ${styles.bg.secondary}`}
+      className={`w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center ${theme === "dark" ? "bg-white/[0.05]" : "bg-gray-100"}`}
     >
-      <div className="flex items-center gap-4">
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className={`p-2 rounded-lg ${styles.bg.primary} shadow-sm`}
-        >
-          <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-        </button>
-        <div>
-          <p className={`text-sm ${styles.text.muted}`}>Next Module</p>
-          <p className={`font-medium ${styles.text.primary}`}>
-            {hasNextModule ? "Available" : "Course Complete"}
-          </p>
-        </div>
+      <BookOpen
+        className={`w-6 h-6 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}
+      />
+    </div>
+    <h3
+      className={`text-base font-semibold mb-1.5 ${theme === "dark" ? "text-gray-200" : "text-gray-900"}`}
+    >
+      Welcome to the Course
+    </h3>
+    <p
+      className={`text-sm mb-6 ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}
+    >
+      Select a module from the course content panel to begin learning.
+    </p>
+    <button
+      onClick={onOpenSidebar}
+      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
+    >
+      Browse Modules
+      <ArrowRight className="w-4 h-4" />
+    </button>
+  </div>
+);
+
+// ─── ErrorState ───────────────────────────────────────────────────────────────
+
+const ErrorState = ({ message, onRetry, theme }) => (
+  <div
+    className={`min-h-screen flex items-center justify-center ${theme === "dark" ? "bg-[#0a0a0f]" : "bg-gray-50"}`}
+  >
+    <div className="text-center max-w-sm px-4">
+      <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+        <span className="text-2xl">⚠️</span>
       </div>
-      <button
-        onClick={goToNextModule}
-        disabled={!hasNextModule}
-        className={`px-4 py-2 rounded-lg ${
-          hasNextModule
-            ? "bg-blue-600 hover:bg-blue-700 text-white"
-            : "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-        }`}
+      <h2
+        className={`text-lg font-semibold mb-2 ${theme === "dark" ? "text-gray-100" : "text-gray-900"}`}
       >
-        Next
+        Failed to load course
+      </h2>
+      <p
+        className={`text-sm mb-6 ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}
+      >
+        {message}
+      </p>
+      <button
+        onClick={onRetry}
+        className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+      >
+        Try again
       </button>
     </div>
-  ),
+  </div>
 );
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
+const EnrolledCourseDetails = () => {
+  const { courseId } = useParams();
+  const userId = useSelector((state) => state.auth.user?.user_id);
+
+  const {
+    enrolledCourseDetails,
+    moduleDetails,
+    isLoading,
+    error,
+    selectedModuleId,
+    setSelectedModuleId,
+    currentIndex,
+    totalModules,
+    goToPreviousModule,
+    goToNextModule,
+    hasPrevModule,
+    hasNextModule,
+  } = useEnrolledCourseDetails(courseId, userId);
+
+  const {
+    weekData,
+    isLoading: progressLoading,
+    error: progressError,
+  } = useUserProgressDetails(Number(courseId));
+
+  const { toolData } = useUserToolsDetails(Number(courseId));
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { theme } = useTheme();
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [expandedChapters, setExpandedChapters] = useState(() => new Set());
+
+  useEffect(() => {
+    if (error?.message === "Authorization token is missing.") {
+      dispatch(clearUserError());
+      navigate("/login");
+    }
+  }, [error, dispatch, navigate]);
+
+  const groupedModules = useMemo(() => {
+    if (!enrolledCourseDetails?.modules) return [];
+    const chapters = [];
+    let currentChapter = null;
+    let chapterIndex = 0;
+    let globalLessonIndex = 0;
+
+    enrolledCourseDetails.modules.forEach((module) => {
+      if (module.header_type === "Chapter") {
+        if (currentChapter) chapters.push(currentChapter);
+        chapterIndex++;
+        currentChapter = {
+          ...module,
+          chapterIndex,
+          sections: [],
+          directLessons: [],
+          isExpanded: expandedChapters.has(module.id),
+        };
+      } else if (module.header_type === "Section" && currentChapter) {
+        currentChapter.sections.push({ ...module, lessons: [] });
+      } else if (module.header_type === "Lesson" && currentChapter) {
+        globalLessonIndex++;
+        const lastSection =
+          currentChapter.sections[currentChapter.sections.length - 1];
+        if (lastSection) {
+          lastSection.lessons.push({
+            ...module,
+            lessonIndex: lastSection.lessons.length + 1,
+            globalIndex: globalLessonIndex,
+          });
+        } else {
+          currentChapter.directLessons.push({
+            ...module,
+            lessonIndex: currentChapter.directLessons.length + 1,
+            globalIndex: globalLessonIndex,
+          });
+        }
+      }
+    });
+    if (currentChapter) chapters.push(currentChapter);
+    return chapters;
+  }, [enrolledCourseDetails?.modules, expandedChapters]);
+
+  const toggleChapter = useCallback((chapterId) => {
+    setExpandedChapters((prev) => {
+      const next = new Set(prev);
+      next.has(chapterId) ? next.delete(chapterId) : next.add(chapterId);
+      return next;
+    });
+  }, []);
+
+  const handleModuleSelect = useCallback(
+    (moduleId) => {
+      setSelectedModuleId(moduleId);
+      if (window.innerWidth < 1024) setSidebarOpen(false);
+    },
+    [setSelectedModuleId],
+  );
+
+  const handleProgressSubmitSuccess = useCallback(() => {}, []);
+  const handleRetry = useCallback(() => window.location.reload(), []);
+
+  if (error)
+    return (
+      <ErrorState message={error.message} onRetry={handleRetry} theme={theme} />
+    );
+  if (!enrolledCourseDetails)
+    return (
+      <EmptyState theme={theme} onOpenSidebar={() => setSidebarOpen(true)} />
+    );
+
+  return (
+    <div
+      className={`min-h-screen transition-colors duration-300 ${theme === "dark" ? "bg-[#0a0a0f]" : "bg-[#f5f5f7]"}`}
+    >
+      {/* ── Top bar ─────────────────────────────────────────────────────── */}
+      <header
+        className={[
+          "sticky top-0 z-30 border-b backdrop-blur-xl",
+          theme === "dark"
+            ? "bg-[#0a0a0f]/90 border-white/[0.06]"
+            : "bg-white/90 border-gray-200/80",
+        ].join(" ")}
+      >
+        <div className="max-w-screen-xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+          {/* Left */}
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Toggle sidebar"
+              className={[
+                "lg:hidden p-2 rounded-lg transition-colors flex-shrink-0",
+                theme === "dark"
+                  ? "text-gray-400 hover:bg-white/[0.06]"
+                  : "text-gray-500 hover:bg-gray-100",
+              ].join(" ")}
+            >
+              <Menu className="w-4.5 h-4.5" />
+            </button>
+            <div className="min-w-0">
+              <h1
+                className={`text-sm sm:text-lg font-semibold truncate ${theme === "dark" ? "text-gray-200" : "text-gray-900"}`}
+              >
+                {enrolledCourseDetails.course_name}
+              </h1>
+              <p
+                className={`text-xs hidden sm:block ${theme === "dark" ? "text-gray-600" : "text-gray-400"}`}
+              >
+                Module {currentIndex + 1} of {totalModules}
+              </p>
+            </div>
+          </div>
+
+          {/* Right actions */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={() => setShowInfo(true)}
+              aria-label="Course information"
+              className={[
+                "flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium transition-colors",
+                theme === "dark"
+                  ? "bg-white/[0.06] hover:bg-white/[0.1] text-gray-400"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-600",
+              ].join(" ")}
+            >
+              <Info className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Info</span>
+            </button>
+            <button
+              onClick={() => setShowFeedback(true)}
+              aria-label="Leave feedback"
+              className={[
+                "flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium transition-colors",
+                theme === "dark"
+                  ? "bg-white/[0.06] hover:bg-white/[0.1] text-gray-400"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-600",
+              ].join(" ")}
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Feedback</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ── Body ────────────────────────────────────────────────────────── */}
+      <div className="max-w-screen-xl mx-auto px-4 py-6">
+        <div className="flex items-start gap-5">
+          {/* Sidebar */}
+          <Sidebar
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+            groupedModules={groupedModules}
+            selectedModuleId={selectedModuleId}
+            handleModuleSelect={handleModuleSelect}
+            toggleChapter={toggleChapter}
+            expandedChapters={expandedChapters}
+            enrolledCourseDetails={enrolledCourseDetails}
+            totalModules={totalModules}
+            currentIndex={currentIndex}
+            theme={theme}
+          />
+
+          {/* Main */}
+          <main className="flex-1 min-w-0">
+            {moduleDetails && currentIndex !== -1 ? (
+              <>
+                <VideoPlayer
+                  moduleDetails={moduleDetails}
+                  currentIndex={currentIndex}
+                  totalModules={totalModules}
+                  hasPrevModule={hasPrevModule}
+                  hasNextModule={hasNextModule}
+                  goToPreviousModule={goToPreviousModule}
+                  goToNextModule={goToNextModule}
+                  theme={theme}
+                />
+
+                <SectionCard
+                  icon={Sparkles}
+                  title="Today's Practice"
+                  theme={theme}
+                  accent={{
+                    iconBg: "bg-violet-500/10",
+                    iconColor: "text-violet-400",
+                  }}
+                >
+                  <ProgressPracticeForm
+                    theme={theme}
+                    courseId={Number(courseId)}
+                    isLoading={progressLoading}
+                    error={progressError}
+                    weekData={weekData}
+                    onSubmitSuccess={handleProgressSubmitSuccess}
+                  />
+                </SectionCard>
+
+                <SectionCard
+                  icon={Wrench}
+                  title="Today's Tools"
+                  theme={theme}
+                  accent={{
+                    iconBg: "bg-amber-500/10",
+                    iconColor: "text-amber-400",
+                  }}
+                >
+                  <ProgressToolsForm
+                    theme={theme}
+                    courseId={Number(courseId)}
+                    isLoading={progressLoading}
+                    error={progressError}
+                    toolData={toolData}
+                    onSubmitSuccess={handleProgressSubmitSuccess}
+                  />
+                </SectionCard>
+
+                {/* Mobile: next module CTA */}
+                <div
+                  className={[
+                    "lg:hidden flex items-center justify-between mt-2 p-4 rounded-2xl border",
+                    theme === "dark"
+                      ? "bg-[#111118] border-white/[0.07]"
+                      : "bg-white border-gray-200 shadow-sm",
+                  ].join(" ")}
+                >
+                  <div>
+                    <p
+                      className={`text-xs ${theme === "dark" ? "text-gray-600" : "text-gray-400"}`}
+                    >
+                      Up next
+                    </p>
+                    <p
+                      className={`text-sm font-medium mt-0.5 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+                    >
+                      {hasNextModule
+                        ? "Next module ready"
+                        : "Course complete 🎉"}
+                    </p>
+                  </div>
+                  <button
+                    onClick={goToNextModule}
+                    disabled={!hasNextModule}
+                    className={[
+                      "flex items-center gap-1.5 h-9 px-4 rounded-xl text-sm font-medium transition-colors",
+                      hasNextModule
+                        ? "bg-blue-600 hover:bg-blue-500 text-white"
+                        : theme === "dark"
+                          ? "bg-white/[0.04] text-gray-700 cursor-not-allowed"
+                          : "bg-gray-100 text-gray-400 cursor-not-allowed",
+                    ].join(" ")}
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <EmptyState
+                theme={theme}
+                onOpenSidebar={() => setSidebarOpen(true)}
+              />
+            )}
+          </main>
+        </div>
+      </div>
+
+      {/* ── SlideOvers ──────────────────────────────────────────────────── */}
+
+      <CustomDrawer
+        isOpen={showInfo}
+        onClose={() => setShowInfo(false)}
+        title="Course Information"
+      >
+        <CourseInfoContent
+          enrolledCourseDetails={enrolledCourseDetails}
+          textColor={{}}
+          theme={theme}
+        />
+      </CustomDrawer>
+
+      <CustomDrawer
+        isOpen={showFeedback}
+        onClose={() => setShowFeedback(false)}
+        title="Leave Feedback"
+      >
+        <FeedbackForm
+          theme={theme}
+          courseId={Number(courseId)}
+          enrollmentId={enrolledCourseDetails?.enrollment_id}
+          onSuccess={() => setShowFeedback(false)}
+        />
+      </CustomDrawer>
+    </div>
+  );
+};
 
 export default EnrolledCourseDetails;
