@@ -20,11 +20,10 @@ import EnrolledCourses from "@/pages/User/myCourses";
 import EnrolledCourseDetails from "@/pages/User/enrolledCourseDetails";
 import Footer from "@/components/footer/Footer";
 import UserLoggedOut from "@/pages/User/userLoggedOut";
-import MusicList from "@/pages/User/Homepage/components/getAllMusicList/MusicList";
 import BannerImage from "@/pages/User/Homepage/components/bannerImages/BannerImage";
 import Categories from "@/pages/User/Homepage/components/getAllCategories/Categories";
 import SubCategories from "@/pages/User/Homepage/components/getAllSubCategories/SubCategories";
-import MusicPlayer from "@/pages/User/Music/MusicPlayer";
+import MusicPlayer from "@/pages/User/Music/PlayerBar";
 import ForgotPassword from "@/pages/User/forgotPassword/ForgotPassword";
 import ChangePassword from "@/pages/User/changePassword/ChangePassword";
 import { ArrowLeft } from "lucide-react";
@@ -42,6 +41,7 @@ import CoachingDisclaimer from "@/pages/User/FooterLinks/Coaching Disclaimar/Coa
 import CopyrightNotice from "@/pages/User/FooterLinks/CopyrightNotice/CopyrightNotice";
 import FreeTrial from "@/pages/User/Homepage/components/FAQsSections/FreeTrial";
 import CourseCartDetails from "@/pages/User/PaymentDetails/CourseCartDetails";
+import MusicDetails from "@/pages/User/Homepage/components/getAllMusicList/MusicDetails";
 
 const UserRoutes = () => {
   const { theme } = useTheme();
@@ -89,7 +89,7 @@ const UserRoutes = () => {
             path="/categories/subcategories/:domain_name"
             element={<SubCategoriesPage />}
           />
-          <Route path="/musics" element={<MusicList />} />
+          <Route path="/musics" element={<MusicDetails />} />
           <Route path="/music/:musicId" element={<MusicPlayer />} />
           <Route path="/short-video" element={<DailyShorts />} />
 
@@ -116,7 +116,7 @@ const UserRoutes = () => {
             path="/enrolled-course/:courseId"
             element={<EnrolledCourseDetails />}
           />
-          
+
           <Route path="/cart/details" element={<CourseCartDetails />} />
 
           <Route path="/view-profile" element={<ViewProfile />} />
@@ -144,38 +144,7 @@ const UserRoutes = () => {
         <Footer />
       </div>
 
-      {/* Floating Action Buttons - Stacked vertically */}
-      <div className="fixed bottom-19 lg:bottom-6 right-0 lg:right-6 flex flex-col gap-2 z-50">
-        {/* Scroll to Top Button - shows when scrolled */}
-        {showScrollTop && (
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className={`p-2.5 lg:p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95 ${
-              theme === "dark"
-                ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white"
-                : "bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white"
-            }`}
-            aria-label="Scroll to top"
-          >
-            <ArrowLeft className="w-4 h-4 lg:w-5 lg:h-5 rotate-90" />
-          </button>
-        )}
-
-        {/* Back Button - shows when there's history and not on excluded pages */}
-        {showBackButton && (
-          <button
-            onClick={() => navigate(-1)}
-            className={`p-2.5 lg:p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95 ${
-              theme === "dark"
-                ? "bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white"
-                : "bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-700 border border-gray-300"
-            }`}
-            aria-label="Go back"
-          >
-            <ArrowLeft className="w-4 h-4 lg:w-5 lg:h-5" />
-          </button>
-        )}
-      </div>
+      
     </div>
   );
 };

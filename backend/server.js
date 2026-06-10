@@ -28,7 +28,17 @@ app.use(
 app.use(json({ limit: "100mb" }));
 app.use(urlencoded({ extended: true, limit: "100mb" }));
 
-app.use("/uploads", express.static("uploads"));
+// Express static middleware
+app.use(
+  "/uploads",
+  express.static("uploads", {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".mpeg") || filePath.endsWith(".mp3")) {
+        res.setHeader("Content-Type", "audio/mpeg");
+      }
+    },
+  }),
+);
 
 mainRoutes(app);
 

@@ -166,7 +166,6 @@ const DailyShorts = () => {
       <div className="relative z-10 pt-14 pb-8 px-5 sm:px-10 lg:px-16">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-            {/* Label + count */}
             <div className="space-y-1.5">
               <div className="flex items-center gap-2.5">
                 <span className="syne text-xs font-bold uppercase tracking-[0.2em] text-purple-500">

@@ -28,12 +28,12 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import "./animation.css";
-import MusicList from "./components/getAllMusicList/MusicList";
 import introVideo from "@/assets/intro.mp4";
 import DailyShorts from "./components/getAllDailyshorts/DailyShorts";
 import { useTranslation } from "react-i18next";
 import { philosophies, uspFeatures } from "./homepagedata";
 import { useInView, useReducedMotion, motion } from "framer-motion";
+import MusicDetails from "./components/getAllMusicList/MusicDetails";
 
 // Optimized noise overlay with hardware acceleration
 const NoiseOverlay = () => (
@@ -472,7 +472,7 @@ function Homepage() {
       {/* ══════════════════════════════════════  DAILY SHORTS SECTION ══════════════════════════════════════ */}
       <div
         className={`
-        relative border-t border-b transition-colors duration-300
+        relative transition-colors duration-300
         ${
           isDark
             ? "bg-gradient-to-b from-[#0a0a0f] via-[#0d0d18] to-[#0a0a0f] border-white/5"
@@ -484,7 +484,18 @@ function Homepage() {
       </div>
 
       {/* ══════════════════════════════════════  MUSIC SECTIONS - FIXED CONTAINER ══════════════════════════════════════ */}
-      <MusicList />
+      <div
+        className={`
+        relative border-t border-b transition-colors duration-300
+        ${
+          isDark
+            ? "bg-gradient-to-b from-[#0a0a0f] via-[#0d0d18] to-[#0a0a0f] border-white/5"
+            : "bg-gradient-to-b from-[#fafafa] via-white to-[#fafafa] border-black/5"
+        }
+      `}
+      >
+        <MusicDetails />
+      </div>
 
       {/* ══════════════════════════════════════  WHAT IS BRAHMALYF SECTION ══════════════════════════════════════ */}
       <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">

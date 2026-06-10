@@ -9,13 +9,12 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { useFeedback } from "../../useHomepage";
 import usePagination from "@/hooks";
 
 const Feedbacks = () => {
   const { theme } = useTheme();
   const { pageNo, setPageNo } = usePagination(1, 5);
-  const { allCoursesFeedback, loading, error } = useFeedback(pageNo, 5);
+  // const { allCoursesFeedback, loading, error } = useFeedback(pageNo, 5);
 
   const feedbacks = allCoursesFeedback?.feedbacks || [];
   const totalRecords = allCoursesFeedback?.total_records || 0;

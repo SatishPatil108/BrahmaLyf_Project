@@ -1,84 +1,82 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100..900&display=swap");
 
 @import "tailwindcss";
 @import "./animation.css";
 
-* {
+/* Theme */
+@theme {
+  --color-primary: #5044e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-light: #eef2ff;
+}
+
+/* Base */
+html,
+body {
   font-family: "Poppins", sans-serif;
 }
 
-@theme {
-  --color-primary: #5044e5;
-  --color-primary-dull: #5087d0;
-}
-
+/* Utilities */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
 .scrollbar-hide {
-  -ms-overflow-style: none;
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-img {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-}
-
-/* ─── Rich Text Editor ─────────────────────────────────────────── */
-
+/* Rich Text Editor */
 .rte-inner-editor:empty::before {
   content: attr(data-placeholder);
   color: #9ca3af;
   pointer-events: none;
 }
 
+.rte-inner-editor :is(h1, h2, h3) {
+  font-weight: 500;
+  margin: 0.4em 0;
+}
+
 .rte-inner-editor h1 {
   font-size: 1.6em;
-  font-weight: 500;
-  margin: 0.4em 0;
 }
+
 .rte-inner-editor h2 {
   font-size: 1.3em;
-  font-weight: 500;
-  margin: 0.4em 0;
 }
+
 .rte-inner-editor h3 {
   font-size: 1.1em;
-  font-weight: 500;
-  margin: 0.4em 0;
 }
 
-.rte-inner-editor blockquote {
-  border-left: 3px solid #7f77dd;
-  margin: 0.5em 0;
-  padding: 0.3em 1em;
-  color: #6b7280;
-}
+/* Range Slider */
+@layer utilities {
+  input[type="range"] {
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
 
-.rte-inner-editor pre {
-  background: #f3f4f6;
-  border-radius: 6px;
-  padding: 0.6em 1em;
-  font-family: monospace;
-  font-size: 0.9em;
-  overflow-x: auto;
-}
+  input[type="range"]::-webkit-slider-runnable-track,
+  input[type="range"]::-moz-range-track {
+    @apply bg-neutral-200 dark:bg-neutral-700 rounded-full;
+    height: 4px;
+  }
 
-.rte-inner-editor a {
-  color: #534ab7;
-}
-.rte-inner-editor ul,
-.rte-inner-editor ol {
-  padding-left: 1.5em;
-}
-.rte-inner-editor hr {
-  border: none;
-  border-top: 1px solid #e5e7eb;
-  margin: 1em 0;
-}
-.rte-inner-editor img {
-  max-width: 100%;
-  border-radius: 6px;
+  input[type="range"]::-webkit-slider-thumb,
+  input[type="range"]::-moz-range-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border: 0;
+    border-radius: 9999px;
+    background: var(--color-primary);
+    transition: transform 0.15s ease;
+  }
+
+  input[type="range"]:hover::-webkit-slider-thumb,
+  input[type="range"]:hover::-moz-range-thumb {
+    transform: scale(1.2);
+  }
 }

@@ -84,7 +84,9 @@ const initialState = {
   },
   enrolledCourseDetails: null,
   FAQsDetails: { faqs: [] },
+
   musicsDetails: {},
+
   shortVideosDetails: {},
   searchDetails: {},
   allCoursesFeedback: [],

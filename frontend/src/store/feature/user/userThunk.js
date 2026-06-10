@@ -144,7 +144,6 @@ export const fetchEnrolledCourseDetailsAPI = createAsyncThunk(
   },
 );
 
-
 // Fetch enrolled course details
 export const fetchModuleDetailsAPI = createAsyncThunk(
   "user/fetchModuleDetails",

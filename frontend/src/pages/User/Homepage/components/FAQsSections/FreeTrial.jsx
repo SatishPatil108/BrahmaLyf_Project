@@ -19,11 +19,11 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Link, useNavigate } from "react-router-dom";
-import { useFAQPage } from "../../useHomepage";
 import HtmlContent from "@/components/RichTextContent/HtmlContent";
 import TrialSection from "./TrialSection";
 import { assets } from "@/assets/assets";
 import EmpowermentCard from "./MessageQuote";
+import { useFAQPage } from "./useFAQPage";
 
 const PAGE_SIZE = 12;
 

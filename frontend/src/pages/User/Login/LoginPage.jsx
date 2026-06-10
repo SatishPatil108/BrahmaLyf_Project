@@ -1,18 +1,173 @@
 import React, { useState } from "react";
 import useLogin from "./useLogin";
 import { Link } from "react-router-dom";
-import {
-  LucideMail,
-  LucideLock,
-  Eye,
-  EyeOff,
-  Sparkles,
-  Mail,
-  Brain,
-  Zap,
-} from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Check, Eye, EyeOff, Lock, Mail } from "lucide-react";
+
+// ─── Theme token map ───────────────────────────────────────────────────────────
+
+const THEME = {
+  light: {
+    // Page
+    pageBg: "bg-gray-50",
+    // Card / surface
+    cardBg: "bg-white",
+    cardBorder: "border-gray-200",
+    // Typography
+    headingText: "text-gray-900",
+    bodyText: "text-gray-500",
+    labelText: "text-gray-700",
+    mutedText: "text-gray-400",
+    // Input
+    inputBg: "bg-white",
+    inputBorder: "border-gray-200",
+    inputHover: "hover:border-gray-300",
+    inputText: "text-gray-900",
+    inputPlaceholder: "placeholder-gray-400",
+    // Checkbox
+    checkboxUnchecked: "bg-white border-gray-300",
+    checkboxLabel: "text-gray-600",
+    // Divider
+    dividerLine: "bg-gray-200",
+    dividerText: "text-gray-400",
+    // Sign-up row
+    signupText: "text-gray-500",
+    signupLink: "text-gray-900 hover:text-violet-600",
+    // Trust text
+    trustText: "text-gray-400",
+    trustLink: "hover:text-gray-600",
+    // Error
+    errorBorder: "border-red-200",
+    errorBg: "bg-red-50",
+    errorText: "text-red-700",
+    // Misc
+    forgotLink: "text-violet-600 hover:text-violet-700",
+  },
+  dark: {
+    pageBg: "bg-gray-950",
+    cardBg: "bg-gray-900",
+    cardBorder: "border-gray-800",
+    headingText: "text-white",
+    bodyText: "text-gray-400",
+    labelText: "text-gray-300",
+    mutedText: "text-gray-500",
+    inputBg: "bg-gray-800/60",
+    inputBorder: "border-gray-700",
+    inputHover: "hover:border-gray-600",
+    inputText: "text-gray-100",
+    inputPlaceholder: "placeholder-gray-500",
+    checkboxUnchecked: "bg-gray-800 border-gray-600",
+    checkboxLabel: "text-gray-400",
+    dividerLine: "bg-gray-800",
+    dividerText: "text-gray-600",
+    signupText: "text-gray-400",
+    signupLink: "text-white hover:text-violet-400",
+    trustText: "text-gray-600",
+    trustLink: "hover:text-gray-400",
+    errorBorder: "border-red-800/60",
+    errorBg: "bg-red-900/20",
+    errorText: "text-red-300",
+    forgotLink: "text-violet-400 hover:text-violet-300",
+  },
+};
+
+// ─── InputField ────────────────────────────────────────────────────────────────
+
+const InputField = ({
+  id,
+  label,
+  type,
+  value,
+  onChange,
+  placeholder,
+  required,
+  icon: Icon,
+  rightSlot,
+  autoComplete,
+  t,
+}) => (
+  <div className="space-y-1.5">
+    <label htmlFor={id} className={`block text-sm font-medium ${t.labelText}`}>
+      {label}
+    </label>
+    <div className="relative group">
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+        <Icon
+          className={`w-[18px] h-[18px] ${t.mutedText} group-focus-within:text-violet-500 transition-colors duration-200`}
+        />
+      </div>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        autoComplete={autoComplete}
+        className={`
+          w-full rounded-xl border ${t.inputBorder} ${t.inputBg} ${t.inputHover}
+          pl-10 pr-10 py-3
+          text-sm ${t.inputText} ${t.inputPlaceholder}
+          outline-none transition-all duration-200
+          focus:border-violet-500 focus:ring-[3px] focus:ring-violet-500/10
+          focus:shadow-[0_0_0_1px_theme(colors.violet.500)]
+        `}
+      />
+      {rightSlot && (
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+          {rightSlot}
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+// ─── Checkbox ──────────────────────────────────────────────────────────────────
+
+const Checkbox = ({ id, checked, onChange, label, t }) => (
+  <label
+    htmlFor={id}
+    className="flex items-center gap-2.5 cursor-pointer select-none group"
+  >
+    <div className="relative flex-shrink-0">
+      <input
+        type="checkbox"
+        id={id}
+        checked={checked}
+        onChange={onChange}
+        className="sr-only"
+      />
+      <div
+        className={`
+        w-[18px] h-[18px] rounded-[5px] border transition-all duration-150
+        ${
+          checked
+            ? "bg-violet-600 border-violet-600"
+            : `${t.checkboxUnchecked} group-hover:border-violet-400`
+        }
+      `}
+      >
+        <AnimatePresence>
+          {checked && (
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex items-center justify-center w-full h-full"
+            >
+              <Check className="w-3 h-3 text-white" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+    <span className={`text-sm ${t.checkboxLabel}`}>{label}</span>
+  </label>
+);
+
+// ─── LoginPage ─────────────────────────────────────────────────────────────────
 
 const LoginPage = () => {
   const {
@@ -30,236 +185,198 @@ const LoginPage = () => {
   const { theme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
 
-  // Theme colors
-  const themeColors = {
-    dark: {
-      bg: "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900",
-      text: "text-gray-100",
-      mutedText: "text-gray-400",
-      accent: "from-purple-600 to-pink-500",
-      accentText:
-        "text-transparent bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text",
-      inputBg: "bg-gray-800/50 border-gray-700",
-      cardBg: "bg-gray-800/30 backdrop-blur-sm border border-gray-700",
-      placeholder: "placeholder-gray-500",
-      googleBtn: "bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700",
-      divider: "border-gray-700",
-      linearBg:
-        "bg-gradient-to-r from-purple-900/20 via-pink-900/10 to-gray-900/20",
-      featureBg: "bg-gray-800/40",
-    },
-    light: {
-      bg: "bg-gradient-to-br from-gray-50 via-white to-gray-100",
-      text: "text-gray-900",
-      mutedText: "text-gray-600",
-      accent: "from-purple-500 to-pink-400",
-      accentText:
-        "text-transparent bg-gradient-to-r from-purple-500 to-pink-400 bg-clip-text",
-      inputBg: "bg-white border-gray-300",
-      cardBg: "bg-white/70 backdrop-blur-sm border border-gray-200",
-      placeholder: "placeholder-gray-400",
-      googleBtn: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200",
-      divider: "border-gray-300",
-      linearBg: "bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50",
-      featureBg: "bg-white/80",
-    },
-  };
-
-  const colors = themeColors[theme] || themeColors.light;
-
-  // Features list for mobile view
-  const features = [
-    { icon: Brain, text: "Personalized Growth Paths" },
-    { icon: Zap, text: "Daily Mindfulness Exercises" },
-    { icon: Sparkles, text: "Progress Tracking" },
-  ];
+  const t = THEME[theme] ?? THEME.light;
 
   return (
-    <div
-      className={`flex min-h-screen transition-colors duration-300 ${colors.bg}`}
-    >
-      {/* --- Login Form --- */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="w-full  flex items-center justify-center p-4 sm:p-6 lg:p-8"
-      >
-        <div
-          className={`w-full max-w-md p-6 sm:p-8 lg:p-10 rounded-2xl shadow-xl ${colors.cardBg}`}
-        >
-          {/* Mobile Header */}
-          <div className="lg:hidden mb-8">
-            <div className="flex flex-col items-center text-center mb-8">
-              <div
-                className={`p-3 rounded-xl bg-gradient-to-r ${colors.accent} mb-4`}
+    <div className={`h-screen flex ${t.pageBg} overflow-hidden`}>
+      <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex items-center justify-center px-6 sm:px-10 overflow-y-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-[400px] py-10"
+          >
+            {/* ── Header ── */}
+            <div className="mb-8">
+              <h2
+                className={`text-2xl font-bold tracking-tight mb-1.5 ${t.headingText}`}
               >
-                <Brain className="w-8 h-8 text-white" />
-              </div>
-              <h1 className={`text-3xl font-bold ${colors.accentText}`}>
-                BrahmaLYF
-              </h1>
-              <p
-                className={`text-sm ${colors.mutedText} uppercase tracking-wider mt-1`}
-              >
-                Transform Your Life
-              </p>
-            </div>
-
-            <div className="text-center mb-6">
-              <h2 className={`text-2xl font-bold ${colors.text} mb-2`}>
-                Welcome Back
+                Welcome back
               </h2>
-              <p className={`text-sm ${colors.mutedText}`}>
+              <p className={`text-sm ${t.bodyText}`}>
                 Sign in to continue your journey
               </p>
             </div>
-          </div>
 
-          {/* Desktop Header */}
-          <div className="hidden lg:block mb-8">
-            <h2 className={`text-3xl font-bold ${colors.text} mb-2`}>
-              Sign In to Your Account
-            </h2>
-            <p className={`text-sm ${colors.mutedText}`}>
-              Enter your credentials to access your personalized dashboard
-            </p>
-          </div>
+            {/* ── Form ── */}
+            <form onSubmit={handleLogin} noValidate className="space-y-5">
+              <InputField
+                id="email"
+                label="Email address"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                icon={Mail}
+                autoComplete="email"
+                t={t}
+              />
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            {/* Email Field */}
-            <div className="space-y-2">
-              <label className={`text-sm font-medium ${colors.text}`}>
-                Email Address
-              </label>
-              <div
-                className={`flex items-center rounded-xl ${colors.inputBg} border px-4 py-3.5 focus-within:ring-2 focus-within:ring-purple-500 transition-all`}
-              >
-                <LucideMail className={`w-5 h-5 ${colors.mutedText} mr-3`} />
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={`flex-1 bg-transparent outline-none ${colors.text} ${colors.placeholder} text-sm sm:text-base`}
-                  required
+              <InputField
+                id="password"
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+                icon={Lock}
+                autoComplete="current-password"
+                t={t}
+                rightSlot={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    className={`${t.mutedText} hover:text-gray-600 transition-colors duration-150 p-0.5 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500/40`}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-[18px] h-[18px]" />
+                    ) : (
+                      <Eye className="w-[18px] h-[18px]" />
+                    )}
+                  </button>
+                }
+              />
+
+              {/* Remember me + forgot */}
+              <div className="flex items-center justify-between pt-0.5">
+                <Checkbox
+                  id="remember"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  label="Keep me signed in"
+                  t={t}
                 />
-              </div>
-            </div>
-
-            {/* Password Field */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className={`text-sm font-medium ${colors.text}`}>
-                  Password
-                </label>
                 <Link
                   to="/forgot-password"
-                  className={`text-xs font-medium ${colors.accentText} hover:underline`}
+                  className={`text-sm font-medium transition-colors duration-150 ${t.forgotLink}`}
                 >
-                  Forgot Password?
+                  Forgot password?
                 </Link>
               </div>
-              <div
-                className={`flex items-center rounded-xl ${colors.inputBg} border px-3 sm:px-4 py-3 sm:py-3.5 focus-within:ring-2 focus-within:ring-purple-500 transition-all`}
-              >
-                <LucideLock
-                  className={`w-5 h-5 ${colors.mutedText} mr-2 sm:mr-3 shrink-0`}
-                />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={`flex-1 min-w-0 bg-transparent outline-none ${colors.text} ${colors.placeholder} text-sm sm:text-base`}
-                  required
-                />
+
+              {/* Error */}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    role="alert"
+                    initial={{ opacity: 0, y: -8, height: 0 }}
+                    animate={{ opacity: 1, y: 0, height: "auto" }}
+                    exit={{ opacity: 0, y: -8, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className={`rounded-xl border px-4 py-3 ${t.errorBorder} ${t.errorBg}`}
+                  >
+                    <p className={`text-sm font-medium ${t.errorText}`}>
+                      {error?.message ||
+                        "Incorrect email or password. Please try again."}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Submit */}
+              <div className="pt-1">
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className={`p-1 ${colors.mutedText} hover:text-purple-500 transition-colors shrink-0 ml-1 sm:ml-2`}
+                  type="submit"
+                  disabled={loading}
+                  className="
+                    relative w-full py-3 px-6 rounded-xl
+                    bg-violet-600 hover:bg-violet-700
+                    text-white text-sm font-semibold
+                    transition-all duration-200
+                    hover:shadow-lg hover:shadow-violet-500/25
+                    active:scale-[0.98]
+                    disabled:opacity-60 disabled:cursor-not-allowed
+                    disabled:hover:scale-100 disabled:hover:shadow-none
+                    focus:outline-none focus:ring-[3px] focus:ring-violet-500/40
+                  "
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2.5">
+                      <svg
+                        className="w-4 h-4 animate-spin"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <circle
+                          cx="8"
+                          cy="8"
+                          r="6"
+                          stroke="currentColor"
+                          strokeOpacity="0.25"
+                          strokeWidth="2.5"
+                        />
+                        <path
+                          d="M14 8a6 6 0 0 0-6-6"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      Signing in…
+                    </span>
                   ) : (
-                    <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+                    "Sign in"
                   )}
                 </button>
               </div>
+            </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 my-6">
+              <div className={`flex-1 h-px ${t.dividerLine}`} />
+              <span className={`text-xs font-medium ${t.dividerText}`}>or</span>
+              <div className={`flex-1 h-px ${t.dividerLine}`} />
             </div>
 
-            {/* Remember Me */}
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="remember"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className={`w-4 h-4 rounded mr-2 ${
-                  theme === "dark"
-                    ? "bg-gray-700 border-gray-600"
-                    : "bg-gray-100 border-gray-300"
-                }`}
-              />
-              <label
-                htmlFor="remember"
-                className={`text-sm ${colors.mutedText}`}
+            {/* Sign-up */}
+            <p className={`text-center text-sm ${t.signupText}`}>
+              New to BrahmaLYF?{" "}
+              <Link
+                to="/register"
+                className={`font-semibold transition-colors duration-150 ${t.signupLink}`}
               >
-                Remember me for 30 days
-              </label>
-            </div>
+                Create a free account →
+              </Link>
+            </p>
 
-            {/* Error Message */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`p-4 rounded-lg ${
-                  theme === "dark"
-                    ? "bg-red-900/20 text-red-300 border border-red-800"
-                    : "bg-red-50 text-red-600 border border-red-200"
-                }`}
+            {/* Trust */}
+            <p className={`text-center text-xs mt-8 ${t.trustText}`}>
+              By signing in, you agree to our{" "}
+              <Link
+                to="/terms"
+                className={`underline underline-offset-2 transition-colors ${t.trustLink}`}
               >
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                  <span className="text-sm font-medium">
-                    {error.message || "Invalid credentials. Please try again."}
-                  </span>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full py-4 px-6 bg-gradient-to-r ${colors.accent} text-white font-semibold rounded-xl transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/20 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100`}
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Signing in...
-                </span>
-              ) : (
-                "Sign In"
-              )}
-            </button>
-
-            {/* Sign Up Link */}
-            <div className="text-center pt-6">
-              <p className={`text-sm ${colors.mutedText}`}>
-                Don't have an account?{" "}
-                <Link
-                  to="/register"
-                  className={`font-semibold ${colors.accentText} hover:underline transition-all`}
-                >
-                  Create account
-                </Link>
-              </p>
-            </div>
-          </form>
+                Terms
+              </Link>{" "}
+              and{" "}
+              <Link
+                to="/privacy"
+                className={`underline underline-offset-2 transition-colors ${t.trustLink}`}
+              >
+                Privacy Policy
+              </Link>
+              .
+            </p>
+          </motion.div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
